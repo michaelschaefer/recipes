@@ -24,7 +24,24 @@ void RecipeTabWidget::addRecipe(RecipeEdit* recipeEdit) {
 }
 
 
-void RecipeTabWidget::closeTab(int index) {
+bool RecipeTabWidget::closeCurrentTab() {
+    return closeTab(currentIndex());
+}
+
+
+void RecipeTabWidget::closeAllTabs() {
+    if (count() == 0)
+        return;
+
+    setCurrentIndex(0);
+    while (count() > 0) {
+        if (closeCurrentTab() == false)
+            break;
+    }
+}
+
+
+bool RecipeTabWidget::closeTab(int index) {
     RecipeEdit* edit = m_recipes[index];
 
     if (edit->hasUnsavedChanges()) {
@@ -41,16 +58,17 @@ void RecipeTabWidget::closeTab(int index) {
 
         int ret = question.exec();
         if (ret == QMessageBox::Cancel)
-            return;
+            return false;
         else if (ret == QMessageBox::Yes)
             if (edit->save() == false)
-                return;
+                return false;
     }
 
     removeTab(index);
     m_recipes.removeAll(edit);
     delete edit;
     edit = 0;
+    return true;
 }
 
 
@@ -92,6 +110,29 @@ void RecipeTabWidget::recipeChanged(RecipeEdit *recipeEdit) {
     int index = indexOf(recipeEdit);
     if (index != -1) {
         setTabText(index, recipeEdit->filename(false) + " (*)");
+    }
+}
+
+
+void RecipeTabWidget::saveAllTabs() {
+    if (count() == 0)
+        return;
+
+    for (int i = 0; i < count(); ++i) {
+        setCurrentIndex(i);
+        if (saveCurrentTab() == false)
+            break;
+    }
+}
+
+
+bool RecipeTabWidget::saveCurrentTab() {
+    if (m_recipes[currentIndex()]->save() == false) {
+        QMessageBox::critical(this, trUtf8("Save Failed"), trUtf8("Error while saving recipe!"));
+        return false;
+    } else {
+        updateTabTexts();
+        return true;
     }
 }
 

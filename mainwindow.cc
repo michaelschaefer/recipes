@@ -67,8 +67,10 @@ void MainWindow::closeEvent(QCloseEvent* event) {
             QString text = trUtf8("There are unsaved changes! Are you sure you want to quit?");
             if (QMessageBox::question(this, title, text) == QMessageBox::Yes) {
                 event->accept();
+                break;
             } else {
                 event->ignore();
+                break;
             }
         }
     }
@@ -110,6 +112,16 @@ void MainWindow::editServingCount() {
 }
 
 
+void MainWindow::fileClose() {
+    m_tabWidget->closeCurrentTab();
+}
+
+
+void MainWindow::fileCloseAll() {
+    m_tabWidget->closeAllTabs();
+}
+
+
 void MainWindow::fileNew() {    
     m_tabWidget->newRecipe();
 }
@@ -121,8 +133,16 @@ void MainWindow::fileOpen() {
 
 
 void MainWindow::fileSave() {
-    m_currentRecipe->save();
-    m_tabWidget->updateTabTexts();
+    m_tabWidget->saveCurrentTab();
+}
+
+
+void MainWindow::fileSaveAll() {
+    m_tabWidget->saveAllTabs();
+}
+
+
+void MainWindow::fileSaveAs() {
 }
 
 
@@ -163,24 +183,42 @@ void MainWindow::setupMenuEdit() {
 void MainWindow::setupMenuFile() {
     m_menuFile = new QMenu(trUtf8("&File"), menuBar());
 
+    m_actionClose = new QAction(trUtf8("Close"), m_menuFile);
+    m_actionCloseAll = new QAction(trUtf8("Close All"), m_menuFile);
     m_actionNew = new QAction(trUtf8("&New"), m_menuFile);
     m_actionOpen = new QAction(trUtf8("&Open"), m_menuFile);
     m_actionQuit = new QAction(trUtf8("&Quit"), m_menuFile);
-    m_actionSave = new QAction(trUtf8("&Save"), m_menuFile);
+    m_actionSave = new QAction(trUtf8("&Save"), m_menuFile);    
+    m_actionSaveAll = new QAction(trUtf8("Save All"), m_menuFile);
+    m_actionSaveAs = new QAction(trUtf8("Save As"), m_menuFile);
 
+    m_actionClose->setShortcut(Qt::CTRL + Qt::Key_W);
+    m_actionCloseAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);
     m_actionNew->setShortcut(Qt::CTRL + Qt::Key_N);
     m_actionOpen->setShortcut(Qt::CTRL + Qt::Key_O);
     m_actionQuit->setShortcut(Qt::CTRL + Qt::Key_Q);        
     m_actionSave->setShortcut(Qt::CTRL + Qt::Key_S);
+    m_actionSaveAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_S);
 
+    connect(m_actionClose, SIGNAL(triggered()), this, SLOT(fileClose()));
+    connect(m_actionCloseAll, SIGNAL(triggered()), this, SLOT(fileCloseAll()));
     connect(m_actionNew, SIGNAL(triggered()), this, SLOT(fileNew()));
     connect(m_actionOpen, SIGNAL(triggered()), this, SLOT(fileOpen()));
     connect(m_actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-    connect(m_actionSave, SIGNAL(triggered()), this, SLOT(fileSave()));
+    connect(m_actionSave, SIGNAL(triggered()), this, SLOT(fileSave()));    
+    connect(m_actionSaveAll, SIGNAL(triggered()), this, SLOT(fileSaveAll()));
+    connect(m_actionSaveAs, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
 
     m_menuFile->addAction(m_actionNew);
     m_menuFile->addAction(m_actionOpen);
+    m_menuFile->addSeparator();
     m_menuFile->addAction(m_actionSave);
+    m_menuFile->addAction(m_actionSaveAs);
+    m_menuFile->addAction(m_actionSaveAll);
+    m_menuFile->addSeparator();
+    m_menuFile->addAction(m_actionClose);
+    m_menuFile->addAction(m_actionCloseAll);
+    m_menuFile->addSeparator();
     m_menuFile->addAction(m_actionQuit);    
 
     menuBar()->addMenu(m_menuFile);
