@@ -180,6 +180,16 @@ bool RecipeEdit::hasUnsavedChanges() {
 }
 
 
+RecipeData RecipeEdit::recipeData() {
+    RecipeData recipeData;
+    recipeData.setHeadline(m_headline->text());
+    recipeData.setIngredientList(m_ingredients->data());
+    recipeData.setPreparationStepList(m_preparation->data());
+    recipeData.setServingCount(m_ingredients->servingCount());
+    return recipeData;
+}
+
+
 bool RecipeEdit::save() {
     if (hasUnsavedChanges() == false)
         return true;

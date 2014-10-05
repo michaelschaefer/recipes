@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -24,7 +24,9 @@ SOURCES += main.cc \
     sectionedit.cc \
     preparationstepedit.cc \
     preparationstepdialog.cc \
-    recipetabwidget.cc
+    recipetabwidget.cc \
+    exportwidget.cc \
+    recipedata.cc
 
 HEADERS  += mainwindow.hh \
     recipeedit.hh \
@@ -37,7 +39,9 @@ HEADERS  += mainwindow.hh \
     sectionedit.hh \
     preparationstepedit.hh \
     preparationstepdialog.hh \
-    recipetabwidget.hh
+    recipetabwidget.hh \
+    exportwidget.hh \
+    recipedata.hh
 
 RESOURCES += \
     recipes.qrc

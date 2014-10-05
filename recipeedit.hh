@@ -8,6 +8,7 @@
 #include <QWidget>
 #include "ingredientlistedit.hh"
 #include "preparationlistedit.hh"
+#include "recipedata.hh"
 
 
 class RecipeEdit : public QWidget {
@@ -27,6 +28,7 @@ public:
     QString filename(bool withPath=true);
     bool fromXml(QString filename);
     bool hasUnsavedChanges();
+    RecipeData recipeData();
     bool save();
 
 

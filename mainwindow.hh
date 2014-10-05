@@ -35,8 +35,10 @@ public slots:
     void editServingCount();
     void fileClose();
     void fileCloseAll();
+    void fileExport();
     void fileNew();
     void fileOpen();
+    void filePrint();
     void fileSave();
     void fileSaveAs();
     void fileSaveAll();
@@ -59,11 +61,13 @@ private:
     QAction* m_actionAboutQt;
     QAction* m_actionClose;
     QAction* m_actionCloseAll;
+    QAction* m_actionExport;
     QAction* m_actionHeadline;
     QAction* m_actionIngredient;
     QAction* m_actionNew;
     QAction* m_actionOpen;
     QAction* m_actionPreparationStep;
+    QAction* m_actionPrint;
     QAction* m_actionQuit;
     QAction* m_actionSave;
     QAction* m_actionSaveAs;

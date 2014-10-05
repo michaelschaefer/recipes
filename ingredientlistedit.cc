@@ -92,6 +92,11 @@ void IngredientListEdit::editServingCount() {
 }
 
 
+QString IngredientListEdit::servingCount() {
+    return m_servingCount;
+}
+
+
 void IngredientListEdit::triggerChanged() {
     emit changed();
 }

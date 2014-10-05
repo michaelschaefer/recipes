@@ -33,6 +33,7 @@ public:
     void addSection(QString sectionName);
     IngredientListEdit::DataType data();
     void editServingCount();
+    QString servingCount();
 
 
 private slots:

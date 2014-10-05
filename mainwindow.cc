@@ -1,5 +1,6 @@
 #include <QMenuBar>
 #include <QMessageBox>
+#include "exportwidget.hh"
 #include "mainwindow.hh"
 
 
@@ -122,6 +123,10 @@ void MainWindow::fileCloseAll() {
 }
 
 
+void MainWindow::fileExport() {
+}
+
+
 void MainWindow::fileNew() {    
     m_tabWidget->newRecipe();
 }
@@ -129,6 +134,14 @@ void MainWindow::fileNew() {
 
 void MainWindow::fileOpen() {
     m_tabWidget->openRecipe();
+}
+
+
+void MainWindow::filePrint() {
+    if (m_currentRecipe != 0) {
+        ExportWidget exportWidget(m_currentRecipe->recipeData(), this);
+        exportWidget.print();
+    }
 }
 
 
@@ -185,25 +198,30 @@ void MainWindow::setupMenuFile() {
 
     m_actionClose = new QAction(trUtf8("Close"), m_menuFile);
     m_actionCloseAll = new QAction(trUtf8("Close All"), m_menuFile);
+    m_actionExport = new QAction(trUtf8("&Export as PDF"), m_menuFile);
     m_actionNew = new QAction(trUtf8("&New"), m_menuFile);
     m_actionOpen = new QAction(trUtf8("&Open"), m_menuFile);
+    m_actionPrint = new QAction(trUtf8("&Print"), m_menuFile);
     m_actionQuit = new QAction(trUtf8("&Quit"), m_menuFile);
     m_actionSave = new QAction(trUtf8("&Save"), m_menuFile);    
     m_actionSaveAll = new QAction(trUtf8("Save All"), m_menuFile);
     m_actionSaveAs = new QAction(trUtf8("Save As"), m_menuFile);
 
     m_actionClose->setShortcut(Qt::CTRL + Qt::Key_W);
-    m_actionCloseAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);
+    m_actionCloseAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);    
     m_actionNew->setShortcut(Qt::CTRL + Qt::Key_N);
     m_actionOpen->setShortcut(Qt::CTRL + Qt::Key_O);
+    m_actionPrint->setShortcut(Qt::CTRL + Qt::Key_P);
     m_actionQuit->setShortcut(Qt::CTRL + Qt::Key_Q);        
     m_actionSave->setShortcut(Qt::CTRL + Qt::Key_S);
     m_actionSaveAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_S);
 
     connect(m_actionClose, SIGNAL(triggered()), this, SLOT(fileClose()));
     connect(m_actionCloseAll, SIGNAL(triggered()), this, SLOT(fileCloseAll()));
+    connect(m_actionExport, SIGNAL(triggered()), this, SLOT(fileExport()));
     connect(m_actionNew, SIGNAL(triggered()), this, SLOT(fileNew()));
     connect(m_actionOpen, SIGNAL(triggered()), this, SLOT(fileOpen()));
+    connect(m_actionPrint, SIGNAL(triggered()), this, SLOT(filePrint()));
     connect(m_actionQuit, SIGNAL(triggered()), this, SLOT(close()));
     connect(m_actionSave, SIGNAL(triggered()), this, SLOT(fileSave()));    
     connect(m_actionSaveAll, SIGNAL(triggered()), this, SLOT(fileSaveAll()));
@@ -218,6 +236,9 @@ void MainWindow::setupMenuFile() {
     m_menuFile->addSeparator();
     m_menuFile->addAction(m_actionClose);
     m_menuFile->addAction(m_actionCloseAll);
+    m_menuFile->addSeparator();
+    m_menuFile->addAction(m_actionExport);
+    m_menuFile->addAction(m_actionPrint);
     m_menuFile->addSeparator();
     m_menuFile->addAction(m_actionQuit);    
 

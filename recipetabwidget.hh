@@ -30,10 +30,14 @@ public slots:
     void saveAllTabs();
 
 
+private slots:
+
+    bool closeTab(int index);
+
+
 private:
 
-    void addRecipe(RecipeEdit* recipeEdit);
-    bool closeTab(int index);
+    void addRecipe(RecipeEdit* recipeEdit);    
 
     QList<RecipeEdit*> m_recipes;
 
