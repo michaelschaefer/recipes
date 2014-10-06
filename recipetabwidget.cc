@@ -45,7 +45,7 @@ bool RecipeTabWidget::closeTab(int index) {
     RecipeEdit* edit = m_recipes[index];
 
     if (edit->hasUnsavedChanges()) {
-        QString title = trUtf8("Close Recipe");
+        QString title = trUtf8("Close recipe");
         QString text = trUtf8("Save changes?");
         QMessageBox question(this);
         question.setWindowTitle(title);
@@ -79,7 +79,7 @@ void RecipeTabWidget::newRecipe() {
 
 
 void RecipeTabWidget::openRecipe() {
-    QString caption = trUtf8("Open Recipe");
+    QString caption = trUtf8("Open recipe");
     QString dir = QDir::homePath();
     QString filter = trUtf8("Recipe files (*.xml)");
 
@@ -98,7 +98,7 @@ void RecipeTabWidget::openRecipe() {
         if (recipeEdit->fromXml(filename) == true) {
             addRecipe(recipeEdit);
         } else {
-            QMessageBox::critical(this, trUtf8("Open Failed"), trUtf8("Error while loading recipe!"));
+            QMessageBox::critical(this, trUtf8("Open failed"), trUtf8("Error while loading recipe!"));
             delete recipeEdit;
             recipeEdit = 0;
         }
@@ -127,8 +127,7 @@ void RecipeTabWidget::saveAllTabs() {
 
 
 bool RecipeTabWidget::saveCurrentTab() {
-    if (m_recipes[currentIndex()]->save() == false) {
-        QMessageBox::critical(this, trUtf8("Save Failed"), trUtf8("Error while saving recipe!"));
+    if (m_recipes[currentIndex()]->save() == false) {        
         return false;
     } else {
         updateTabTexts();

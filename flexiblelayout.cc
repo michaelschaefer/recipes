@@ -3,7 +3,7 @@
 
 FlexibleLayout::FlexibleLayout(QWidget* parent) {
     m_layout = new QGridLayout(parent);
-    m_empty = new QLabel(trUtf8("no entries yet"), this);
+    m_empty = new QLabel(trUtf8("No entries yet"), this);
     m_layout->addWidget(m_empty, 0, 0);
 }
 
@@ -52,7 +52,7 @@ void FlexibleLayout::remove(WidgetInterface* widget) {
     }        
 
     if (m_widgets.size() == 0) {
-        m_empty = new QLabel(trUtf8("no entries yet"), this);
+        m_empty = new QLabel(trUtf8("No entries yet"), this);
         m_layout->addWidget(m_empty, 0, 0);
     }
 }

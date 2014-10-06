@@ -14,7 +14,7 @@ RecipeEdit::RecipeEdit(QWidget *parent)
 
     m_unsavedChanges = true;
 
-    m_headline = new QLabel(trUtf8("<unnamed>"), this);
+    m_headline = new QLabel(trUtf8("unnamed"), this);
     m_headline->setAlignment(Qt::AlignHCenter);
     m_headline->setFont(m_h1Font);
 
@@ -51,7 +51,7 @@ void RecipeEdit::editHeadline() {
     bool okay;
     QString label = trUtf8("Input new headline for the recipe:");
     QString text = m_headline->text().replace("\n", "\\n");
-    QString title = trUtf8("Edit Headline");    
+    QString title = trUtf8("Edit headline");
 
     QString headline = QInputDialog::getText(this, title, label, QLineEdit::Normal, text, &okay);
     if (okay == true && headline != m_headline->text()) {
@@ -195,7 +195,7 @@ bool RecipeEdit::save() {
         return true;
 
     if (m_filename.isEmpty()) {
-        QString caption = trUtf8("Save Recipe");
+        QString caption = trUtf8("Save recipe");
         QString dir = QDir::homePath();
         QString filter = trUtf8("Recipe files (*.xml)");
         QString filename = QFileDialog::getSaveFileName(this, caption, dir, filter);

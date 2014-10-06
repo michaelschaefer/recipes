@@ -2,6 +2,7 @@
 #define EXPORTWIDGET_HH
 
 
+#include <QPrinter>
 #include <QTextEdit>
 #include "recipedata.hh"
 
@@ -14,7 +15,12 @@ class ExportWidget : public QTextEdit {
 public:
 
     ExportWidget(RecipeData recipeData, QWidget* parent = 0);
-    void print();
+    void print(bool toPdf = false);
+
+
+private slots:
+
+    void printDocument(QPrinter* printer);
 
 
 private:

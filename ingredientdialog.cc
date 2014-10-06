@@ -4,7 +4,7 @@
 IngredientDialog::IngredientDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(trUtf8("Add Ingredient"));
+    setWindowTitle(trUtf8("Add ingredient"));
 
     m_amountEdit = new QLineEdit(this);
     m_amountEdit->setFocus();
@@ -36,7 +36,7 @@ QString IngredientDialog::amount() {
 
 
 QString IngredientDialog::name() {
-    return m_nameEdit->text();
+    return m_nameEdit->text().replace("\\t", "\t");
 }
 
 
@@ -46,7 +46,7 @@ void IngredientDialog::setAmount(QString amount) {
 
 
 void IngredientDialog::setName(QString name) {
-    m_nameEdit->setText(name);
+    m_nameEdit->setText(name.replace("\t", "\\t"));
 }
 
 

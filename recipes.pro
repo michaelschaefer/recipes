@@ -43,5 +43,6 @@ HEADERS  += mainwindow.hh \
     exportwidget.hh \
     recipedata.hh
 
-RESOURCES += \
-    recipes.qrc
+RESOURCES += recipes.qrc
+
+TRANSLATIONS += ts/recipes_de.ts

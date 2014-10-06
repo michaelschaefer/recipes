@@ -12,7 +12,7 @@ SectionEdit::SectionEdit(QWidget* parent)
 
 void SectionEdit::edit() {
     bool okay;
-    QString title = trUtf8("Edit Section Name");
+    QString title = trUtf8("Edit section name");
     QString label = trUtf8("Input new name of section:");
     QString text = m_text->text();
 

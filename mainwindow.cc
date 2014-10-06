@@ -21,7 +21,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_currentRecipe = 0;
 
     setCentralWidget(m_splitter);
-    setWindowIcon(QIcon(":/img/recipes"));
+    setWindowIcon(QIcon(":/img/recipes"));       
+    showMaximized();
 }
 
 
@@ -124,6 +125,10 @@ void MainWindow::fileCloseAll() {
 
 
 void MainWindow::fileExport() {
+    if (m_currentRecipe != 0) {
+        ExportWidget exportWidget(m_currentRecipe->recipeData(), this);
+        exportWidget.print(true);
+    }
 }
 
 
@@ -163,11 +168,11 @@ void MainWindow::setupMenuEdit() {
     m_menuEdit = new QMenu(trUtf8("&Edit"), menuBar());
     m_menuEditIngredients = new QMenu(trUtf8("&Ingredients"), m_menuEdit);
 
-    m_actionHeadline = new QAction(trUtf8("Edit &Headline"), m_menuEdit);
-    m_actionIngredient = new QAction(trUtf8("Add &Ingredient"), m_menuEditIngredients);
-    m_actionPreparationStep = new QAction(trUtf8("Add &Preparation Step"), m_menuEdit);
-    m_actionSection = new QAction(trUtf8("Add &Section"), m_menuEditIngredients);
-    m_actionServingCount = new QAction(trUtf8("Edit Serving &Count"), m_menuEditIngredients);
+    m_actionHeadline = new QAction(trUtf8("Edit &headline"), m_menuEdit);
+    m_actionIngredient = new QAction(trUtf8("Add &ingredient"), m_menuEditIngredients);
+    m_actionPreparationStep = new QAction(trUtf8("Add &preparation step"), m_menuEdit);
+    m_actionSection = new QAction(trUtf8("Add &section"), m_menuEditIngredients);
+    m_actionServingCount = new QAction(trUtf8("Edit serving &count"), m_menuEditIngredients);
 
     m_actionHeadline->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_H));
     m_actionIngredient->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_I));
@@ -197,15 +202,15 @@ void MainWindow::setupMenuFile() {
     m_menuFile = new QMenu(trUtf8("&File"), menuBar());
 
     m_actionClose = new QAction(trUtf8("Close"), m_menuFile);
-    m_actionCloseAll = new QAction(trUtf8("Close All"), m_menuFile);
+    m_actionCloseAll = new QAction(trUtf8("Close all"), m_menuFile);
     m_actionExport = new QAction(trUtf8("&Export as PDF"), m_menuFile);
     m_actionNew = new QAction(trUtf8("&New"), m_menuFile);
     m_actionOpen = new QAction(trUtf8("&Open"), m_menuFile);
     m_actionPrint = new QAction(trUtf8("&Print"), m_menuFile);
     m_actionQuit = new QAction(trUtf8("&Quit"), m_menuFile);
     m_actionSave = new QAction(trUtf8("&Save"), m_menuFile);    
-    m_actionSaveAll = new QAction(trUtf8("Save All"), m_menuFile);
-    m_actionSaveAs = new QAction(trUtf8("Save As"), m_menuFile);
+    m_actionSaveAll = new QAction(trUtf8("Save all"), m_menuFile);
+    m_actionSaveAs = new QAction(trUtf8("Save as"), m_menuFile);
 
     m_actionClose->setShortcut(Qt::CTRL + Qt::Key_W);
     m_actionCloseAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);    

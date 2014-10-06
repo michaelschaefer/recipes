@@ -48,7 +48,7 @@ void IngredientListEdit::addIngredient(QString amount, QString unit, QString nam
 void IngredientListEdit::addSection() {
     bool okay;
     QString label = "Input name of new section:";
-    QString title = trUtf8("Add Section");
+    QString title = trUtf8("Add section");
 
     QString sectionName = QInputDialog::getText(this, title, label, QLineEdit::Normal, "", &okay);
     if (okay == true) {
@@ -80,8 +80,8 @@ IngredientListEdit::DataType IngredientListEdit::data() {
 
 void IngredientListEdit::editServingCount() {
     bool okay;
-    QString label = "For how many servings do the ingredients suffice?";
-    QString title = trUtf8("Edit Serving Count");
+    QString label = trUtf8("For how many servings do the ingredients suffice?");
+    QString title = trUtf8("Edit serving count");
 
     QString servingCount = QInputDialog::getText(this, title, label, QLineEdit::Normal, m_servingCount, &okay);
     if (okay == true && m_servingCount != servingCount) {

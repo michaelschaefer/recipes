@@ -4,7 +4,7 @@
 PreparationStepDialog::PreparationStepDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(trUtf8("Add Preparation Step"));
+    setWindowTitle(trUtf8("Add preparation step"));
     m_paragraphAllowed = false;
 
     m_edit = new QPlainTextEdit(this);
