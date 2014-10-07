@@ -4,22 +4,22 @@
 <context>
     <name>Exporter</name>
     <message>
-        <location filename="../exporter.cc" line="77"/>
+        <location filename="../exporter.cc" line="80"/>
         <source>Ingredients</source>
         <translation>Zutaten</translation>
     </message>
     <message>
-        <location filename="../exporter.cc" line="104"/>
+        <location filename="../exporter.cc" line="107"/>
         <source>Preparation</source>
         <translation>Zubereitung</translation>
     </message>
     <message>
-        <location filename="../exporter.cc" line="127"/>
+        <location filename="../exporter.cc" line="130"/>
         <source>Export as PDF</source>
         <translation>Exportieren als PDF</translation>
     </message>
     <message>
-        <location filename="../exporter.cc" line="128"/>
+        <location filename="../exporter.cc" line="131"/>
         <source>PDF documents (*.pdf)</source>
         <translation>PDF-Dokumente (*.pdf)</translation>
     </message>
@@ -68,6 +68,11 @@
 </context>
 <context>
     <name>IngredientListEdit</name>
+    <message>
+        <location filename="../ingredientlistedit.cc" line="50"/>
+        <source>Input name of new section:</source>
+        <translation>Geben Sie einen Namen für den neuen Abschnitt ein:</translation>
+    </message>
     <message>
         <location filename="../ingredientlistedit.cc" line="51"/>
         <source>Add section</source>
@@ -305,12 +310,12 @@
     </message>
     <message>
         <location filename="../recipeedit.cc" line="211"/>
-        <location filename="../recipeedit.cc" line="235"/>
+        <location filename="../recipeedit.cc" line="236"/>
         <source>Recipe files (*.xml)</source>
         <translation>Rezept-Dateien (*.xml)</translation>
     </message>
     <message>
-        <location filename="../recipeedit.cc" line="233"/>
+        <location filename="../recipeedit.cc" line="234"/>
         <source>Save recipe as</source>
         <translation>Rezept speichern als</translation>
     </message>
@@ -371,12 +376,12 @@
     <message>
         <location filename="../widgetinterface.cc" line="35"/>
         <source>Move down</source>
-        <translation>Verschieben nach oben</translation>
+        <translation>Verschieben nach unten</translation>
     </message>
     <message>
         <location filename="../widgetinterface.cc" line="36"/>
         <source>Move up</source>
-        <translation>Verschieben nach unten</translation>
+        <translation>Verschieben nach oben</translation>
     </message>
     <message>
         <location filename="../widgetinterface.cc" line="37"/>

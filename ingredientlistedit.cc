@@ -47,7 +47,7 @@ void IngredientListEdit::addIngredient(QString amount, QString unit, QString nam
 
 void IngredientListEdit::addSection() {
     bool okay;
-    QString label = "Input name of new section:";
+    QString label = trUtf8("Input name of new section:");
     QString title = trUtf8("Add section");
 
     QString sectionName = QInputDialog::getText(this, title, label, QLineEdit::Normal, "", &okay);
