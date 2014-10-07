@@ -3,14 +3,17 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
+#include <QTextCodec>
 #include <QTextList>
 #include <QTextTable>
+#include <QXmlStreamWriter>
 #include "exporter.hh"
 
 
 Exporter::Exporter(RecipeData recipeData, QWidget* parent) {
 
     m_parent = parent;
+    m_recipeData = recipeData;
     m_textEdit = new QTextEdit();
 
     /*
@@ -145,4 +148,52 @@ void Exporter::print(bool asPdf) {
 
 void Exporter::printDocument(QPrinter* printer) {
     m_textEdit->document()->print(printer);
+}
+
+
+QString Exporter::xml() {
+    Exporter::EntryListType ingredientList = m_recipeData.ingredients();
+    Exporter::EntryListType preparationStepList = m_recipeData.preparationSteps();
+
+    QString xml;
+    QXmlStreamWriter stream(&xml);
+
+    // document start
+    stream.setAutoFormatting(true);
+    stream.setCodec(QTextCodec::codecForName("UTF-8"));
+    stream.writeStartDocument();
+    stream.writeStartElement("recipe");
+
+    // headline
+    stream.writeTextElement("title", m_recipeData.headline());
+
+    // ingredients
+    stream.writeStartElement("ingredients");
+    for (Exporter::EntryListType::Iterator it = ingredientList.begin(); it != ingredientList.end(); ++it) {
+        Exporter::EntryType entry = *it;
+        if (entry["type"] == "ingredient") {
+            stream.writeStartElement("ingredient");
+            stream.writeTextElement("amount", entry["amount"]);
+            stream.writeTextElement("unit", entry["unit"]);
+            stream.writeTextElement("name", entry["name"]);
+            stream.writeEndElement();
+        } else if (entry["type"] == "section") {
+            stream.writeTextElement("section", entry["title"]);
+        }
+    }
+    stream.writeEndElement();
+
+    // preparation
+    stream.writeStartElement("preparation");
+    for (Exporter::EntryListType::Iterator it = preparationStepList.begin(); it != preparationStepList.end(); ++it) {
+        Exporter::EntryType entry = *it;
+        stream.writeTextElement("step", entry["text"]);
+    }
+    stream.writeEndElement();
+
+    // document end
+    stream.writeEndElement();
+    stream.writeEndDocument();
+
+    return xml;
 }

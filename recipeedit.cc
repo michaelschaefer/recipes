@@ -220,7 +220,8 @@ bool RecipeEdit::save() {
     QFile file(m_filename);
     file.open(QIODevice::WriteOnly);
     QTextStream stream(&file);
-    stream << toXml();
+    //stream << toXml();
+    stream << Exporter(recipeData()).xml();
     file.close();
 
     m_unsavedChanges = false;
@@ -240,6 +241,7 @@ bool RecipeEdit::saveAs() {
     else
         return false;
 
+    m_unsavedChanges = true;
     return save();
 }
 
@@ -258,55 +260,4 @@ void RecipeEdit::setupFonts() {
 void RecipeEdit::triggerChanged() {
     m_unsavedChanges = true;
     emit changed(this);
-}
-
-
-QString RecipeEdit::toXml() {
-    IngredientListEdit::DataType ingredientData = m_ingredients->data();
-    PreparationListEdit::DataType preparationData = m_preparation->data();
-    QString xml;
-    QXmlStreamWriter stream(&xml);
-
-    // document start
-    stream.setAutoFormatting(true);
-    stream.setCodec(QTextCodec::codecForName("UTF-8"));
-    stream.writeStartDocument();
-    stream.writeStartElement("recipe");
-
-    // headline
-    stream.writeTextElement("title", m_headline->text());
-
-    // ingredients
-    WidgetInterface::DataType item;
-    stream.writeStartElement("ingredients");
-
-    for (IngredientListEdit::DataType::Iterator it = ingredientData.begin(); it != ingredientData.end(); ++it) {
-        item = *it;
-        if (item["type"] == "ingredient") {
-            stream.writeStartElement("ingredient");
-            stream.writeTextElement("amount", item["amount"]);
-            stream.writeTextElement("unit", item["unit"]);
-            stream.writeTextElement("name", item["name"]);
-            stream.writeEndElement();
-        } else if (item["type"] == "section") {
-            stream.writeTextElement("section", item["title"]);
-        }
-    }
-
-    stream.writeEndElement();
-
-    // preparation
-    WidgetInterface::DataType preparationStep;
-    stream.writeStartElement("preparation");
-    for (PreparationListEdit::DataType::Iterator it = preparationData.begin(); it != preparationData.end(); ++it) {
-        preparationStep = *it;
-        stream.writeTextElement("step", preparationStep["text"]);
-    }
-    stream.writeEndElement();
-
-    // document end
-    stream.writeEndElement();
-    stream.writeEndDocument();
-
-    return xml;
 }

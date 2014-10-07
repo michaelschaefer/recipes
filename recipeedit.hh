@@ -53,7 +53,6 @@ private slots:
 private:
 
     void setupFonts();
-    QString toXml();
 
 
     bool m_unsavedChanges;
