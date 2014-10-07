@@ -97,9 +97,13 @@
         <translation>(c) 2014 Michael Schaefer, &lt;a href=&quot;http://www.michael-schaefer.org&quot;&gt;www.michael-schaefer.org&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="38"/>
         <source>A program to create, store, search and print recipes.</source>
-        <translation>Ein Programm zum Erstellen, Speichern, Suchen und Drucken von Rezepten.</translation>
+        <translation type="vanished">Ein Programm zum Erstellen, Speichern, Suchen und Drucken von Rezepten.</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cc" line="38"/>
+        <source>A program to create, store, export and print recipes.</source>
+        <translation>Ein Programm zum Erstellen, Speichern, Exportieren und Drucken von Rezepten.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cc" line="46"/>

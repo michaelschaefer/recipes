@@ -36,7 +36,7 @@ void MainWindow::about() {
                 "</a>"
                 );
     QString information = trUtf8(
-                "A program to create, store, search and print recipes."
+                "A program to create, store, export and print recipes."
                 );
     QString text = QString("<b>%1 %2</b><br/><br/>%3<br/><br/>%4")
             .arg(MainWindow::ApplicationName)
