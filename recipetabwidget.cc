@@ -1,7 +1,6 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
-#include "exporter.hh"
 #include "recipetabwidget.hh"
 
 

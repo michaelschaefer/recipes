@@ -19,6 +19,7 @@ public:
 
     Exporter(RecipeData recipeData, QWidget* parent = 0);
     void print(bool asPdf = false);
+    QTextEdit* textEdit();
     QString xml();
 
 
@@ -30,7 +31,6 @@ private slots:
 
 private:
 
-    QTextEdit* m_textEdit;
     QWidget* m_parent;
     RecipeData m_recipeData;
 

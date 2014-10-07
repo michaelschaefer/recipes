@@ -4,14 +4,15 @@
 
 #include <QFont>
 #include <QLabel>
+#include <QSplitter>
+#include <QTextEdit>
 #include <QVBoxLayout>
-#include <QWidget>
 #include "ingredientlistedit.hh"
 #include "preparationlistedit.hh"
 #include "recipedata.hh"
 
 
-class RecipeEdit : public QWidget {
+class RecipeEdit : public QSplitter {
 
     Q_OBJECT
 
@@ -43,6 +44,7 @@ public slots:
     void print();
     bool save();
     bool saveAs();
+    void togglePreview(bool visible);
 
 
 private slots:
@@ -53,6 +55,7 @@ private slots:
 private:
 
     void setupFonts();
+    void updatePreview();
 
 
     bool m_unsavedChanges;
@@ -62,7 +65,9 @@ private:
     QFont m_h2Font;
     QLabel* m_headline;
     QString m_filename;
+    QTextEdit* m_previewWidget;
     QVBoxLayout* m_layout;
+    QWidget* m_editWidget;
 
 
 };

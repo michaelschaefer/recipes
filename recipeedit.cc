@@ -9,27 +9,37 @@
 
 
 RecipeEdit::RecipeEdit(QWidget *parent)
-    : QWidget(parent)
+    : QSplitter(parent)
 {
     setupFonts();
 
     m_unsavedChanges = true;
+    m_editWidget = new QWidget(this);
+    m_previewWidget = new QTextEdit(this);
 
-    m_headline = new QLabel(trUtf8("unnamed"), this);
+    m_headline = new QLabel(trUtf8("unnamed"), m_editWidget);
     m_headline->setAlignment(Qt::AlignHCenter);
     m_headline->setFont(m_h1Font);
 
-    m_ingredients = new IngredientListEdit(this);    
-    m_preparation = new PreparationListEdit(this);
-    connect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
-    connect(m_preparation, SIGNAL(changed()), this, SLOT(triggerChanged()));
+    m_ingredients = new IngredientListEdit(m_editWidget);
+    m_preparation = new PreparationListEdit(m_editWidget);
 
     m_layout = new QVBoxLayout();
     m_layout->addWidget(m_headline);
     m_layout->addWidget(m_ingredients);
     m_layout->addWidget(m_preparation);
     m_layout->addStretch(100);
-    setLayout(m_layout);
+    m_editWidget->setLayout(m_layout);
+
+    insertWidget(0, m_editWidget);
+    insertWidget(1, m_previewWidget);
+
+    // preview
+    updatePreview();
+    togglePreview(false);
+
+    connect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
+    connect(m_preparation, SIGNAL(changed()), this, SLOT(triggerChanged()));
 }
 
 
@@ -176,6 +186,7 @@ bool RecipeEdit::fromXml(QString filename) {
 
     m_filename = filename;
     m_unsavedChanges = false;
+    updatePreview();
 
     return true;
 }
@@ -220,7 +231,6 @@ bool RecipeEdit::save() {
     QFile file(m_filename);
     file.open(QIODevice::WriteOnly);
     QTextStream stream(&file);
-    //stream << toXml();
     stream << Exporter(recipeData()).xml();
     file.close();
 
@@ -257,7 +267,26 @@ void RecipeEdit::setupFonts() {
 }
 
 
+void RecipeEdit::togglePreview(bool visible) {
+    if (visible == true) {
+        int w = width();
+        int half = (w - (w % 2)) / 2;
+        QList<int> sizeList;
+        sizeList.append(half);
+        sizeList.append(w - half);
+        setSizes(sizeList);
+    }
+    m_previewWidget->setVisible(visible);
+}
+
+
 void RecipeEdit::triggerChanged() {
     m_unsavedChanges = true;
+    updatePreview();
     emit changed(this);
+}
+
+
+void RecipeEdit::updatePreview() {
+    m_previewWidget->setDocument(Exporter(recipeData(), this).textEdit()->document());
 }

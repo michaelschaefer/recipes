@@ -56,6 +56,7 @@ private:
     QAction* m_actionNew;
     QAction* m_actionOpen;
     QAction* m_actionPreparationStep;
+    QAction* m_actionPreview;
     QAction* m_actionPrint;
     QAction* m_actionQuit;
     QAction* m_actionSave;

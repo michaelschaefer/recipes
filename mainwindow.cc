@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QMenuBar>
 #include <QMessageBox>
+#include "exporter.hh"
 #include "mainwindow.hh"
 
 
@@ -99,6 +100,7 @@ void MainWindow::connectRecipe(RecipeEdit* recipeEdit) {
     connect(m_actionPrint, SIGNAL(triggered()), recipeEdit, SLOT(print()));
     connect(m_actionSave, SIGNAL(triggered()), recipeEdit, SLOT(save()));
     connect(m_actionSaveAs, SIGNAL(triggered()), recipeEdit, SLOT(saveAs()));
+    connect(m_actionPreview, SIGNAL(triggered(bool)), recipeEdit, SLOT(togglePreview(bool)));
 }
 
 
@@ -116,6 +118,7 @@ void MainWindow::disconnectRecipe(RecipeEdit* recipeEdit) {
     disconnect(m_actionPrint, SIGNAL(triggered()), recipeEdit, SLOT(print()));
     disconnect(m_actionSave, SIGNAL(triggered()), recipeEdit, SLOT(save()));
     disconnect(m_actionSaveAs, SIGNAL(triggered()), recipeEdit, SLOT(saveAs()));
+    disconnect(m_actionPreview, SIGNAL(triggered(bool)), recipeEdit, SLOT(togglePreview(bool)));
 }
 
 
@@ -123,6 +126,7 @@ void MainWindow::setActionInvisibility(bool invisible) {
     m_actionClose->setEnabled(!invisible);
     m_actionCloseAll->setEnabled(!invisible);
     m_actionExport->setEnabled(!invisible);
+    m_actionPreview->setEnabled(!invisible);
     m_actionPrint->setEnabled(!invisible);
     m_actionSave->setEnabled(!invisible);
     m_actionSaveAll->setEnabled(!invisible);
@@ -138,8 +142,12 @@ void MainWindow::setupMenuEdit() {
     m_actionHeadline = new QAction(trUtf8("Edit &headline"), m_menuEdit);
     m_actionIngredient = new QAction(trUtf8("Add &ingredient"), m_menuEditIngredients);
     m_actionPreparationStep = new QAction(trUtf8("Add &preparation step"), m_menuEdit);
+    m_actionPreview = new QAction(trUtf8("Show p&review"), m_menuEdit);
     m_actionSection = new QAction(trUtf8("Add &section"), m_menuEditIngredients);
     m_actionServingCount = new QAction(trUtf8("Edit serving &count"), m_menuEditIngredients);
+
+    m_actionPreview->setCheckable(true);
+    m_actionPreview->setChecked(false);
 
     m_actionHeadline->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_H));
     m_actionIngredient->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_I));
@@ -154,6 +162,7 @@ void MainWindow::setupMenuEdit() {
     m_menuEdit->addAction(m_actionHeadline);
     m_menuEdit->addMenu(m_menuEditIngredients);
     m_menuEdit->addAction(m_actionPreparationStep);
+    m_menuEdit->addAction(m_actionPreview);
 
     menuBar()->addMenu(m_menuEdit);
 }
@@ -166,12 +175,12 @@ void MainWindow::setupMenuFile() {
     m_actionCloseAll = new QAction(trUtf8("C&lose all"), m_menuFile);
     m_actionExport = new QAction(trUtf8("&Export as PDF"), m_menuFile);
     m_actionNew = new QAction(trUtf8("&New"), m_menuFile);
-    m_actionOpen = new QAction(trUtf8("&Open"), m_menuFile);
+    m_actionOpen = new QAction(trUtf8("&Open"), m_menuFile);    
     m_actionPrint = new QAction(trUtf8("&Print"), m_menuFile);
     m_actionQuit = new QAction(trUtf8("&Quit"), m_menuFile);
     m_actionSave = new QAction(trUtf8("&Save"), m_menuFile);    
     m_actionSaveAll = new QAction(trUtf8("S&ave all"), m_menuFile);
-    m_actionSaveAs = new QAction(trUtf8("Sa&ve as"), m_menuFile);
+    m_actionSaveAs = new QAction(trUtf8("Sa&ve as"), m_menuFile);    
 
     m_actionClose->setShortcut(Qt::CTRL + Qt::Key_W);
     m_actionCloseAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);    
@@ -198,7 +207,7 @@ void MainWindow::setupMenuFile() {
     m_menuFile->addSeparator();
     m_menuFile->addAction(m_actionClose);
     m_menuFile->addAction(m_actionCloseAll);
-    m_menuFile->addSeparator();
+    m_menuFile->addSeparator();    
     m_menuFile->addAction(m_actionExport);
     m_menuFile->addAction(m_actionPrint);
     m_menuFile->addSeparator();
