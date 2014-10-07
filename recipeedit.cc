@@ -4,6 +4,7 @@
 #include <QTextCodec>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include "exporter.hh"
 #include "recipeedit.hh"
 
 
@@ -64,6 +65,11 @@ void RecipeEdit::editHeadline() {
 
 void RecipeEdit::editServingCount() {
     m_ingredients->editServingCount();
+}
+
+
+void RecipeEdit::exportAsPdf() {
+    Exporter(recipeData()).print(true);
 }
 
 
@@ -180,6 +186,11 @@ bool RecipeEdit::hasUnsavedChanges() {
 }
 
 
+void RecipeEdit::print() {
+    Exporter(recipeData()).print();
+}
+
+
 RecipeData RecipeEdit::recipeData() {
     RecipeData recipeData;
     recipeData.setHeadline(m_headline->text());
@@ -198,13 +209,12 @@ bool RecipeEdit::save() {
         QString caption = trUtf8("Save recipe");
         QString dir = QDir::homePath();
         QString filter = trUtf8("Recipe files (*.xml)");
-        QString filename = QFileDialog::getSaveFileName(this, caption, dir, filter);
 
-        if (filename.isEmpty() == false) {
+        QString filename = QFileDialog::getSaveFileName(this, caption, dir, filter);
+        if (filename.isEmpty() == false)
             m_filename = filename;
-        } else {
+        else
             return false;
-        }
     }
 
     QFile file(m_filename);
@@ -214,7 +224,23 @@ bool RecipeEdit::save() {
     file.close();
 
     m_unsavedChanges = false;
+    emit saved(this);
     return true;
+}
+
+
+bool RecipeEdit::saveAs() {
+    QString caption = trUtf8("Save recipe as");
+    QString dir = QDir::homePath();
+    QString filter = trUtf8("Recipe files (*.xml)");
+
+    QString filename = QFileDialog::getSaveFileName(this, caption, dir, filter);
+    if (filename.isEmpty() == false)
+        m_filename = filename;
+    else
+        return false;
+
+    return save();
 }
 
 

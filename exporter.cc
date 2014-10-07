@@ -5,15 +5,13 @@
 #include <QPrintPreviewDialog>
 #include <QTextList>
 #include <QTextTable>
-#include "exportwidget.hh"
+#include "exporter.hh"
 
 
-ExportWidget::ExportWidget(RecipeData recipeData, QWidget* parent)
-    : QTextEdit(parent)
-{
+Exporter::Exporter(RecipeData recipeData, QWidget* parent) {
+
     m_parent = parent;
-    m_recipeData = recipeData;
-    setReadOnly(true);
+    m_textEdit = new QTextEdit();
 
     /*
      * setup fonts
@@ -66,23 +64,23 @@ ExportWidget::ExportWidget(RecipeData recipeData, QWidget* parent)
      * recipe
      */
 
-    QTextCursor cursor(textCursor());    
+    QTextCursor cursor(m_textEdit->textCursor());
 
     // headline        
-    setAlignment(Qt::AlignHCenter);
-    setFont(defaultFont);
-    cursor.insertText(m_recipeData.headline(), h1Format);
+    m_textEdit->setAlignment(Qt::AlignHCenter);
+    m_textEdit->setFont(defaultFont);
+    cursor.insertText(recipeData.headline(), h1Format);
     cursor.insertBlock(oneHalfSpacingFormat, defaultFormat);
 
     // ingredients headline
     cursor.insertBlock(doubleSpacingFormat);
     cursor.insertText(trUtf8("Ingredients"), h2Format);
-    if (m_recipeData.servingCount().isEmpty() == false) {
-        cursor.insertText(" " + m_recipeData.servingCount());
+    if (recipeData.servingCount().isEmpty() == false) {
+        cursor.insertText(" " + recipeData.servingCount());
     }
 
     // ingredient list
-    QList<QMap<QString, QString> > ingredients = m_recipeData.ingredients();
+    QList<QMap<QString, QString> > ingredients = recipeData.ingredients();
     int size = ingredients.size();
     for (int i = 0; i < size; ++i) {
         QMap<QString, QString> entry = ingredients[i];        
@@ -110,7 +108,7 @@ ExportWidget::ExportWidget(RecipeData recipeData, QWidget* parent)
 
     // preparation steps
     cursor.createList(listFormat);
-    QList<QMap<QString, QString> > preparationSteps = m_recipeData.preparationSteps();
+    QList<QMap<QString, QString> > preparationSteps = recipeData.preparationSteps();
     for (int i = 0; i < preparationSteps.size(); ++i) {
         QMap<QString, QString> entry = preparationSteps[i];
         if (entry["type"] == "preparationStep") {
@@ -123,9 +121,9 @@ ExportWidget::ExportWidget(RecipeData recipeData, QWidget* parent)
 }
 
 
-void ExportWidget::print(bool toPdf) {
+void Exporter::print(bool asPdf) {
     QPrinter* printer = new QPrinter(QPrinter::HighResolution);
-    if (toPdf == true) {
+    if (asPdf == true) {
         QString title = trUtf8("Export as PDF");
         QString filter = trUtf8("PDF documents (*.pdf)");
         QString filename = QFileDialog::getSaveFileName(m_parent, title, QDir::homePath(), filter);
@@ -137,6 +135,7 @@ void ExportWidget::print(bool toPdf) {
         }
     } else {
         QPrintPreviewDialog previewDialog(m_parent);
+        previewDialog.setModal(true);
         connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printDocument(QPrinter*)));
         previewDialog.show();
         previewDialog.exec();
@@ -144,6 +143,6 @@ void ExportWidget::print(bool toPdf) {
 }
 
 
-void ExportWidget::printDocument(QPrinter* printer) {
-    document()->print(printer);
+void Exporter::printDocument(QPrinter* printer) {
+    m_textEdit->document()->print(printer);
 }

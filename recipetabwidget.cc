@@ -1,13 +1,14 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
+#include "exporter.hh"
 #include "recipetabwidget.hh"
 
 
 RecipeTabWidget::RecipeTabWidget(QWidget* parent)
     : QTabWidget(parent)
 {    
-    setTabsClosable(true);
+    setTabsClosable(true);        
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
 }
 
@@ -19,12 +20,19 @@ void RecipeTabWidget::addRecipe(RecipeEdit* recipeEdit) {
 
     connect(recipeEdit, SIGNAL(changed(RecipeEdit*)), this, SLOT(recipeChanged(RecipeEdit*)));
     m_recipes.append(recipeEdit);
-    setCurrentIndex(addTab(recipeEdit, QString()));
-    updateTabTexts();
+
+    int index = insertTab(count(), recipeEdit, QString());
+    setCurrentIndex(index);
+    updateTabText(index);
+    emit empty(false);
 }
 
 
 bool RecipeTabWidget::closeCurrentTab() {
+    if (count() == 0) {
+        return false;
+    }
+
     return closeTab(currentIndex());
 }
 
@@ -68,7 +76,38 @@ bool RecipeTabWidget::closeTab(int index) {
     m_recipes.removeAll(edit);
     delete edit;
     edit = 0;
+
+    if (count() == 0)
+        emit empty(true);
+
     return true;
+}
+
+
+RecipeEdit* RecipeTabWidget::currentRecipe() {
+    if (count() == 0)
+        return 0;
+    else
+        return m_recipes[currentIndex()];
+}
+
+
+void RecipeTabWidget::keyPressEvent(QKeyEvent* event) {
+    int cnt = count();
+    if (cnt == 0) {
+        event->ignore();
+        return;
+    }
+
+    if (event->key() == Qt::Key_PageUp) {
+        int nextIndex = (currentIndex() + 1) % cnt;
+        setCurrentIndex(nextIndex);
+    } else if (event->key() == Qt::Key_PageDown) {
+        int nextIndex = (cnt + currentIndex() - 1) % cnt;
+        setCurrentIndex(nextIndex);
+    }
+
+    event->accept();
 }
 
 
@@ -118,34 +157,32 @@ void RecipeTabWidget::saveAllTabs() {
     if (count() == 0)
         return;
 
-    for (int i = 0; i < count(); ++i) {
-        setCurrentIndex(i);
-        if (saveCurrentTab() == false)
+    for (int index = 0; index < count(); ++index) {
+        setCurrentIndex(index);
+        if (m_recipes[index]->save() == false)
             break;
+        else
+            updateTabText(index);
     }
 }
 
 
-bool RecipeTabWidget::saveCurrentTab() {
-    if (m_recipes[currentIndex()]->save() == false) {        
-        return false;
-    } else {
-        updateTabTexts();
-        return true;
-    }
+void RecipeTabWidget::updateTabText(int index) {
+    if (index < 0 || index >= count())
+        return;
+
+    RecipeEdit* edit = m_recipes[index];
+    QString text = edit->filename(false);
+    if (edit->hasUnsavedChanges() == true)
+        text += " (*)";
+
+    setTabText(index, text);
 }
 
 
-void RecipeTabWidget::updateTabTexts() {
-    QString text;
-    RecipeEdit* edit = 0;
-
-    for (int i = 0; i < count(); ++i) {
-        edit = (RecipeEdit*)widget(i);
-        text = edit->filename(false);
-        if (edit->hasUnsavedChanges() == true) {
-            text += " (*)";
-        }
-        setTabText(i, text);
-    }
+void RecipeTabWidget::updateTabText(RecipeEdit* recipeEdit) {
+    if (recipeEdit == 0)
+        return;
+    else
+        updateTabText(indexOf(recipeEdit));
 }

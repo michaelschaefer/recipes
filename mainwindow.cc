@@ -1,6 +1,6 @@
+#include <QDebug>
 #include <QMenuBar>
 #include <QMessageBox>
-#include "exportwidget.hh"
 #include "mainwindow.hh"
 
 
@@ -8,14 +8,11 @@ QString MainWindow::ApplicationName = "recipes";
 QString MainWindow::ApplicationVersion = "0.1";
 
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {    
-    setupMenuFile();
-    setupMenuEdit();
-    setupMenuHelp();
-
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {        
     m_splitter = new QSplitter(this);
-    m_tabWidget = new RecipeTabWidget(m_splitter);
+    m_tabWidget = new RecipeTabWidget(m_splitter);    
     connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeCurrentRecipe()));
+    connect(m_tabWidget, SIGNAL(empty(bool)), this, SLOT(setActionInvisibility(bool)));
     m_splitter->addWidget(m_tabWidget);
 
     m_currentRecipe = 0;
@@ -23,6 +20,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setCentralWidget(m_splitter);
     setWindowIcon(QIcon(":/img/recipes"));       
     showMaximized();
+
+    setupMenuFile();
+    setupMenuEdit();
+    setupMenuHelp();
+    setActionInvisibility(true);
 }
 
 
@@ -58,7 +60,11 @@ void MainWindow::aboutQt() {
 
 
 void MainWindow::changeCurrentRecipe() {
+    if (m_currentRecipe != 0)
+        disconnectRecipe(m_currentRecipe);
+
     m_currentRecipe = (RecipeEdit*)m_tabWidget->currentWidget();
+    connectRecipe(m_currentRecipe);
 }
 
 
@@ -79,88 +85,49 @@ void MainWindow::closeEvent(QCloseEvent* event) {
 }
 
 
-void MainWindow::editHeadline() {
-    if (m_currentRecipe != 0) {
-        m_currentRecipe->editHeadline();
-    }
+void MainWindow::connectRecipe(RecipeEdit* recipeEdit) {
+    if (recipeEdit == 0)
+        return;
+
+    connect(recipeEdit, SIGNAL(saved(RecipeEdit*)), m_tabWidget, SLOT(updateTabText(RecipeEdit*)));
+    connect(m_actionHeadline, SIGNAL(triggered()), recipeEdit, SLOT(editHeadline()));
+    connect(m_actionIngredient, SIGNAL(triggered()), recipeEdit, SLOT(addIngredient()));
+    connect(m_actionPreparationStep, SIGNAL(triggered()), recipeEdit, SLOT(addPreparationStep()));
+    connect(m_actionSection, SIGNAL(triggered()), recipeEdit, SLOT(addSection()));
+    connect(m_actionServingCount, SIGNAL(triggered()), recipeEdit, SLOT(editServingCount()));
+    connect(m_actionExport, SIGNAL(triggered()), recipeEdit, SLOT(exportAsPdf()));
+    connect(m_actionPrint, SIGNAL(triggered()), recipeEdit, SLOT(print()));
+    connect(m_actionSave, SIGNAL(triggered()), recipeEdit, SLOT(save()));
+    connect(m_actionSaveAs, SIGNAL(triggered()), recipeEdit, SLOT(saveAs()));
 }
 
 
-void MainWindow::editIngredient() {
-    if (m_currentRecipe != 0) {
-        m_currentRecipe->addIngredient();
-    }
+void MainWindow::disconnectRecipe(RecipeEdit* recipeEdit) {
+    if (recipeEdit == 0)
+        return;
+
+    disconnect(recipeEdit, SIGNAL(saved(RecipeEdit*)), m_tabWidget, SLOT(updateTabText(RecipeEdit*)));
+    disconnect(m_actionHeadline, SIGNAL(triggered()), recipeEdit, SLOT(editHeadline()));
+    disconnect(m_actionIngredient, SIGNAL(triggered()), recipeEdit, SLOT(addIngredient()));
+    disconnect(m_actionPreparationStep, SIGNAL(triggered()), recipeEdit, SLOT(addPreparationStep()));
+    disconnect(m_actionSection, SIGNAL(triggered()), recipeEdit, SLOT(addSection()));
+    disconnect(m_actionServingCount, SIGNAL(triggered()), recipeEdit, SLOT(editServingCount()));
+    disconnect(m_actionExport, SIGNAL(triggered()), recipeEdit, SLOT(exportAsPdf()));
+    disconnect(m_actionPrint, SIGNAL(triggered()), recipeEdit, SLOT(print()));
+    disconnect(m_actionSave, SIGNAL(triggered()), recipeEdit, SLOT(save()));
+    disconnect(m_actionSaveAs, SIGNAL(triggered()), recipeEdit, SLOT(saveAs()));
 }
 
 
-void MainWindow::editPreparationStep() {
-    if (m_currentRecipe != 0) {
-        m_currentRecipe->addPreparationStep();
-    }
-}
-
-
-void MainWindow::editSection() {
-    if (m_currentRecipe != 0) {
-        m_currentRecipe->addSection();
-    }
-}
-
-
-void MainWindow::editServingCount() {
-    if (m_currentRecipe != 0) {
-        m_currentRecipe->editServingCount();
-    }
-}
-
-
-void MainWindow::fileClose() {
-    m_tabWidget->closeCurrentTab();
-}
-
-
-void MainWindow::fileCloseAll() {
-    m_tabWidget->closeAllTabs();
-}
-
-
-void MainWindow::fileExport() {
-    if (m_currentRecipe != 0) {
-        ExportWidget exportWidget(m_currentRecipe->recipeData(), this);
-        exportWidget.print(true);
-    }
-}
-
-
-void MainWindow::fileNew() {    
-    m_tabWidget->newRecipe();
-}
-
-
-void MainWindow::fileOpen() {
-    m_tabWidget->openRecipe();
-}
-
-
-void MainWindow::filePrint() {
-    if (m_currentRecipe != 0) {
-        ExportWidget exportWidget(m_currentRecipe->recipeData(), this);
-        exportWidget.print();
-    }
-}
-
-
-void MainWindow::fileSave() {
-    m_tabWidget->saveCurrentTab();
-}
-
-
-void MainWindow::fileSaveAll() {
-    m_tabWidget->saveAllTabs();
-}
-
-
-void MainWindow::fileSaveAs() {
+void MainWindow::setActionInvisibility(bool invisible) {
+    m_actionClose->setEnabled(!invisible);
+    m_actionCloseAll->setEnabled(!invisible);
+    m_actionExport->setEnabled(!invisible);
+    m_actionPrint->setEnabled(!invisible);
+    m_actionSave->setEnabled(!invisible);
+    m_actionSaveAll->setEnabled(!invisible);
+    m_actionSaveAs->setEnabled(!invisible);
+    m_menuEdit->setEnabled(!invisible);
 }
 
 
@@ -180,12 +147,6 @@ void MainWindow::setupMenuEdit() {
     m_actionSection->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_S));
     m_actionServingCount->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_C));
 
-    connect(m_actionHeadline, SIGNAL(triggered()), this, SLOT(editHeadline()));
-    connect(m_actionIngredient, SIGNAL(triggered()), this, SLOT(editIngredient()));
-    connect(m_actionPreparationStep, SIGNAL(triggered()), this, SLOT(editPreparationStep()));
-    connect(m_actionSection, SIGNAL(triggered()), this, SLOT(editSection()));
-    connect(m_actionServingCount, SIGNAL(triggered()), this, SLOT(editServingCount()));
-
     m_menuEditIngredients->addAction(m_actionServingCount);
     m_menuEditIngredients->addAction(m_actionIngredient);
     m_menuEditIngredients->addAction(m_actionSection);
@@ -201,16 +162,16 @@ void MainWindow::setupMenuEdit() {
 void MainWindow::setupMenuFile() {
     m_menuFile = new QMenu(trUtf8("&File"), menuBar());
 
-    m_actionClose = new QAction(trUtf8("Close"), m_menuFile);
-    m_actionCloseAll = new QAction(trUtf8("Close all"), m_menuFile);
+    m_actionClose = new QAction(trUtf8("&Close"), m_menuFile);
+    m_actionCloseAll = new QAction(trUtf8("C&lose all"), m_menuFile);
     m_actionExport = new QAction(trUtf8("&Export as PDF"), m_menuFile);
     m_actionNew = new QAction(trUtf8("&New"), m_menuFile);
     m_actionOpen = new QAction(trUtf8("&Open"), m_menuFile);
     m_actionPrint = new QAction(trUtf8("&Print"), m_menuFile);
     m_actionQuit = new QAction(trUtf8("&Quit"), m_menuFile);
     m_actionSave = new QAction(trUtf8("&Save"), m_menuFile);    
-    m_actionSaveAll = new QAction(trUtf8("Save all"), m_menuFile);
-    m_actionSaveAs = new QAction(trUtf8("Save as"), m_menuFile);
+    m_actionSaveAll = new QAction(trUtf8("S&ave all"), m_menuFile);
+    m_actionSaveAs = new QAction(trUtf8("Sa&ve as"), m_menuFile);
 
     m_actionClose->setShortcut(Qt::CTRL + Qt::Key_W);
     m_actionCloseAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);    
@@ -221,16 +182,12 @@ void MainWindow::setupMenuFile() {
     m_actionSave->setShortcut(Qt::CTRL + Qt::Key_S);
     m_actionSaveAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_S);
 
-    connect(m_actionClose, SIGNAL(triggered()), this, SLOT(fileClose()));
-    connect(m_actionCloseAll, SIGNAL(triggered()), this, SLOT(fileCloseAll()));
-    connect(m_actionExport, SIGNAL(triggered()), this, SLOT(fileExport()));
-    connect(m_actionNew, SIGNAL(triggered()), this, SLOT(fileNew()));
-    connect(m_actionOpen, SIGNAL(triggered()), this, SLOT(fileOpen()));
-    connect(m_actionPrint, SIGNAL(triggered()), this, SLOT(filePrint()));
+    connect(m_actionClose, SIGNAL(triggered()), m_tabWidget, SLOT(closeCurrentTab()));
+    connect(m_actionCloseAll, SIGNAL(triggered()), m_tabWidget, SLOT(closeAllTabs()));
+    connect(m_actionNew, SIGNAL(triggered()), m_tabWidget, SLOT(newRecipe()));
+    connect(m_actionOpen, SIGNAL(triggered()), m_tabWidget, SLOT(openRecipe()));
     connect(m_actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-    connect(m_actionSave, SIGNAL(triggered()), this, SLOT(fileSave()));    
-    connect(m_actionSaveAll, SIGNAL(triggered()), this, SLOT(fileSaveAll()));
-    connect(m_actionSaveAs, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
+    connect(m_actionSaveAll, SIGNAL(triggered()), m_tabWidget, SLOT(saveAllTabs()));
 
     m_menuFile->addAction(m_actionNew);
     m_menuFile->addAction(m_actionOpen);
@@ -254,8 +211,8 @@ void MainWindow::setupMenuFile() {
 void MainWindow::setupMenuHelp() {    
     m_menuHelp = new QMenu(trUtf8("&Help"), menuBar());
 
-    m_actionAboutQt = new QAction(trUtf8("About Qt"), m_menuHelp);
-    m_actionAbout = new QAction(trUtf8("About") + " " + MainWindow::ApplicationName, m_menuHelp);
+    m_actionAboutQt = new QAction(trUtf8("About &Qt"), m_menuHelp);
+    m_actionAbout = new QAction(trUtf8("&About") + " " + MainWindow::ApplicationName, m_menuHelp);
 
     connect(m_actionAboutQt, SIGNAL(triggered()), this, SLOT(aboutQt()));
     connect(m_actionAbout, SIGNAL(triggered()), this, SLOT(about()));

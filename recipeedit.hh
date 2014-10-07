@@ -19,6 +19,7 @@ class RecipeEdit : public QWidget {
 signals:
 
     void changed(RecipeEdit*);
+    void saved(RecipeEdit*);
 
 
 public:
@@ -27,9 +28,8 @@ public:
 
     QString filename(bool withPath=true);
     bool fromXml(QString filename);
-    bool hasUnsavedChanges();
-    RecipeData recipeData();
-    bool save();
+    bool hasUnsavedChanges();    
+    RecipeData recipeData();    
 
 
 public slots:
@@ -39,6 +39,10 @@ public slots:
     void addSection();
     void editHeadline();
     void editServingCount();    
+    void exportAsPdf();
+    void print();
+    bool save();
+    bool saveAs();
 
 
 private slots:

@@ -28,30 +28,19 @@ public slots:
 
     void about();
     void aboutQt();
-    void editHeadline();
-    void editIngredient();
-    void editPreparationStep();
-    void editSection();
-    void editServingCount();
-    void fileClose();
-    void fileCloseAll();
-    void fileExport();
-    void fileNew();
-    void fileOpen();
-    void filePrint();
-    void fileSave();
-    void fileSaveAs();
-    void fileSaveAll();
 
 
 private slots:
 
     void changeCurrentRecipe();
     void closeEvent(QCloseEvent* event);    
+    void setActionInvisibility(bool invisible);
 
 
 private:
 
+    void connectRecipe(RecipeEdit* recipeEdit);
+    void disconnectRecipe(RecipeEdit* recipeEdit);
     void setupMenuEdit();
     void setupMenuFile();
     void setupMenuHelp();
@@ -81,7 +70,6 @@ private:
     QSplitter* m_splitter;
     RecipeEdit* m_currentRecipe;
     RecipeTabWidget* m_tabWidget;
-
 
 };
 

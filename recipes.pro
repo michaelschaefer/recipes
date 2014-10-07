@@ -25,8 +25,8 @@ SOURCES += main.cc \
     preparationstepedit.cc \
     preparationstepdialog.cc \
     recipetabwidget.cc \
-    exportwidget.cc \
-    recipedata.cc
+    recipedata.cc \
+    exporter.cc
 
 HEADERS  += mainwindow.hh \
     recipeedit.hh \
@@ -40,8 +40,8 @@ HEADERS  += mainwindow.hh \
     preparationstepedit.hh \
     preparationstepdialog.hh \
     recipetabwidget.hh \
-    exportwidget.hh \
-    recipedata.hh
+    recipedata.hh \
+    exporter.hh
 
 RESOURCES += recipes.qrc
 
