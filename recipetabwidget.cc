@@ -96,14 +96,16 @@ void RecipeTabWidget::keyPressEvent(QKeyEvent* event) {
     if (cnt == 0) {
         event->ignore();
         return;
-    }
+    }        
 
-    if (event->key() == Qt::Key_PageUp) {
-        int nextIndex = (currentIndex() + 1) % cnt;
-        setCurrentIndex(nextIndex);
-    } else if (event->key() == Qt::Key_PageDown) {
-        int nextIndex = (cnt + currentIndex() - 1) % cnt;
-        setCurrentIndex(nextIndex);
+    if (event->modifiers() == Qt::ControlModifier) {
+        if (event->key() == Qt::Key_PageUp) {
+            int nextIndex = (currentIndex() + 1) % cnt;
+            setCurrentIndex(nextIndex);
+        } else if (event->key() == Qt::Key_PageDown) {
+            int nextIndex = (cnt + currentIndex() - 1) % cnt;
+            setCurrentIndex(nextIndex);
+        }
     }
 
     event->accept();

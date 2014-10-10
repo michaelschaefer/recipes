@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QScrollBar>
 #include <QTextCodec>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -15,7 +16,9 @@ RecipeEdit::RecipeEdit(QWidget *parent)
 
     m_unsavedChanges = true;
     m_editWidget = new QWidget(this);
+
     m_previewWidget = new QTextEdit(this);
+    m_previewWidget->setReadOnly(true);
 
     m_headline = new QLabel(trUtf8("unnamed"), m_editWidget);
     m_headline->setAlignment(Qt::AlignHCenter);
@@ -274,7 +277,8 @@ void RecipeEdit::togglePreview(bool visible) {
         QList<int> sizeList;
         sizeList.append(half);
         sizeList.append(w - half);
-        setSizes(sizeList);
+        setSizes(sizeList);        
+        m_previewWidget->verticalScrollBar()->triggerAction(QScrollBar::SliderToMinimum);
     }
     m_previewWidget->setVisible(visible);
 }
@@ -289,4 +293,5 @@ void RecipeEdit::triggerChanged() {
 
 void RecipeEdit::updatePreview() {
     m_previewWidget->setDocument(Exporter(recipeData(), this).textEdit()->document());
+    m_previewWidget->document()->setDocumentMargin(font().pointSize()*2);
 }
