@@ -293,5 +293,4 @@ void RecipeEdit::triggerChanged() {
 
 void RecipeEdit::updatePreview() {
     m_previewWidget->setDocument(Exporter(recipeData(), this).textEdit()->document());
-    m_previewWidget->document()->setDocumentMargin(font().pointSize()*2);
 }
