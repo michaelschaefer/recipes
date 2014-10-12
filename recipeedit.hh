@@ -61,6 +61,7 @@ private:
     QFont m_h1Font;
     QFont m_h2Font;
     QLabel* m_headline;
+    QScrollArea* m_editArea;
     QString m_filename;
     QVBoxLayout* m_layout;
 
