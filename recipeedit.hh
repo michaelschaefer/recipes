@@ -9,6 +9,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include "ingredientlistedit.hh"
+#include "library.hh"
 #include "preparationlistedit.hh"
 #include "recipedata.hh"
 
@@ -28,10 +29,11 @@ public:
 
     RecipeEdit(QWidget* parent = 0);
 
-    QString filename(bool withPath=true);
-    bool fromXml(QString filename);
+    QString fileName(bool withPath = true);
+    QString pathName();
+    bool fromXml(QString fileName);
     bool hasUnsavedChanges();    
-    RecipeData recipeData();    
+    RecipeData& recipeData();
 
 
 public slots:
@@ -56,20 +58,23 @@ private slots:
 private:
 
     void setupFonts();
+    void updateLibrary();
     void updatePreview();
 
 
     bool m_unsavedChanges;
     IngredientListEdit* m_ingredients;
+    Library* m_library;
     PreparationListEdit* m_preparation;
     QFont m_h1Font;
     QFont m_h2Font;
     QLabel* m_headline;
     QScrollArea* m_editArea;
-    QString m_filename;
+    QString m_fileName;
     QTextEdit* m_previewWidget;
     QVBoxLayout* m_layout;
     QWidget* m_editWidget;
+    RecipeData m_recipeData;
 
 
 };

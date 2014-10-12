@@ -5,6 +5,7 @@
 #include <QtSql>
 #include <QDir>
 #include <QObject>
+#include "recipedata.hh"
 
 
 class Database : public QObject {
@@ -26,12 +27,13 @@ public:
     bool getPathId(const QString& pathName, int* pathId = 0);
     QStringList getPathList();
     RecipeListType getRecipeList();
-    bool insertFile(const QString& fileName, int pathId, const QString& headline, int* fileId = 0);
+    bool insertFile(const QString& fileName, int pathId, RecipeData& recipeData, int* fileId = 0);
     bool insertPath(const QString& pathName, int* pathId = 0);
     bool isOpen();
     bool open();
     bool removeFile(const QString& fileName, int pathId);
     bool removePath(const QString& pathName, int* nRemoved);
+    bool updateFile(int fileId, RecipeData& recipeData);
 
 
 private:

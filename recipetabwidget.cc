@@ -128,7 +128,7 @@ void RecipeTabWidget::openRecipe() {
 
         QList<RecipeEdit*>::Iterator it = m_recipes.begin();
         for (; it != m_recipes.end(); ++it) {
-            if ((*it)->filename() == filename) {
+            if ((*it)->fileName() == filename) {
                 setCurrentWidget(*it);
                 return;
             }
@@ -149,7 +149,7 @@ void RecipeTabWidget::openRecipe() {
 void RecipeTabWidget::recipeChanged(RecipeEdit *recipeEdit) {
     int index = indexOf(recipeEdit);
     if (index != -1) {
-        setTabText(index, recipeEdit->filename(false) + " (*)");
+        setTabText(index, recipeEdit->fileName(false) + " (*)");
     }
 }
 
@@ -173,7 +173,7 @@ void RecipeTabWidget::updateTabText(int index) {
         return;
 
     RecipeEdit* edit = m_recipes[index];
-    QString text = edit->filename(false);
+    QString text = edit->fileName(false);
     if (edit->hasUnsavedChanges() == true)
         text += " (*)";
 

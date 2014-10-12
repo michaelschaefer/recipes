@@ -11,6 +11,7 @@ class RecipeData {
 
 public:
 
+    void clear();
     QString headline();
     QList<QMap<QString, QString> > ingredients();
     QList<QMap<QString, QString> > preparationSteps();

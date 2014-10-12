@@ -44,13 +44,18 @@ bool Database::getFileId(const QString& fileName, int pathId, int* fileId) {
     query.prepare("select id from files where file=:file and path=:path");
     query.bindValue(":file", fileName);
     query.bindValue(":path", pathId);
-    if (query.exec() == false || query.next() == false)
+    if (query.exec() == false)
         return false;
     else {
         if (fileId != 0) {
-            bool okay;
-            *fileId = query.record().value(0).toInt(&okay);
-            return okay;
+            if (query.next() == false) {
+                *fileId = -1;
+                return true;
+            } else {
+                bool okay;
+                *fileId = query.record().value(0).toInt(&okay);
+                return okay;
+            }
         } else
             return true;
     }
@@ -75,13 +80,18 @@ bool Database::getPathId(const QString& pathName, int* pathId) {
     QSqlQuery query(m_database);
     query.prepare("select id from paths where path=:path");
     query.bindValue(":path", pathName);
-    if (query.exec() == false || query.next() == false)
+    if (query.exec() == false)
         return false;
     else {
         if (pathId != 0) {
-            bool okay;
-            *pathId = query.record().value(0).toInt(&okay);
-            return okay;
+            if (query.next() == false) {
+                *pathId = -1;
+                return true;
+            } else {
+                bool okay;
+                *pathId = query.record().value(0).toInt(&okay);
+                return okay;
+            }
         } else
             return true;
     }
@@ -151,18 +161,18 @@ bool Database::init() {
 }
 
 
-bool Database::insertFile(const QString& fileName, int pathId, const QString& headline, int* fileId) {
+bool Database::insertFile(const QString& fileName, int pathId, RecipeData& recipeData, int* fileId) {
     QSqlQuery query(m_database);
     query.prepare("insert into files (file, path, headline) values (:file, :path, :headline)");
     query.bindValue(":file", fileName);
-    query.bindValue(":headline", headline);
+    query.bindValue(":headline", recipeData.headline());
     query.bindValue(":path", pathId);
     if (query.exec() == false) {
         if (query.lastError().number() == 19) {
             int id;
             if (getFileId(fileName, pathId, &id) == true) {
                 query.prepare("update files set headline=:headline where id=:id");
-                query.bindValue(":headline", headline);
+                query.bindValue(":headline", recipeData.headline());
                 query.bindValue(":id", id);
                 if (query.exec() == true) {
                     if (fileId != 0)
@@ -244,4 +254,13 @@ bool Database::removePath(const QString& pathName, int* nRemoved) {
         return false;
 
     return true;
+}
+
+
+bool Database::updateFile(int fileId, RecipeData& recipeData) {
+    QSqlQuery query(m_database);
+    query.prepare("update files set headline=:headline where id=:fileId");
+    query.bindValue(":fileId", fileId);
+    query.bindValue(":headline", recipeData.headline());
+    return query.exec();
 }

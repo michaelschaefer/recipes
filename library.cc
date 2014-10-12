@@ -9,6 +9,12 @@ Library::Library() {
 }
 
 
+Library *Library::instance() {
+    static Library instance;
+    return &instance;
+}
+
+
 bool Library::addPath(const QString& pathName, int* nAdded) {
     QDir dir(pathName);
     if (dir.exists() == false)
@@ -26,16 +32,17 @@ bool Library::addPath(const QString& pathName, int* nAdded) {
 
 bool Library::addFiles(QDir& dir, int pathId, int* nAdded) {
     int added = 0, fileId = 0;
-    QString headline;
+    RecipeData recipeData;
 
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.xml");
     QFileInfoList fileInfoList = dir.entryInfoList();
 
     foreach (const QFileInfo& fileInfo, fileInfoList) {
-        if (checkForRecipe(fileInfo, &headline) == false)
+        recipeData.clear();
+        if (checkForRecipe(fileInfo, recipeData) == false)
             continue;
-        else if (m_database->insertFile(fileInfo.fileName(), pathId, headline, &fileId) == false)
+        else if (m_database->insertFile(fileInfo.fileName(), pathId, recipeData, &fileId) == false)
             continue;
         else
             added++;
@@ -48,7 +55,7 @@ bool Library::addFiles(QDir& dir, int pathId, int* nAdded) {
 }
 
 
-bool Library::checkForRecipe(const QFileInfo &fileInfo, QString* headline) {
+bool Library::checkForRecipe(const QFileInfo &fileInfo, RecipeData& recipeData) {
     QFile file(fileInfo.absoluteFilePath());
     file.open(QFile::ReadOnly);
     QXmlStreamReader reader(&file);
@@ -56,20 +63,22 @@ bool Library::checkForRecipe(const QFileInfo &fileInfo, QString* headline) {
     if (reader.readNextStartElement() == false) {
         file.close();
         return false;
-    } else if (reader.name().toString() == "recipe") {
-        if (headline != 0) {
-            if (reader.readNextStartElement() == false) {
-                file.close();
-                return false;
-            } else {
-                *headline = reader.readElementText();
-                return (reader.hasError() == false);
-            }
-        } else {
+    } else if (reader.name().toString() == "recipe") {        
+        if (reader.readNextStartElement() == false) {
             file.close();
-            return true;
+            return false;
+        } else {
+            QString headline = reader.readElementText();
+            file.close();
+            if (reader.hasError() == false) {
+                recipeData.setHeadline(headline);
+                return true;
+            } else {
+                return false;
+            }
         }
     } else {
+        file.close();
         return false;
     }
 }
@@ -90,6 +99,39 @@ Database::RecipeListType Library::getRecipeList() {
     Database::RecipeListType recipeList = m_database->getRecipeList();
     m_database->close();
     return recipeList;
+}
+
+
+bool Library::insertOrUpdateFile(QString fileName, QString pathName, RecipeData& recipeData) {
+    int fileId = 0, pathId = 0;
+
+    if (m_database->isOpen() == false)
+        m_database->open();
+
+    if (m_database->getPathId(pathName, &pathId) == false) {
+        m_database->close();
+        return false;
+    } else if (pathId == -1)
+        return true;
+
+    if (m_database->getFileId(fileName, pathId, &fileId) == false) {
+        m_database->close();
+        return false;
+    }
+
+    if (fileId == -1) {
+         if (m_database->insertFile(fileName, pathId, recipeData) == false) {
+             m_database->close();
+             return false;
+         }
+    } else
+        if (m_database->updateFile(fileId, recipeData) == false) {
+            m_database->close();
+            return false;
+        }
+
+    m_database->close();
+    return true;
 }
 
 
@@ -204,7 +246,7 @@ bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
      * b) overwritten by non-recipes
      */
 
-    QString headline;
+    RecipeData recipeData;
     foreach (const QString& fileName, currentFileList) {
         if (newFileList.contains(fileName) == false) {
             if (m_database->removeFile(fileName, pathId) == true)
@@ -212,7 +254,8 @@ bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
             else
                 return false;
         } else {
-            if (checkForRecipe(QFileInfo(dir, fileName), &headline) == false) {
+            recipeData.clear();
+            if (checkForRecipe(QFileInfo(dir, fileName), recipeData) == false) {
                 if (m_database->removeFile(fileName, pathId) == true)
                     removed++;
                 else
@@ -229,9 +272,10 @@ bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
     foreach (const QFileInfo& fileInfo, newFileInfoList) {
         fileName = fileInfo.fileName();
         if (currentFileList.contains(fileName) == false) {
-            if (checkForRecipe(fileInfo, &headline) == false)
+            recipeData.clear();
+            if (checkForRecipe(fileInfo, recipeData) == false)
                 continue;
-            if (m_database->insertFile(fileName, pathId, headline) == true)
+            if (m_database->insertFile(fileName, pathId, recipeData) == true)
                 added++;
             else
                 return false;

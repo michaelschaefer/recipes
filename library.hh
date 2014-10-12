@@ -18,25 +18,30 @@ signals:
 
 public:
 
-    Library();
+    static Library* instance();
 
     Database::RecipeListType getRecipeList();
     QStringList getPathList();
+    bool insertOrUpdateFile(QString fileName, QString pathName, RecipeData& recipeData);
     bool rebuild();
     bool setPathList(QStringList& newPathList);
-    bool update();
+    bool update();        
 
 
 private:
 
+    Library();
+    Library(Library const&);
+    void operator=(Library const&);
+
     bool addPath(const QString& pathName, int* nAdded = 0);
     bool addFiles(QDir& dir, int pathId, int* nAdded = 0);
-    bool checkForRecipe(const QFileInfo& fileInfo, QString* headline = 0);    
+    bool checkForRecipe(const QFileInfo& fileInfo, RecipeData& recipeData);
     bool removePath(const QString& pathName, int* nRemoved = 0);
     bool updateFiles(QDir& dir, int pathId, int* nAdded = 0, int* nRemoved = 0);
 
 
-    Database* m_database;
+    Database* m_database;    
 
 };
 

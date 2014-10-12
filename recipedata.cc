@@ -6,6 +6,14 @@ QString RecipeData::headline() {
 }
 
 
+void RecipeData::clear() {
+    m_headline = QString();
+    m_ingredientList.clear();
+    m_preparationStepList.clear();
+    m_servingCount = QString();
+}
+
+
 QList<QMap<QString, QString> > RecipeData::ingredients() {
     return m_ingredientList;
 }

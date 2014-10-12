@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_statusBarLabel = new QLabel(statusBar());
     statusBar()->addWidget(m_statusBarLabel);
 
-    m_library = new Library();
+    m_library = Library::instance();
     connect(m_library, SIGNAL(statusBarMessage(QString)), this, SLOT(showStatusBarMessage(QString)));
 }
 
