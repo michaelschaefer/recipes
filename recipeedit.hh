@@ -4,6 +4,7 @@
 
 #include <QFont>
 #include <QLabel>
+#include <QScrollArea>
 #include <QSplitter>
 #include <QTextEdit>
 #include <QVBoxLayout>
@@ -64,6 +65,7 @@ private:
     QFont m_h1Font;
     QFont m_h2Font;
     QLabel* m_headline;
+    QScrollArea* m_editArea;
     QString m_filename;
     QTextEdit* m_previewWidget;
     QVBoxLayout* m_layout;

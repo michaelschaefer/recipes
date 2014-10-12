@@ -34,7 +34,11 @@ RecipeEdit::RecipeEdit(QWidget *parent)
     m_layout->addStretch(100);
     m_editWidget->setLayout(m_layout);
 
-    insertWidget(0, m_editWidget);
+    m_editArea = new QScrollArea(this);
+    m_editArea->setWidget(m_editWidget);
+    m_editArea->setWidgetResizable(true);
+
+    insertWidget(0, m_editArea);
     insertWidget(1, m_previewWidget);
 
     // preview
