@@ -10,7 +10,7 @@
 
 
 QString MainWindow::ApplicationName = "recipes";
-QString MainWindow::ApplicationVersion = "0.1";
+QString MainWindow::ApplicationVersion = "0.2";
 
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {        
