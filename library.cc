@@ -15,21 +15,6 @@ Library *Library::instance() {
 }
 
 
-bool Library::addPath(const QString& pathName, int* nAdded) {
-    QDir dir(pathName);
-    if (dir.exists() == false)
-        return false;
-
-    int pathId;
-    if (m_database->insertPath(pathName, &pathId) == false)
-        return false;
-    else if (addFiles(dir, pathId, nAdded) == false)
-        return false;
-
-    return true;
-}
-
-
 bool Library::addFiles(QDir& dir, int pathId, int* nAdded) {
     int added = 0, fileId = 0;
     RecipeData recipeData;
@@ -49,7 +34,22 @@ bool Library::addFiles(QDir& dir, int pathId, int* nAdded) {
     }
 
     if (nAdded != 0)
-        *nAdded = added;
+        *nAdded = added;    
+
+    return true;
+}
+
+
+bool Library::addPath(const QString& pathName, int* nAdded) {
+    QDir dir(pathName);
+    if (dir.exists() == false)
+        return false;
+
+    int pathId;
+    if (m_database->insertPath(pathName, &pathId) == false)
+        return false;
+    else if (addFiles(dir, pathId, nAdded) == false)
+        return false;
 
     return true;
 }
@@ -84,10 +84,28 @@ bool Library::checkForRecipe(const QFileInfo &fileInfo, RecipeData& recipeData) 
 }
 
 
+bool Library::getFile(int fileId, Database::File& file) {
+    if (m_database->isOpen() == false)
+        m_database->open();
+    bool res = m_database->getFile(fileId, file);
+    m_database->close();
+    return res;
+}
+
+
+bool Library::getPath(int pathId, Database::Path& path) {
+    if (m_database->isOpen() == false)
+        m_database->open();
+    bool res = m_database->getPath(pathId, path);
+    m_database->close();
+    return res;
+}
+
+
 QStringList Library::getPathList() {
     if (m_database->isOpen() == false)
         m_database->open();
-    QStringList pathList = m_database->getPathList();
+    QStringList pathList = m_database->getPathNameList();
     m_database->close();
     return pathList;
 }
@@ -130,6 +148,7 @@ bool Library::insertOrUpdateFile(QString fileName, QString pathName, RecipeData&
             return false;
         }
 
+    emit updated();
     m_database->close();
     return true;
 }
@@ -141,17 +160,24 @@ bool Library::rebuild() {
     if (m_database->isOpen() == false)
         m_database->open();
 
-    QStringList pathList = m_database->getPathList();
+    QStringList pathList = m_database->getPathNameList();
     m_database->clear();
     bool res = setPathList(pathList);
     m_database->close();
-    emit statusBarMessage(trUtf8("rebuild complete"));
+    emit statusBarMessage(trUtf8("rebuild complete"));    
     return res;
 }
 
 
 bool Library::removePath(const QString& pathName, int* nRemoved) {
-    return m_database->removePath(pathName, nRemoved);
+    if (m_database->isOpen() == false)
+        m_database->close();
+
+    if (m_database->removePath(pathName, nRemoved) == false)
+        return false;
+
+    m_database->close();
+    return true;
 }
 
 
@@ -170,7 +196,7 @@ bool Library::setPathList(QStringList& newPathList) {
         return true;
     }
 
-    QStringList currentPathList = m_database->getPathList();
+    QStringList currentPathList = m_database->getPathNameList();
     foreach (const QString& path, currentPathList) {
         if (newPathList.contains(path) == false) {
             if (removePath(path, &counter) == false) {
@@ -193,6 +219,7 @@ bool Library::setPathList(QStringList& newPathList) {
 
     m_database->close();
     emit statusBarMessage(trUtf8("inserting complete (%1 new, %2 removed)").arg(added).arg(removed));
+    emit updated();
     return true;
 }
 
@@ -205,7 +232,7 @@ bool Library::update() {
     if (m_database->isOpen() == false)
         m_database->open();
 
-    QStringList pathList = m_database->getPathList();
+    QStringList pathList = m_database->getPathNameList();
     foreach (const QString& pathName, pathList) {
         QDir dir(pathName);
         if (dir.exists() == true) {
@@ -228,13 +255,14 @@ bool Library::update() {
 
     m_database->close();    
     emit statusBarMessage(trUtf8("update complete (%1 new, %2 removed)").arg(added).arg(removed));
+    emit updated();
     return true;
 }
 
 
 bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
     int added = 0, removed = 0;
-    const QStringList& currentFileList = m_database->getFileList(pathId);
+    const QStringList& currentFileList = m_database->getFileNameList(pathId);
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.xml");
     const QStringList& newFileList = dir.entryList();

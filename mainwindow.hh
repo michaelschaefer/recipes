@@ -14,6 +14,7 @@
 #include "librarythread.hh"
 #include "recipeedit.hh"
 #include "recipetabwidget.hh"
+#include "searchwidget.hh"
 
 
 class MainWindow : public QMainWindow {
@@ -89,6 +90,7 @@ private:
     QAction* m_actionToolBarPreview;
     QAction* m_actionToolBarPrint;
     QAction* m_actionToolBarSave;    
+    QAction* m_actionToolBarSearch;
     QAction* m_actionUpdate;
     QLabel* m_statusBarLabel;
     QMenu* m_menuEdit;
@@ -102,6 +104,7 @@ private:
     QToolButton* m_actionToolButtonIngredient;
     RecipeEdit* m_currentRecipe;
     RecipeTabWidget* m_tabWidget;
+    SearchWidget* m_searchWidget;
 
 };
 

@@ -13,12 +13,17 @@ QString MainWindow::ApplicationName = "recipes";
 QString MainWindow::ApplicationVersion = "0.2";
 
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {        
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     m_splitter = new QSplitter(this);
-    m_tabWidget = new RecipeTabWidget(m_splitter);    
+    m_searchWidget = new SearchWidget(m_splitter);
+    m_tabWidget = new RecipeTabWidget(m_splitter);
+
     connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeCurrentRecipe()));
     connect(m_tabWidget, SIGNAL(empty(bool)), this, SLOT(setActionInvisibility(bool)));
+    connect(m_searchWidget, SIGNAL(recipeSelected(QString)), m_tabWidget, SLOT(openRecipe(QString)));    
+
     m_splitter->addWidget(m_tabWidget);
+    m_splitter->addWidget(m_searchWidget);
 
     m_currentRecipe = 0;
 
@@ -44,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     m_library = Library::instance();
     connect(m_library, SIGNAL(statusBarMessage(QString)), this, SLOT(showStatusBarMessage(QString)));
+    connect(m_library, SIGNAL(updated()), m_searchWidget, SLOT(updateData()));
 }
 
 
@@ -298,12 +304,13 @@ void MainWindow::setupMenuLibrary() {
 
     m_actionManagePaths->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_P));
     m_actionRebuild->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_R));
-    m_actionSearch->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_S));
+    m_actionSearch->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
     m_actionUpdate->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_U));
 
-    connect(m_actionRebuild, SIGNAL(triggered()), this, SLOT(libraryRebuild()));
-    connect(m_actionUpdate, SIGNAL(triggered()), this, SLOT(libraryUpdate()));
     connect(m_actionManagePaths, SIGNAL(triggered()), this, SLOT(libraryManagePaths()));
+    connect(m_actionRebuild, SIGNAL(triggered()), this, SLOT(libraryRebuild()));
+    connect(m_actionSearch, SIGNAL(triggered()), m_searchWidget, SLOT(toggleVisibility()));
+    connect(m_actionUpdate, SIGNAL(triggered()), this, SLOT(libraryUpdate()));    
 
     m_menuLibrary->addAction(m_actionManagePaths);
     m_menuLibrary->addAction(m_actionRebuild);
@@ -336,9 +343,10 @@ void MainWindow::setupToolBar() {
     m_actionToolBarNew = new QAction("\uF0F6", m_toolBar);
     m_actionToolBarOpen = new QAction("\uF115", m_toolBar);
     m_actionToolBarPreparationStep = new QAction("\uF0F5", m_toolBar);
-    m_actionToolBarPreview = new QAction("\uF002", m_toolBar);
+    m_actionToolBarPreview = new QAction("\uF06E", m_toolBar);
     m_actionToolBarPrint = new QAction("\uF02F", m_toolBar);
     m_actionToolBarSave = new QAction("\uF0C7", m_toolBar);
+    m_actionToolBarSearch = new QAction("\uF002", m_toolBar);
 
     m_actionToolBarClose->setFont(toolBarFont);
     m_actionToolBarExport->setFont(toolBarFont);
@@ -349,6 +357,7 @@ void MainWindow::setupToolBar() {
     m_actionToolBarPreparationStep->setFont(toolBarFont);
     m_actionToolBarPreview->setFont(toolBarFont);
     m_actionToolBarSave->setFont(toolBarFont);
+    m_actionToolBarSearch->setFont(toolBarFont);
 
     m_actionToolBarClose->setToolTip(trUtf8("Close"));
     m_actionToolBarExport->setToolTip(trUtf8("Export as PDF"));
@@ -357,8 +366,9 @@ void MainWindow::setupToolBar() {
     m_actionToolBarOpen->setToolTip(trUtf8("Open"));
     m_actionToolBarPrint->setToolTip(trUtf8("Print"));
     m_actionToolBarPreparationStep->setToolTip(trUtf8("Add preparation step"));
-    m_actionToolBarPreview->setToolTip("Toggle preview");
+    m_actionToolBarPreview->setToolTip(trUtf8("Toggle preview"));
     m_actionToolBarSave->setToolTip(trUtf8("Save"));
+    m_actionToolBarSearch->setToolTip(trUtf8("Search library"));
 
     m_actionToolButtonIngredient = new QToolButton(m_toolBar);
     m_actionToolButtonIngredient->setFont(toolBarFont);
@@ -381,19 +391,21 @@ void MainWindow::setupToolBar() {
     connect(m_actionToolBarPreparationStep, SIGNAL(triggered()), m_actionPreparationStep, SLOT(trigger()));
     connect(m_actionToolBarPreview, SIGNAL(triggered()), m_actionPreview, SLOT(trigger()));
     connect(m_actionToolBarSave, SIGNAL(triggered()), m_actionSave, SLOT(trigger()));
+    connect(m_actionToolBarSearch, SIGNAL(triggered()), m_actionSearch, SLOT(trigger()));
 
     m_toolBar->addAction(m_actionToolBarNew);
     m_toolBar->addAction(m_actionToolBarOpen);
+    m_toolBar->addAction(m_actionToolBarSearch);
     m_toolBar->addSeparator();
     m_toolBar->addAction(m_actionToolBarSave);
     m_toolBar->addAction(m_actionToolBarClose);
     m_toolBar->addAction(m_actionToolBarExport);
     m_toolBar->addAction(m_actionToolBarPrint);
+    m_toolBar->addAction(m_actionToolBarPreview);
     m_toolBar->addSeparator();
     m_toolBar->addAction(m_actionToolBarHeadline);
     m_toolBar->addWidget(m_actionToolButtonIngredient);
-    m_toolBar->addAction(m_actionToolBarPreparationStep);
-    m_toolBar->addAction(m_actionToolBarPreview);
+    m_toolBar->addAction(m_actionToolBarPreparationStep);    
 }
 
 

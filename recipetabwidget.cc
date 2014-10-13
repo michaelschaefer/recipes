@@ -118,30 +118,34 @@ void RecipeTabWidget::newRecipe() {
 }
 
 
-void RecipeTabWidget::openRecipe() {
-    QString caption = trUtf8("Open recipe");
-    QString dir = QDir::homePath();
-    QString filter = trUtf8("Recipe files (*.xml)");
+void RecipeTabWidget::openRecipe(QString fileName) {
+    if (fileName.isEmpty()) {
+        QString caption = trUtf8("Open recipe");
+        QString dir = QDir::homePath();
+        QString filter = trUtf8("Recipe files (*.xml)");
 
-    QString filename = QFileDialog::getOpenFileName(this, caption, dir, filter);
-    if (filename.isEmpty() == false) {
+        fileName = QFileDialog::getOpenFileName(this, caption, dir, filter);
+        if (fileName.isEmpty() == true)
+            return;
+    }
 
-        QList<RecipeEdit*>::Iterator it = m_recipes.begin();
-        for (; it != m_recipes.end(); ++it) {
-            if ((*it)->fileName() == filename) {
-                setCurrentWidget(*it);
-                return;
-            }
+    // select tab if chosen file is already opened
+    QList<RecipeEdit*>::Iterator it = m_recipes.begin();
+    for (; it != m_recipes.end(); ++it) {
+        if ((*it)->fileName() == fileName) {
+            setCurrentWidget(*it);
+            return;
         }
+    }
 
-        RecipeEdit* recipeEdit = new RecipeEdit(this);
-        if (recipeEdit->fromXml(filename) == true) {
-            addRecipe(recipeEdit);
-        } else {
-            QMessageBox::critical(this, trUtf8("Open failed"), trUtf8("Error while loading recipe!"));
-            delete recipeEdit;
-            recipeEdit = 0;
-        }
+    // create new tab with the selected recipe
+    RecipeEdit* recipeEdit = new RecipeEdit(this);
+    if (recipeEdit->fromXml(fileName) == true) {
+        addRecipe(recipeEdit);
+    } else {
+        QMessageBox::critical(this, trUtf8("Open failed"), trUtf8("Error while loading recipe!"));
+        delete recipeEdit;
+        recipeEdit = 0;
     }
 }
 

@@ -3,7 +3,7 @@
 #include "librarypathdialog.hh"
 
 
-LibraryPathDialog::LibraryPathDialog(QWidget *parent) : QDialog(parent) {
+LibraryPathDialog::LibraryPathDialog(QWidget* parent) : QDialog(parent) {
     m_gridLayout = new QGridLayout();
     setLayout(m_gridLayout);
 

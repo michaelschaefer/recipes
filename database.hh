@@ -18,14 +18,28 @@ public:
     typedef QPair<QString, int> RecipeType;
     typedef QList<RecipeType> RecipeListType;
 
+    struct File {
+        QString fileName;
+        QString headline;
+        int id;
+        int pathId;
+    };
+
+    struct Path {
+        int id;
+        QString pathName;
+    };
+
     Database(QString fileName = QDir::currentPath() + QDir::toNativeSeparators("/library.sqlite"));
 
     void clear();
-    void close();    
-    QStringList getFileList(int pathId);
+    void close();        
+    bool getFile(int fileId, File& file);
     bool getFileId(const QString& fileName, int pathId, int* fileId = 0);
+    QStringList getFileNameList(int pathId);
+    bool getPath(int pathId, Path& path);
     bool getPathId(const QString& pathName, int* pathId = 0);
-    QStringList getPathList();
+    QStringList getPathNameList();
     RecipeListType getRecipeList();
     bool insertFile(const QString& fileName, int pathId, RecipeData& recipeData, int* fileId = 0);
     bool insertPath(const QString& pathName, int* pathId = 0);

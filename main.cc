@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     QString path = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
     QTranslator qtTranslator;
     qtTranslator.load("qt_" + locale, path);
-    //application.installTranslator(&qtTranslator);
+    application.installTranslator(&qtTranslator);
 
     // translate application
     QTranslator recipesTranslator;

@@ -250,7 +250,11 @@ bool RecipeEdit::save() {
 
 bool RecipeEdit::saveAs() {
     QString caption = trUtf8("Save recipe as");
-    QString dir = QDir::homePath();
+    QString dir;
+    if (m_fileName.isEmpty())
+        dir = QDir::homePath();
+    else
+        dir = m_fileName.mid(0, m_fileName.lastIndexOf(QDir::separator()));
     QString filter = trUtf8("Recipe files (*.xml)");
 
     QString absoluteFileName = QFileDialog::getSaveFileName(this, caption, dir, filter);

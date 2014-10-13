@@ -14,14 +14,17 @@ class Library : public QObject {
 signals:
 
     void statusBarMessage(QString);
+    void updated();
 
 
 public:
 
     static Library* instance();
 
-    Database::RecipeListType getRecipeList();
+    bool getFile(int fileId, Database::File& file);
+    bool getPath(int pathId, Database::Path& path);
     QStringList getPathList();
+    Database::RecipeListType getRecipeList();
     bool insertOrUpdateFile(QString fileName, QString pathName, RecipeData& recipeData);
     bool rebuild();
     bool setPathList(QStringList& newPathList);
@@ -34,8 +37,8 @@ private:
     Library(Library const&);
     void operator=(Library const&);
 
-    bool addPath(const QString& pathName, int* nAdded = 0);
     bool addFiles(QDir& dir, int pathId, int* nAdded = 0);
+    bool addPath(const QString& pathName, int* nAdded = 0);
     bool checkForRecipe(const QFileInfo& fileInfo, RecipeData& recipeData);
     bool removePath(const QString& pathName, int* nRemoved = 0);
     bool updateFiles(QDir& dir, int pathId, int* nAdded = 0, int* nRemoved = 0);

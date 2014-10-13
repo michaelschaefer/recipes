@@ -28,7 +28,7 @@ public slots:
     bool closeCurrentTab();
     void keyPressEvent(QKeyEvent* event);
     void newRecipe();
-    void openRecipe();
+    void openRecipe(QString fileName = QString());
     void recipeChanged(RecipeEdit* recipeEdit);
     void saveAllTabs();
     void updateTabText(RecipeEdit* recipeEdit);
