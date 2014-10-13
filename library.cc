@@ -169,15 +169,8 @@ bool Library::rebuild() {
 }
 
 
-bool Library::removePath(const QString& pathName, int* nRemoved) {
-    if (m_database->isOpen() == false)
-        m_database->close();
-
-    if (m_database->removePath(pathName, nRemoved) == false)
-        return false;
-
-    m_database->close();
-    return true;
+bool Library::removePath(const QString& pathName, int* nRemoved) {    
+    return m_database->removePath(pathName, nRemoved);
 }
 
 
