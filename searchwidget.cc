@@ -32,7 +32,7 @@ SearchWidget::SearchWidget(QSplitter* parent) : QWidget() {
     m_gridLayout->addWidget(m_labelRecipeInfoPath, 4, 0, 1, 2);
 
     connect(m_listViewRecipes->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(selectRecipe()));
-    connect(m_listViewRecipes, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openRecipe()));
+    connect(m_listViewRecipes, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openRecipe()));    
     connect(m_buttonOpen, SIGNAL(clicked()), this, SLOT(openRecipe()));
     connect(m_editSearchQuery, SIGNAL(textChanged(QString)), this, SLOT(filter(QString)));
 
@@ -64,7 +64,7 @@ void SearchWidget::selectRecipe(bool open) {
     Database::Path pathInfo;
     int fileId = m_listViewModelRecipes->data(index, Qt::UserRole).toInt();
     m_library->getFile(fileId, fileInfo);
-    m_library->getPath(fileInfo.pathId, pathInfo);    
+    m_library->getPath(fileInfo.pathId, pathInfo);
 
     QString pathName = QString("%1/%2").arg(pathInfo.pathName, fileInfo.fileName);
     if (open == false) {

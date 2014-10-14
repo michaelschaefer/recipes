@@ -18,9 +18,11 @@ public:
     typedef QList<EntryType> EntryListType;
 
 
-    Exporter(RecipeData recipeData, QWidget* parent = 0);
+    static Exporter* instance();
+
     void exportAsPdf(QString dir = QDir::homePath());
     void print();
+    void setRecipeData(RecipeData& recipeData);
     QTextEdit* textEdit();
     QString xml();
 
@@ -32,6 +34,10 @@ private slots:
 
 
 private:
+
+    Exporter() { m_parent = 0; }
+    Exporter(Exporter const&);
+    void operator=(Exporter const&);
 
     QWidget* m_parent;
     RecipeData m_recipeData;

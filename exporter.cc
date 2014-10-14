@@ -10,23 +10,24 @@
 #include "exporter.hh"
 
 
-Exporter::Exporter(RecipeData recipeData, QWidget* parent) {
-    m_parent = parent;
-    m_recipeData = recipeData;
-}
-
-
 void Exporter::exportAsPdf(QString dir) {
     QString title = trUtf8("Export as PDF");
     QString filter = trUtf8("PDF documents (*.pdf)");
     QString fileName = QFileDialog::getSaveFileName(m_parent, title, dir, filter);
     if (fileName.isEmpty() == false) {
         QPrinter* printer = new QPrinter(QPrinter::HighResolution);
+        printer->setFontEmbeddingEnabled(true);
         printer->setOutputFileName(fileName);
         printer->setOutputFormat(QPrinter::PdfFormat);
         printer->setPaperSize(QPrinter::A4);
         printDocument(printer);
     }
+}
+
+
+Exporter* Exporter::instance() {
+    static Exporter instance;
+    return &instance;
 }
 
 
@@ -46,6 +47,11 @@ void Exporter::printDocument(QPrinter* printer) {
 }
 
 
+void Exporter::setRecipeData(RecipeData& recipeData) {
+    m_recipeData = recipeData;
+}
+
+
 QTextEdit* Exporter::textEdit() {
     QTextEdit* textEdit = new QTextEdit();
     textEdit->setReadOnly(true);
@@ -54,7 +60,7 @@ QTextEdit* Exporter::textEdit() {
      * setup fonts
      */
 
-    int id = QFontDatabase::addApplicationFont(":/font/garamond");
+    int id = QFontDatabase::addApplicationFont(":/font/gentium");
     QString family = QFontDatabase::applicationFontFamilies(id).at(0);
 
     double basePointSize = 12;

@@ -140,7 +140,7 @@ void RecipeTabWidget::openRecipe(QString fileName) {
 
     // create new tab with the selected recipe
     RecipeEdit* recipeEdit = new RecipeEdit(this);    
-    if (recipeEdit->fromXml(fileName) == true) {        
+    if (recipeEdit->fill(fileName) == true) {
         addRecipe(recipeEdit);
     } else {
         QMessageBox::critical(this, trUtf8("Open failed"), trUtf8("Error while loading recipe!"));

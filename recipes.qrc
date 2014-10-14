@@ -3,8 +3,8 @@
         <file alias="recipes">img/recipes.png</file>
     </qresource>
     <qresource prefix="/font">
-        <file alias="garamond">font/EBGaramond-Regular.ttf</file>
         <file alias="fontawesome">font/fontawesome.ttf</file>
+        <file alias="gentium">font/gentium.ttf</file>
     </qresource>
     <qresource prefix="/ts">
         <file alias="recipes_de">ts/recipes_de.qm</file>

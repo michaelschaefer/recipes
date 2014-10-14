@@ -8,6 +8,7 @@
 #include <QSplitter>
 #include <QTextEdit>
 #include <QVBoxLayout>
+#include "exporter.hh"
 #include "ingredientlistedit.hh"
 #include "library.hh"
 #include "preparationlistedit.hh"
@@ -31,7 +32,7 @@ public:
 
     QString fileName(bool withPath = true);
     QString pathName();
-    bool fromXml(QString fileName);
+    bool fill(QString fileName);
     bool hasUnsavedChanges();    
     RecipeData& recipeData();
 
@@ -63,6 +64,7 @@ private:
 
 
     bool m_unsavedChanges;
+    Exporter* m_exporter;
     IngredientListEdit* m_ingredients;
     Library* m_library;
     PreparationListEdit* m_preparation;

@@ -4,15 +4,18 @@
 
 #include <QList>
 #include <QMap>
+#include <QObject>
 #include <QString>
 
 
 class RecipeData {
 
-public:
+
+public:    
 
     void clear();
-    QString headline();
+    bool fill(QString fileName);
+    QString headline();    
     QList<QMap<QString, QString> > ingredients();
     QList<QMap<QString, QString> > preparationSteps();
     QString servingCount();
@@ -22,11 +25,15 @@ public:
     void setServingCount(QString servingCount);
 
 
-private:
+private:    
+
+    void addIngredient(QString amount, QString unit, QString name);
+    void addPreparationStep(QString stepText);
+    void addSection(QString sectionTitle);
 
     QList<QMap<QString, QString> > m_ingredientList;
     QList<QMap<QString, QString> > m_preparationStepList;
-    QString m_headline;
+    QString m_headline;    
     QString m_servingCount;
 
 };

@@ -9,7 +9,7 @@ Library::Library() {
 }
 
 
-Library *Library::instance() {
+Library* Library::instance() {
     static Library instance;
     return &instance;
 }

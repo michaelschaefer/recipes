@@ -1,6 +1,8 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QList>
+#include <QMap>
 #include <QScrollBar>
 #include <QTextCodec>
 #include <QXmlStreamReader>
@@ -17,6 +19,7 @@ RecipeEdit::RecipeEdit(QWidget *parent)
     m_unsavedChanges = true;
     m_library = Library::instance();
     m_editWidget = new QWidget(this);
+    m_exporter = Exporter::instance();
 
     m_previewWidget = new QTextEdit(this);
     m_previewWidget->setReadOnly(true);
@@ -86,12 +89,13 @@ void RecipeEdit::editServingCount() {
 }
 
 
-void RecipeEdit::exportAsPdf() {
+void RecipeEdit::exportAsPdf() {   
+    m_exporter->setRecipeData(recipeData());
     QString exportPathName = pathName();
     if (exportPathName.isEmpty() == true)
-        Exporter(recipeData()).exportAsPdf();
+        m_exporter->exportAsPdf();
     else
-        Exporter(recipeData()).exportAsPdf(exportPathName);
+        m_exporter->exportAsPdf(exportPathName);
 }
 
 
@@ -107,97 +111,28 @@ QString RecipeEdit::fileName(bool withPath) {
 }
 
 
-bool RecipeEdit::fromXml(QString fileName) {    
-    QByteArray data;
-    QFile file(fileName);
-    if (file.open(QFile::ReadOnly) == false)
+bool RecipeEdit::fill(QString fileName) {
+    RecipeData recipeData;
+    if (recipeData.fill(fileName) == false)
         return false;
-    else
-        data = file.readAll();
-
-    QString elementName, elementText;
-    QXmlStreamReader stream(data);
-
-    if (stream.readNextStartElement() == false || stream.name().toString() != "recipe") {
-        return false; // no <recipe> tag
-    }
 
     disconnect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
     disconnect(m_preparation, SIGNAL(changed()), this, SLOT(triggerChanged()));
 
-    while (stream.atEnd() == false) {
-        if (stream.readNextStartElement() == true) {
+    m_headline->setText(recipeData.headline());
 
-            elementName = stream.name().toString();
-            if (elementName == "title") {
-                elementText = stream.readElementText();
-                if (stream.hasError() == true)
-                    return false;
-                else
-                    m_headline->setText(elementText);
-            } else if (elementName == "ingredients") {
+    QMap<QString, QString> ingredient;
+    foreach (ingredient, recipeData.ingredients()) {
+        if (ingredient["type"] == "ingredient")
+            m_ingredients->addIngredient(ingredient["amount"], ingredient["unit"], ingredient["name"]);
+        else if (ingredient["type"] == "section")
+            m_ingredients->addSection(ingredient["title"]);
+    }
 
-                while (stream.readNextStartElement() == true) {
-                    elementName = stream.name().toString();
-                    if (elementName == "ingredient") {
-                        bool hasAmount = false, hasName = false, hasUnit = false;
-                        QString amount, name, unit;
-                        while (stream.readNextStartElement() == true) {
-                            elementName = stream.name().toString();
-                            elementText = stream.readElementText();
-                            if (stream.hasError() == true)
-                                return false;
-                            else {
-                                if (elementName == "amount") {
-                                    amount = elementText;
-                                    hasAmount = true;
-                                } else if (elementName == "name") {
-                                    name = elementText;
-                                    hasName = true;
-                                } else if (elementName == "unit") {
-                                    unit = elementText;
-                                    hasUnit = true;
-                                } else
-                                    return false;
-                            }
-                        }
-
-                        if (hasAmount == true && hasName == true && hasUnit == true)
-                            m_ingredients->addIngredient(amount, unit, name);
-                        else
-                            return false;
-                        elementName = "ingredient";
-
-                    } else if (elementName == "section") {
-                        elementText = stream.readElementText();
-                        if (stream.hasError() == true)
-                            return false;
-                        else
-                            m_ingredients->addSection(elementText);
-                    } else {
-                        return false;
-                    }
-                }
-
-                elementName = "ingredients";
-
-            } else if (elementName == "preparation") {
-
-                while (stream.readNextStartElement() == true) {
-                    elementName = stream.name().toString();
-                    if (elementName == "step") {
-                        elementText = stream.readElementText();
-                        if (stream.hasError() == true)
-                            return false;
-                        else
-                            m_preparation->addPreparationStep(elementText);
-                    } else
-                        return false;
-                }
-
-            }
-
-        }
+    QMap<QString, QString> preparationStep;
+    foreach(preparationStep, recipeData.preparationSteps()) {
+        if (preparationStep["type"] == "preparationStep")
+            m_preparation->addPreparationStep(preparationStep["text"]);
     }
 
     connect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
@@ -205,7 +140,7 @@ bool RecipeEdit::fromXml(QString fileName) {
 
     m_fileName = fileName;
     m_unsavedChanges = false;
-    updatePreview();    
+    updatePreview();
     return true;
 }
 
@@ -224,7 +159,8 @@ QString RecipeEdit::pathName() {
 
 
 void RecipeEdit::print() {
-    Exporter(recipeData()).print();
+    m_exporter->setRecipeData(recipeData());
+    m_exporter->print();
 }
 
 
@@ -253,10 +189,12 @@ bool RecipeEdit::save() {
             return false;
     }
 
+    m_exporter->setRecipeData(recipeData());
+
     QFile file(m_fileName);
-    file.open(QIODevice::WriteOnly);
     QTextStream stream(&file);
-    stream << Exporter(recipeData()).xml();
+    file.open(QIODevice::WriteOnly);    
+    stream << m_exporter->xml();
     file.close();
 
     m_unsavedChanges = false;
@@ -329,5 +267,6 @@ void RecipeEdit::updateLibrary() {
 
 
 void RecipeEdit::updatePreview() {
-    m_previewWidget->setDocument(Exporter(recipeData(), this).textEdit()->document());
+    m_exporter->setRecipeData(recipeData());
+    m_previewWidget->setDocument(m_exporter->textEdit()->document());
 }

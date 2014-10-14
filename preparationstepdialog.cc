@@ -1,3 +1,4 @@
+#include <QApplication>
 #include "preparationstepdialog.hh"
 
 
@@ -20,7 +21,7 @@ PreparationStepDialog::PreparationStepDialog(QWidget* parent)
     m_layout->addWidget(m_edit, 0, 0, 1, 2);
     m_layout->addWidget(m_okay, 1, 0);
     m_layout->addWidget(m_cancel, 1, 1);
-    setLayout(m_layout);
+    setLayout(m_layout);    
 }
 
 

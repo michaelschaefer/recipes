@@ -219,6 +219,7 @@ void MainWindow::setupMenuEdit() {
     m_actionHeadline->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_H));
     m_actionIngredient->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_I));
     m_actionPreparationStep->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_P));
+    m_actionPreview->setShortcut(Qt::Key_F4);
     m_actionSection->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_S));
     m_actionServingCount->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_C));
 
@@ -304,7 +305,7 @@ void MainWindow::setupMenuLibrary() {
 
     m_actionManagePaths->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_P));
     m_actionRebuild->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_R));
-    m_actionSearch->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
+    m_actionSearch->setShortcut(Qt::Key_F2);
     m_actionUpdate->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_U));
 
     connect(m_actionManagePaths, SIGNAL(triggered()), this, SLOT(libraryManagePaths()));

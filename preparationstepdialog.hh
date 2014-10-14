@@ -22,7 +22,7 @@ public:
     QString text();
 
 
-private:
+private:    
 
     bool m_paragraphAllowed;
     QGridLayout* m_layout;
