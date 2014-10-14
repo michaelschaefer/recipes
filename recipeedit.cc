@@ -87,7 +87,11 @@ void RecipeEdit::editServingCount() {
 
 
 void RecipeEdit::exportAsPdf() {
-    Exporter(recipeData()).print(true);
+    QString exportPathName = pathName();
+    if (exportPathName.isEmpty() == true)
+        Exporter(recipeData()).exportAsPdf();
+    else
+        Exporter(recipeData()).exportAsPdf(exportPathName);
 }
 
 
@@ -103,19 +107,23 @@ QString RecipeEdit::fileName(bool withPath) {
 }
 
 
-bool RecipeEdit::fromXml(QString fileName) {
+bool RecipeEdit::fromXml(QString fileName) {    
+    QByteArray data;
     QFile file(fileName);
-    if (file.open(QFile::ReadOnly) == false) {
+    if (file.open(QFile::ReadOnly) == false)
         return false;
-    }
+    else
+        data = file.readAll();
 
     QString elementName, elementText;
-    QXmlStreamReader stream(&file);
-
+    QXmlStreamReader stream(data);
 
     if (stream.readNextStartElement() == false || stream.name().toString() != "recipe") {
         return false; // no <recipe> tag
     }
+
+    disconnect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
+    disconnect(m_preparation, SIGNAL(changed()), this, SLOT(triggerChanged()));
 
     while (stream.atEnd() == false) {
         if (stream.readNextStartElement() == true) {
@@ -192,16 +200,26 @@ bool RecipeEdit::fromXml(QString fileName) {
         }
     }
 
+    connect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
+    connect(m_preparation, SIGNAL(changed()), this, SLOT(triggerChanged()));
+
     m_fileName = fileName;
     m_unsavedChanges = false;
-    updatePreview();
-
+    updatePreview();    
     return true;
 }
 
 
 bool RecipeEdit::hasUnsavedChanges() {
     return m_unsavedChanges;
+}
+
+
+QString RecipeEdit::pathName() {
+    if (m_fileName.isEmpty() == true)
+        return QString();
+    else
+        return m_fileName.mid(0, m_fileName.lastIndexOf(QDir::separator()));
 }
 
 

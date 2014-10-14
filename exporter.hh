@@ -1,6 +1,7 @@
 #ifndef EXPORTER_HH
 #define EXPORTER_HH
 
+#include <QDir>
 #include <QPrinter>
 #include <QTextEdit>
 #include "recipedata.hh"
@@ -18,7 +19,8 @@ public:
 
 
     Exporter(RecipeData recipeData, QWidget* parent = 0);
-    void print(bool asPdf = false);
+    void exportAsPdf(QString dir = QDir::homePath());
+    void print();
     QTextEdit* textEdit();
     QString xml();
 

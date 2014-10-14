@@ -16,25 +16,26 @@ Exporter::Exporter(RecipeData recipeData, QWidget* parent) {
 }
 
 
-void Exporter::print(bool asPdf) {
-    QPrinter* printer = new QPrinter(QPrinter::HighResolution);
-    if (asPdf == true) {
-        QString title = trUtf8("Export as PDF");
-        QString filter = trUtf8("PDF documents (*.pdf)");
-        QString filename = QFileDialog::getSaveFileName(m_parent, title, QDir::homePath(), filter);
-        if (filename.isEmpty() == false) {
-            printer->setOutputFileName(filename);
-            printer->setOutputFormat(QPrinter::PdfFormat);
-            printer->setPaperSize(QPrinter::A4);
-            printDocument(printer);
-        }
-    } else {
-        QPrintPreviewDialog previewDialog(m_parent);
-        previewDialog.setModal(true);
-        connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printDocument(QPrinter*)));
-        previewDialog.show();
-        previewDialog.exec();
+void Exporter::exportAsPdf(QString dir) {
+    QString title = trUtf8("Export as PDF");
+    QString filter = trUtf8("PDF documents (*.pdf)");
+    QString fileName = QFileDialog::getSaveFileName(m_parent, title, dir, filter);
+    if (fileName.isEmpty() == false) {
+        QPrinter* printer = new QPrinter(QPrinter::HighResolution);
+        printer->setOutputFileName(fileName);
+        printer->setOutputFormat(QPrinter::PdfFormat);
+        printer->setPaperSize(QPrinter::A4);
+        printDocument(printer);
     }
+}
+
+
+void Exporter::print() {
+    QPrintPreviewDialog previewDialog(m_parent);
+    previewDialog.setModal(true);
+    connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printDocument(QPrinter*)));
+    previewDialog.show();
+    previewDialog.exec();
 }
 
 
@@ -120,7 +121,7 @@ QTextEdit* Exporter::textEdit() {
     int size = ingredients.size();
     for (int i = 0; i < size; ++i) {
         Exporter::EntryType entry = ingredients[i];
-        if (i == 0 || (i < size-1 && ingredients[i+1]["type"] == "section")) {
+        if (i < size-1 && ingredients[i+1]["type"] == "section") {
             cursor.insertBlock(doubleSpacingFormat);
         } else {
             cursor.insertBlock(oneHalfSpacingFormat);
@@ -129,7 +130,10 @@ QTextEdit* Exporter::textEdit() {
         if (entry["type"] == "section") {
             cursor.insertText(entry["title"], h2Format);
         } else if (entry["type"] == "ingredient") {
-            cursor.insertText(entry["amount"] + entry["unit"] + "\t" + entry["name"], defaultFormat);
+            if (entry["unit"].isEmpty() == true)
+                cursor.insertText(entry["amount"] + "\t" + entry["name"], defaultFormat);
+            else
+                cursor.insertText(entry["amount"] + " " + entry["unit"] + "\t" + entry["name"], defaultFormat);
         }
     }
     cursor.insertBlock(oneHalfSpacingFormat);

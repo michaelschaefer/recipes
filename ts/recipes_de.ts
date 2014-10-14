@@ -107,27 +107,27 @@
         <translation>Neuerzeugung vollständig</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="187"/>
+        <location filename="../library.cc" line="180"/>
         <source>inserting paths into library...</source>
         <translation>Füge Pfade in die Bibliothek ein...</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="195"/>
+        <location filename="../library.cc" line="188"/>
         <source>library is now empty</source>
         <translation>Bibliothek ist jetzt leer</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="221"/>
+        <location filename="../library.cc" line="214"/>
         <source>inserting complete (%1 new, %2 removed)</source>
         <translation>Einfügen beendet (%1 neu, %2 entfernt)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="230"/>
+        <location filename="../library.cc" line="223"/>
         <source>updating library...</source>
         <translation>Bibliothek wird aktualisiert...</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="257"/>
+        <location filename="../library.cc" line="250"/>
         <source>update complete (%1 new, %2 removed)</source>
         <translation>Aktualisierung vollständig (%1 neu, %2 entfernt)</translation>
     </message>

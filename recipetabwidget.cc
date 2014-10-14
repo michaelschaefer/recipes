@@ -118,7 +118,7 @@ void RecipeTabWidget::newRecipe() {
 }
 
 
-void RecipeTabWidget::openRecipe(QString fileName) {
+void RecipeTabWidget::openRecipe(QString fileName) {    
     if (fileName.isEmpty()) {
         QString caption = trUtf8("Open recipe");
         QString dir = QDir::homePath();
@@ -127,7 +127,7 @@ void RecipeTabWidget::openRecipe(QString fileName) {
         fileName = QFileDialog::getOpenFileName(this, caption, dir, filter);
         if (fileName.isEmpty() == true)
             return;
-    }
+    }    
 
     // select tab if chosen file is already opened
     QList<RecipeEdit*>::Iterator it = m_recipes.begin();
@@ -136,11 +136,11 @@ void RecipeTabWidget::openRecipe(QString fileName) {
             setCurrentWidget(*it);
             return;
         }
-    }
+    }    
 
     // create new tab with the selected recipe
-    RecipeEdit* recipeEdit = new RecipeEdit(this);
-    if (recipeEdit->fromXml(fileName) == true) {
+    RecipeEdit* recipeEdit = new RecipeEdit(this);    
+    if (recipeEdit->fromXml(fileName) == true) {        
         addRecipe(recipeEdit);
     } else {
         QMessageBox::critical(this, trUtf8("Open failed"), trUtf8("Error while loading recipe!"));

@@ -57,20 +57,20 @@ void SearchWidget::openRecipe() {
 }
 
 
-void SearchWidget::selectRecipe(bool open) {
+void SearchWidget::selectRecipe(bool open) {    
     QModelIndex index = m_listViewRecipes->currentIndex();
 
     Database::File fileInfo;
     Database::Path pathInfo;
     int fileId = m_listViewModelRecipes->data(index, Qt::UserRole).toInt();
     m_library->getFile(fileId, fileInfo);
-    m_library->getPath(fileInfo.pathId, pathInfo);
+    m_library->getPath(fileInfo.pathId, pathInfo);    
 
     QString pathName = QString("%1/%2").arg(pathInfo.pathName, fileInfo.fileName);
     if (open == false) {
         m_labelRecipeInfoPath->setText(trUtf8("Path: ") + pathName);
         m_labelRecipeInfoHeadline->setText(trUtf8("Headline: ") + fileInfo.headline);
-    } else {
+    } else {        
         emit recipeSelected(pathName);
     }
 }
