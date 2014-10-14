@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui printsupport
+QT       += core gui printsupport sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,7 +26,13 @@ SOURCES += main.cc \
     preparationstepdialog.cc \
     recipetabwidget.cc \
     recipedata.cc \
-    exporter.cc
+    exporter.cc \
+    library.cc \
+    database.cc \
+    librarythread.cc \
+    librarypathdialog.cc \
+    searchwidget.cc \
+    searchfiltermodel.cc
 
 HEADERS  += mainwindow.hh \
     recipeedit.hh \
@@ -41,7 +47,13 @@ HEADERS  += mainwindow.hh \
     preparationstepdialog.hh \
     recipetabwidget.hh \
     recipedata.hh \
-    exporter.hh
+    exporter.hh \
+    library.hh \
+    database.hh \
+    librarythread.hh \
+    librarypathdialog.hh \
+    searchwidget.hh \
+    searchfiltermodel.hh
 
 RESOURCES += recipes.qrc
 

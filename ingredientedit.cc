@@ -73,5 +73,8 @@ QString IngredientEdit::unit() {
 
 
 void IngredientEdit::updateText() {
-    m_text->setText(amount() + unit() + "\t" + name());
+    if (unit().isEmpty() == true)
+        m_text->setText(amount() + "\t" + name());
+    else
+        m_text->setText(amount() + " " + unit() + "\t" + name());
 }

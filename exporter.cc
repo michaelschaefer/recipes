@@ -10,17 +10,57 @@
 #include "exporter.hh"
 
 
-Exporter::Exporter(RecipeData recipeData, QWidget* parent) {
+void Exporter::exportAsPdf(QString dir) {
+    QString title = trUtf8("Export as PDF");
+    QString filter = trUtf8("PDF documents (*.pdf)");
+    QString fileName = QFileDialog::getSaveFileName(m_parent, title, dir, filter);
+    if (fileName.isEmpty() == false) {
+        QPrinter* printer = new QPrinter(QPrinter::HighResolution);
+        printer->setFontEmbeddingEnabled(true);
+        printer->setOutputFileName(fileName);
+        printer->setOutputFormat(QPrinter::PdfFormat);
+        printer->setPaperSize(QPrinter::A4);
+        printDocument(printer);
+    }
+}
 
-    m_parent = parent;
+
+Exporter* Exporter::instance() {
+    static Exporter instance;
+    return &instance;
+}
+
+
+void Exporter::print() {
+    QPrintPreviewDialog previewDialog(m_parent);
+    previewDialog.setModal(true);
+    connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printDocument(QPrinter*)));
+    previewDialog.show();
+    previewDialog.exec();
+}
+
+
+void Exporter::printDocument(QPrinter* printer) {
+    QTextEdit* textEdit = this->textEdit();
+    if (textEdit != 0)
+        textEdit->document()->print(printer);
+}
+
+
+void Exporter::setRecipeData(RecipeData& recipeData) {
     m_recipeData = recipeData;
-    m_textEdit = new QTextEdit();
+}
+
+
+QTextEdit* Exporter::textEdit() {
+    QTextEdit* textEdit = new QTextEdit();
+    textEdit->setReadOnly(true);
 
     /*
      * setup fonts
      */
 
-    int id = QFontDatabase::addApplicationFont(":/font/garamond");
+    int id = QFontDatabase::addApplicationFont(":/font/gentium");
     QString family = QFontDatabase::applicationFontFamilies(id).at(0);
 
     double basePointSize = 12;
@@ -67,27 +107,27 @@ Exporter::Exporter(RecipeData recipeData, QWidget* parent) {
      * recipe
      */
 
-    QTextCursor cursor(m_textEdit->textCursor());
+    QTextCursor cursor(textEdit->textCursor());
 
-    // headline        
-    m_textEdit->setAlignment(Qt::AlignHCenter);
-    m_textEdit->setFont(defaultFont);
-    cursor.insertText(recipeData.headline(), h1Format);
+    // headline
+    textEdit->setAlignment(Qt::AlignHCenter);
+    textEdit->setFont(defaultFont);
+    cursor.insertText(m_recipeData.headline(), h1Format);
     cursor.insertBlock(oneHalfSpacingFormat, defaultFormat);
 
     // ingredients headline
     cursor.insertBlock(doubleSpacingFormat);
     cursor.insertText(trUtf8("Ingredients"), h2Format);
-    if (recipeData.servingCount().isEmpty() == false) {
-        cursor.insertText(" " + recipeData.servingCount());
+    if (m_recipeData.servingCount().isEmpty() == false) {
+        cursor.insertText(" " + m_recipeData.servingCount());
     }
 
     // ingredient list
-    QList<QMap<QString, QString> > ingredients = recipeData.ingredients();
+    Exporter::EntryListType ingredients = m_recipeData.ingredients();
     int size = ingredients.size();
     for (int i = 0; i < size; ++i) {
-        QMap<QString, QString> entry = ingredients[i];        
-        if (i == 0 || (i < size-1 && ingredients[i+1]["type"] == "section")) {
+        Exporter::EntryType entry = ingredients[i];
+        if (i < size-1 && ingredients[i+1]["type"] == "section") {
             cursor.insertBlock(doubleSpacingFormat);
         } else {
             cursor.insertBlock(oneHalfSpacingFormat);
@@ -96,58 +136,36 @@ Exporter::Exporter(RecipeData recipeData, QWidget* parent) {
         if (entry["type"] == "section") {
             cursor.insertText(entry["title"], h2Format);
         } else if (entry["type"] == "ingredient") {
-            cursor.insertText(entry["amount"] + entry["unit"] + "\t" + entry["name"], defaultFormat);
+            if (entry["unit"].isEmpty() == true)
+                cursor.insertText(entry["amount"] + "\t" + entry["name"], defaultFormat);
+            else
+                cursor.insertText(entry["amount"] + " " + entry["unit"] + "\t" + entry["name"], defaultFormat);
         }
-    }    
+    }
     cursor.insertBlock(oneHalfSpacingFormat);
 
 
     // preparation headline
     cursor.insertBlock(doubleSpacingFormat);
-    cursor.insertText(trUtf8("Preparation"), h2Format);    
+    cursor.insertText(trUtf8("Preparation"), h2Format);
 
     oneHalfSpacingFormat.setBottomMargin(basePointSize);
     cursor.insertBlock(oneHalfSpacingFormat, defaultFormat);
 
     // preparation steps
     cursor.createList(listFormat);
-    QList<QMap<QString, QString> > preparationSteps = recipeData.preparationSteps();
+    Exporter::EntryListType preparationSteps = m_recipeData.preparationSteps();
     for (int i = 0; i < preparationSteps.size(); ++i) {
-        QMap<QString, QString> entry = preparationSteps[i];
+        Exporter::EntryType entry = preparationSteps[i];
         if (entry["type"] == "preparationStep") {
             if (i > 0) {
                 cursor.insertBlock();
-            }                        
+            }
             cursor.insertText(entry["text"]);
         }
     }
-}
 
-
-void Exporter::print(bool asPdf) {
-    QPrinter* printer = new QPrinter(QPrinter::HighResolution);
-    if (asPdf == true) {
-        QString title = trUtf8("Export as PDF");
-        QString filter = trUtf8("PDF documents (*.pdf)");
-        QString filename = QFileDialog::getSaveFileName(m_parent, title, QDir::homePath(), filter);
-        if (filename.isEmpty() == false) {
-            printer->setOutputFileName(filename);
-            printer->setOutputFormat(QPrinter::PdfFormat);
-            printer->setPaperSize(QPrinter::A4);
-            printDocument(printer);
-        }
-    } else {
-        QPrintPreviewDialog previewDialog(m_parent);
-        previewDialog.setModal(true);
-        connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printDocument(QPrinter*)));
-        previewDialog.show();
-        previewDialog.exec();
-    }
-}
-
-
-void Exporter::printDocument(QPrinter* printer) {
-    m_textEdit->document()->print(printer);
+    return textEdit;
 }
 
 

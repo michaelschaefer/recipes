@@ -1,6 +1,9 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QList>
+#include <QMap>
+#include <QScrollBar>
 #include <QTextCodec>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -9,27 +12,45 @@
 
 
 RecipeEdit::RecipeEdit(QWidget *parent)
-    : QWidget(parent)
+    : QSplitter(parent)
 {
     setupFonts();
 
     m_unsavedChanges = true;
+    m_library = Library::instance();
+    m_editWidget = new QWidget(this);
+    m_exporter = Exporter::instance();
 
-    m_headline = new QLabel(trUtf8("unnamed"), this);
+    m_previewWidget = new QTextEdit(this);
+    m_previewWidget->setReadOnly(true);
+
+    m_headline = new QLabel(trUtf8("unnamed"), m_editWidget);
     m_headline->setAlignment(Qt::AlignHCenter);
     m_headline->setFont(m_h1Font);
 
-    m_ingredients = new IngredientListEdit(this);    
-    m_preparation = new PreparationListEdit(this);
-    connect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
-    connect(m_preparation, SIGNAL(changed()), this, SLOT(triggerChanged()));
+    m_ingredients = new IngredientListEdit(m_editWidget);
+    m_preparation = new PreparationListEdit(m_editWidget);
 
     m_layout = new QVBoxLayout();
     m_layout->addWidget(m_headline);
     m_layout->addWidget(m_ingredients);
     m_layout->addWidget(m_preparation);
     m_layout->addStretch(100);
-    setLayout(m_layout);
+    m_editWidget->setLayout(m_layout);
+
+    m_editArea = new QScrollArea(this);
+    m_editArea->setWidget(m_editWidget);
+    m_editArea->setWidgetResizable(true);
+
+    insertWidget(0, m_editArea);
+    insertWidget(1, m_previewWidget);
+
+    // preview
+    updatePreview();
+    togglePreview(false);
+
+    connect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
+    connect(m_preparation, SIGNAL(changed()), this, SLOT(triggerChanged()));
 }
 
 
@@ -68,115 +89,58 @@ void RecipeEdit::editServingCount() {
 }
 
 
-void RecipeEdit::exportAsPdf() {
-    Exporter(recipeData()).print(true);
+void RecipeEdit::exportAsPdf() {   
+    m_exporter->setRecipeData(recipeData());
+    QString exportPathName = pathName();
+    if (exportPathName.isEmpty() == true)
+        m_exporter->exportAsPdf();
+    else
+        m_exporter->exportAsPdf(exportPathName);
 }
 
 
-QString RecipeEdit::filename(bool withPath) {
-    if (m_filename.isEmpty() == true) {
+QString RecipeEdit::fileName(bool withPath) {
+    if (m_fileName.isEmpty() == true) {
         return trUtf8("unsaved");
     } else {
         if (withPath == true)
-            return m_filename;
+            return m_fileName;
         else
-            return m_filename.mid(m_filename.lastIndexOf("/") + 1);
+            return m_fileName.mid(m_fileName.lastIndexOf(QDir::separator()) + 1);
     }
 }
 
 
-bool RecipeEdit::fromXml(QString filename) {
-    QFile file(filename);
-    if (file.open(QFile::ReadOnly) == false) {
+bool RecipeEdit::fill(QString fileName) {
+    RecipeData recipeData;
+    if (recipeData.fill(fileName) == false)
         return false;
+
+    disconnect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
+    disconnect(m_preparation, SIGNAL(changed()), this, SLOT(triggerChanged()));
+
+    m_headline->setText(recipeData.headline());
+
+    QMap<QString, QString> ingredient;
+    foreach (ingredient, recipeData.ingredients()) {
+        if (ingredient["type"] == "ingredient")
+            m_ingredients->addIngredient(ingredient["amount"], ingredient["unit"], ingredient["name"]);
+        else if (ingredient["type"] == "section")
+            m_ingredients->addSection(ingredient["title"]);
     }
 
-    QString elementName, elementText;
-    QXmlStreamReader stream(&file);
-
-
-    if (stream.readNextStartElement() == false || stream.name().toString() != "recipe") {
-        return false; // no <recipe> tag
+    QMap<QString, QString> preparationStep;
+    foreach(preparationStep, recipeData.preparationSteps()) {
+        if (preparationStep["type"] == "preparationStep")
+            m_preparation->addPreparationStep(preparationStep["text"]);
     }
 
-    while (stream.atEnd() == false) {
-        if (stream.readNextStartElement() == true) {
+    connect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
+    connect(m_preparation, SIGNAL(changed()), this, SLOT(triggerChanged()));
 
-            elementName = stream.name().toString();
-            if (elementName == "title") {
-                elementText = stream.readElementText();
-                if (stream.hasError() == true)
-                    return false;
-                else
-                    m_headline->setText(elementText);
-            } else if (elementName == "ingredients") {
-
-                while (stream.readNextStartElement() == true) {
-                    elementName = stream.name().toString();
-                    if (elementName == "ingredient") {
-                        bool hasAmount = false, hasName = false, hasUnit = false;
-                        QString amount, name, unit;
-                        while (stream.readNextStartElement() == true) {
-                            elementName = stream.name().toString();
-                            elementText = stream.readElementText();
-                            if (stream.hasError() == true)
-                                return false;
-                            else {
-                                if (elementName == "amount") {
-                                    amount = elementText;
-                                    hasAmount = true;
-                                } else if (elementName == "name") {
-                                    name = elementText;
-                                    hasName = true;
-                                } else if (elementName == "unit") {
-                                    unit = elementText;
-                                    hasUnit = true;
-                                } else
-                                    return false;
-                            }
-                        }
-
-                        if (hasAmount == true && hasName == true && hasUnit == true)
-                            m_ingredients->addIngredient(amount, unit, name);
-                        else
-                            return false;
-                        elementName = "ingredient";
-
-                    } else if (elementName == "section") {
-                        elementText = stream.readElementText();
-                        if (stream.hasError() == true)
-                            return false;
-                        else
-                            m_ingredients->addSection(elementText);
-                    } else {
-                        return false;
-                    }
-                }
-
-                elementName = "ingredients";
-
-            } else if (elementName == "preparation") {
-
-                while (stream.readNextStartElement() == true) {
-                    elementName = stream.name().toString();
-                    if (elementName == "step") {
-                        elementText = stream.readElementText();
-                        if (stream.hasError() == true)
-                            return false;
-                        else
-                            m_preparation->addPreparationStep(elementText);
-                    } else
-                        return false;
-                }
-
-            }
-
-        }
-    }
-
-    m_filename = filename;
+    m_fileName = fileName;
     m_unsavedChanges = false;
-
+    updatePreview();
     return true;
 }
 
@@ -186,18 +150,26 @@ bool RecipeEdit::hasUnsavedChanges() {
 }
 
 
-void RecipeEdit::print() {
-    Exporter(recipeData()).print();
+QString RecipeEdit::pathName() {
+    if (m_fileName.isEmpty() == true)
+        return QString();
+    else
+        return m_fileName.mid(0, m_fileName.lastIndexOf(QDir::separator()));
 }
 
 
-RecipeData RecipeEdit::recipeData() {
-    RecipeData recipeData;
-    recipeData.setHeadline(m_headline->text());
-    recipeData.setIngredientList(m_ingredients->data());
-    recipeData.setPreparationStepList(m_preparation->data());
-    recipeData.setServingCount(m_ingredients->servingCount());
-    return recipeData;
+void RecipeEdit::print() {
+    m_exporter->setRecipeData(recipeData());
+    m_exporter->print();
+}
+
+
+RecipeData& RecipeEdit::recipeData() {
+    m_recipeData.setHeadline(m_headline->text());
+    m_recipeData.setIngredientList(m_ingredients->data());
+    m_recipeData.setPreparationStepList(m_preparation->data());
+    m_recipeData.setServingCount(m_ingredients->servingCount());
+    return m_recipeData;
 }
 
 
@@ -205,26 +177,28 @@ bool RecipeEdit::save() {
     if (hasUnsavedChanges() == false)
         return true;
 
-    if (m_filename.isEmpty()) {
+    if (m_fileName.isEmpty()) {
         QString caption = trUtf8("Save recipe");
         QString dir = QDir::homePath();
         QString filter = trUtf8("Recipe files (*.xml)");
 
-        QString filename = QFileDialog::getSaveFileName(this, caption, dir, filter);
-        if (filename.isEmpty() == false)
-            m_filename = filename;
+        QString absoluteFileName = QFileDialog::getSaveFileName(this, caption, dir, filter);
+        if (absoluteFileName.isEmpty() == false)
+            m_fileName = absoluteFileName;
         else
             return false;
     }
 
-    QFile file(m_filename);
-    file.open(QIODevice::WriteOnly);
+    m_exporter->setRecipeData(recipeData());
+
+    QFile file(m_fileName);
     QTextStream stream(&file);
-    //stream << toXml();
-    stream << Exporter(recipeData()).xml();
+    file.open(QIODevice::WriteOnly);    
+    stream << m_exporter->xml();
     file.close();
 
     m_unsavedChanges = false;
+    updateLibrary();
     emit saved(this);
     return true;
 }
@@ -232,16 +206,22 @@ bool RecipeEdit::save() {
 
 bool RecipeEdit::saveAs() {
     QString caption = trUtf8("Save recipe as");
-    QString dir = QDir::homePath();
+    QString dir;
+    if (m_fileName.isEmpty())
+        dir = QDir::homePath();
+    else
+        dir = m_fileName.mid(0, m_fileName.lastIndexOf(QDir::separator()));
     QString filter = trUtf8("Recipe files (*.xml)");
 
-    QString filename = QFileDialog::getSaveFileName(this, caption, dir, filter);
-    if (filename.isEmpty() == false)
-        m_filename = filename;
+    QString absoluteFileName = QFileDialog::getSaveFileName(this, caption, dir, filter);
+    if (absoluteFileName.isEmpty() == false)
+        m_fileName = absoluteFileName;
     else
         return false;
 
     m_unsavedChanges = true;
+    updateLibrary();
+    emit saved(this);
     return save();
 }
 
@@ -257,7 +237,36 @@ void RecipeEdit::setupFonts() {
 }
 
 
+void RecipeEdit::togglePreview(bool visible) {
+    if (visible == true) {
+        int w = width();
+        int half = (w - (w % 2)) / 2;
+        QList<int> sizeList;
+        sizeList.append(half);
+        sizeList.append(w - half);
+        setSizes(sizeList);        
+        m_previewWidget->verticalScrollBar()->triggerAction(QScrollBar::SliderToMinimum);
+    }
+    m_previewWidget->setVisible(visible);
+}
+
+
 void RecipeEdit::triggerChanged() {
     m_unsavedChanges = true;
+    updatePreview();
     emit changed(this);
+}
+
+
+void RecipeEdit::updateLibrary() {
+    int lastSeparator = m_fileName.lastIndexOf(QDir::separator());
+    QString fileName = m_fileName.mid(lastSeparator + 1);
+    QString pathName = m_fileName.mid(0, lastSeparator);
+    m_library->insertOrUpdateFile(fileName, pathName, recipeData());
+}
+
+
+void RecipeEdit::updatePreview() {
+    m_exporter->setRecipeData(recipeData());
+    m_previewWidget->setDocument(m_exporter->textEdit()->document());
 }

@@ -1,7 +1,9 @@
+#include <QDebug>
 #include <QApplication>
 #include <QLibraryInfo>
 #include <QTranslator>
 #include "mainwindow.hh"
+
 
 int main(int argc, char *argv[])
 {
