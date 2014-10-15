@@ -16,7 +16,7 @@ WidgetInterface::WidgetInterface(QWidget* parent)
 }
 
 
-WidgetInterface::DataType WidgetInterface::data() {
+QMap<QString, QString> WidgetInterface::data() {
     return m_data;
 }
 

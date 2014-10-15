@@ -21,9 +21,7 @@ signals:
     void changed();
 
 
-public:
-
-    typedef QList<WidgetInterface::DataType> DataType;
+public:    
 
     IngredientListEdit(QWidget* parent = 0);
 
@@ -31,7 +29,7 @@ public:
     void addIngredient(QString amount, QString unit, QString name);
     void addSection();
     void addSection(QString sectionName);
-    IngredientListEdit::DataType data();
+    QList<QMap<QString, QString> > data();
     void editServingCount();
     QString servingCount();
 

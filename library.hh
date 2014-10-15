@@ -24,11 +24,11 @@ public:
     bool getFile(int fileId, Database::File& file);
     bool getPath(int pathId, Database::Path& path);
     QStringList getPathList();
-    Database::RecipeListType getRecipeList();
+    QList<QPair<QString, int> > getRecipeList();
     bool insertOrUpdateFile(QString fileName, QString pathName, RecipeData& recipeData);
     bool rebuild();
     bool setPathList(QStringList& newPathList);
-    bool update();        
+    bool update();
 
 
 private:
@@ -37,9 +37,8 @@ private:
     Library(Library const&);
     void operator=(Library const&);
 
-    bool addFiles(QDir& dir, int pathId, int* nAdded = 0);
-    bool addPath(const QString& pathName, int* nAdded = 0);
-    bool checkForRecipe(const QFileInfo& fileInfo, RecipeData& recipeData);
+    bool insertFiles(QDir& dir, int pathId, int* nAdded = 0);
+    bool insertPath(const QString& pathName, int* nAdded = 0);
     bool removePath(const QString& pathName, int* nRemoved = 0);
     bool updateFiles(QDir& dir, int pathId, int* nAdded = 0, int* nRemoved = 0);
 

@@ -13,10 +13,7 @@ class Database : public QObject {
     Q_OBJECT
 
 
-public:
-
-    typedef QPair<QString, int> RecipeType;
-    typedef QList<RecipeType> RecipeListType;
+public:    
 
     struct File {
         QString fileName;
@@ -33,14 +30,14 @@ public:
     Database(QString fileName = QDir::currentPath() + QDir::toNativeSeparators("/library.sqlite"));
 
     void clear();
-    void close();        
+    void close();
     bool getFile(int fileId, File& file);
     bool getFileId(const QString& fileName, int pathId, int* fileId = 0);
     QStringList getFileNameList(int pathId);
     bool getPath(int pathId, Path& path);
     bool getPathId(const QString& pathName, int* pathId = 0);
     QStringList getPathNameList();
-    RecipeListType getRecipeList();
+    QList<QPair<QString, int> > getRecipeList();
     bool insertFile(const QString& fileName, int pathId, RecipeData& recipeData, int* fileId = 0);
     bool insertPath(const QString& pathName, int* pathId = 0);
     bool isOpen();
@@ -52,8 +49,18 @@ public:
 
 private:
 
-    bool executeNoSelect(QString queryString);    
+    bool cleanIngredients();
+    bool executeNoSelect(QString queryString);
+    QList<int> getFileIdList(int pathId);
+    bool getIngredientId(QString ingredientName, int* ingredientId);
+    QList<QPair<QString, int> > getIngredientList(int fileId);
+    bool insertIngredient(QString ingredientName, int* ingredientId);
+    bool insertIngredientAssignment(int fileId, int ingredientId);
+    bool insertIngredients(int fileId, RecipeData &recipeData);
+    bool removeIngredientAssignment(int fileId, int ingredientId);
+    bool removeIngredients(int fileId);
     bool init();
+
 
     QSqlDatabase m_database;
     QString m_databaseName;

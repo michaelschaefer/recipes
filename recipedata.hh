@@ -6,6 +6,7 @@
 #include <QMap>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 
 
 class RecipeData {
@@ -15,7 +16,8 @@ public:
 
     void clear();
     bool fill(QString fileName);
-    QString headline();    
+    QString headline();
+    QStringList ingredientNameList();
     QList<QMap<QString, QString> > ingredients();
     QList<QMap<QString, QString> > preparationSteps();
     QString servingCount();

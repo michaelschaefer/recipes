@@ -12,11 +12,7 @@ class Exporter : public QObject {
     Q_OBJECT
 
 
-public:
-
-    typedef QMap<QString, QString> EntryType;
-    typedef QList<EntryType> EntryListType;
-
+public:    
 
     static Exporter* instance();
 

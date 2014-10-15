@@ -41,9 +41,8 @@ void PreparationListEdit::addPreparationStep(QString text) {
 }
 
 
-PreparationListEdit::DataType PreparationListEdit::data() {
-    PreparationListEdit::DataType data;
-
+QList<QMap<QString, QString> > PreparationListEdit::data() {
+    QList<QMap<QString, QString> > data;
     QList<WidgetInterface*> list = m_flexibleLayout->widgets();
     for (QList<WidgetInterface*>::Iterator it = list.begin(); it != list.end(); ++it) {
         data.append((*it)->data());

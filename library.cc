@@ -15,75 +15,6 @@ Library* Library::instance() {
 }
 
 
-bool Library::addFiles(QDir& dir, int pathId, int* nAdded) {
-    int added = 0, fileId = 0;
-    RecipeData recipeData;
-
-    dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.xml");
-    QFileInfoList fileInfoList = dir.entryInfoList();
-
-    foreach (const QFileInfo& fileInfo, fileInfoList) {
-        recipeData.clear();
-        if (checkForRecipe(fileInfo, recipeData) == false)
-            continue;
-        else if (m_database->insertFile(fileInfo.fileName(), pathId, recipeData, &fileId) == false)
-            continue;
-        else
-            added++;
-    }
-
-    if (nAdded != 0)
-        *nAdded = added;    
-
-    return true;
-}
-
-
-bool Library::addPath(const QString& pathName, int* nAdded) {
-    QDir dir(pathName);
-    if (dir.exists() == false)
-        return false;
-
-    int pathId;
-    if (m_database->insertPath(pathName, &pathId) == false)
-        return false;
-    else if (addFiles(dir, pathId, nAdded) == false)
-        return false;
-
-    return true;
-}
-
-
-bool Library::checkForRecipe(const QFileInfo &fileInfo, RecipeData& recipeData) {
-    QFile file(fileInfo.absoluteFilePath());
-    file.open(QFile::ReadOnly);
-    QXmlStreamReader reader(&file);
-
-    if (reader.readNextStartElement() == false) {
-        file.close();
-        return false;
-    } else if (reader.name().toString() == "recipe") {        
-        if (reader.readNextStartElement() == false) {
-            file.close();
-            return false;
-        } else {
-            QString headline = reader.readElementText();
-            file.close();
-            if (reader.hasError() == false) {
-                recipeData.setHeadline(headline);
-                return true;
-            } else {
-                return false;
-            }
-        }
-    } else {
-        file.close();
-        return false;
-    }
-}
-
-
 bool Library::getFile(int fileId, Database::File& file) {
     if (m_database->isOpen() == false)
         m_database->open();
@@ -111,12 +42,37 @@ QStringList Library::getPathList() {
 }
 
 
-Database::RecipeListType Library::getRecipeList() {
+QList<QPair<QString, int> > Library::getRecipeList() {
     if (m_database->isOpen() == false)
         m_database->open();
-    Database::RecipeListType recipeList = m_database->getRecipeList();
+    QList<QPair<QString, int> > recipeList = m_database->getRecipeList();
     m_database->close();
     return recipeList;
+}
+
+
+bool Library::insertFiles(QDir& dir, int pathId, int* nAdded) {
+    int added = 0, fileId = 0;
+    RecipeData recipeData;
+
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+    dir.setNameFilters(QStringList() << "*.xml");
+    QFileInfoList fileInfoList = dir.entryInfoList();
+
+    foreach (const QFileInfo& fileInfo, fileInfoList) {
+        recipeData.clear();
+        if (recipeData.fill(fileInfo.absoluteFilePath()) == false)
+            continue;
+        else if (m_database->insertFile(fileInfo.fileName(), pathId, recipeData, &fileId) == false)
+            continue;
+        else
+            added++;
+    }
+
+    if (nAdded != 0)
+        *nAdded = added;
+
+    return true;
 }
 
 
@@ -150,6 +106,21 @@ bool Library::insertOrUpdateFile(QString fileName, QString pathName, RecipeData&
 
     emit updated();
     m_database->close();
+    return true;
+}
+
+
+bool Library::insertPath(const QString& pathName, int* nAdded) {
+    QDir dir(pathName);
+    if (dir.exists() == false)
+        return false;
+
+    int pathId;
+    if (m_database->insertPath(pathName, &pathId) == false)
+        return false;
+    else if (insertFiles(dir, pathId, nAdded) == false)
+        return false;
+
     return true;
 }
 
@@ -194,6 +165,7 @@ bool Library::setPathList(QStringList& newPathList) {
         if (newPathList.contains(path) == false) {
             if (removePath(path, &counter) == false) {
                 m_database->close();
+                emit statusBarMessage(trUtf8("inserting failed! Consider a library rebuild."));
                 return false;
             } else
                 removed += counter;
@@ -202,8 +174,9 @@ bool Library::setPathList(QStringList& newPathList) {
 
     foreach (const QString& path, newPathList) {
         if (currentPathList.contains(path) == false) {
-            if (addPath(path, &counter) == false) {
+            if (insertPath(path, &counter) == false) {
                 m_database->close();
+                emit statusBarMessage(trUtf8("inserting failed! Consider a library rebuild."));
                 return false;
             } else
                 added += counter;
@@ -232,10 +205,12 @@ bool Library::update() {
             int pathId;
             if (m_database->getPathId(pathName, &pathId) == false) {
                 m_database->close();
+                emit statusBarMessage(trUtf8("update failed! Consider a library rebuild."));
                 return false;
             }
             if (updateFiles(dir, pathId, &added, &removed) == false) {
                 m_database->close();
+                emit statusBarMessage(trUtf8("update failed! Consider a library rebuild."));
                 return false;
             }
         } else {
@@ -255,11 +230,11 @@ bool Library::update() {
 
 bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
     int added = 0, removed = 0;
-    const QStringList& currentFileList = m_database->getFileNameList(pathId);
+    const QStringList& databaseFileList = m_database->getFileNameList(pathId);
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.xml");
-    const QStringList& newFileList = dir.entryList();
-    const QFileInfoList& newFileInfoList = dir.entryInfoList();
+    const QStringList& discFileList = dir.entryList();
+    const QFileInfoList& discFileInfoList = dir.entryInfoList();
 
     /*
      * remove files from the database that were
@@ -267,16 +242,18 @@ bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
      * b) overwritten by non-recipes
      */
 
+    QString pathName;
     RecipeData recipeData;
-    foreach (const QString& fileName, currentFileList) {
-        if (newFileList.contains(fileName) == false) {
+    foreach (const QString& fileName, databaseFileList) {
+        if (discFileList.contains(fileName) == false) {
             if (m_database->removeFile(fileName, pathId) == true)
                 removed++;
             else
                 return false;
         } else {
+            pathName = QString("%1/%2").arg(dir.absolutePath()).arg(fileName);
             recipeData.clear();
-            if (checkForRecipe(QFileInfo(dir, fileName), recipeData) == false) {
+            if (recipeData.fill(pathName) == false) {
                 if (m_database->removeFile(fileName, pathId) == true)
                     removed++;
                 else
@@ -286,15 +263,15 @@ bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
     }
 
     /*
-     * add files from disk to the database that were
+     * add new files from disk to the database
      */
 
     QString fileName;
-    foreach (const QFileInfo& fileInfo, newFileInfoList) {
+    foreach (const QFileInfo& fileInfo, discFileInfoList) {
         fileName = fileInfo.fileName();
-        if (currentFileList.contains(fileName) == false) {
+        if (databaseFileList.contains(fileName) == false) {
             recipeData.clear();
-            if (checkForRecipe(fileInfo, recipeData) == false)
+            if (recipeData.fill(fileInfo.absoluteFilePath()) == false)
                 continue;
             if (m_database->insertFile(fileName, pathId, recipeData) == true)
                 added++;

@@ -137,6 +137,17 @@ QString RecipeData::headline() {
 }
 
 
+QStringList RecipeData::ingredientNameList() {
+    QStringList ingredientNameList;
+    QMap<QString, QString> ingredient;
+    foreach (ingredient, m_ingredientList) {
+        if (ingredient["type"] == "ingredient")
+            ingredientNameList << ingredient["name"];
+    }
+    return ingredientNameList;
+}
+
+
 void RecipeData::clear() {
     m_headline = QString();
     m_ingredientList.clear();

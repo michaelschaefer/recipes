@@ -17,7 +17,7 @@ public:
     SearchFilterModel(QObject* parent = 0);
 
     void clearItems();
-    void insertItem(Database::RecipeType recipe);
+    void insertItem(QPair<QString, int> recipe);
 
 
 protected:

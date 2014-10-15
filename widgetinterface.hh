@@ -26,13 +26,11 @@ signals:
     void upTriggered(WidgetInterface*);
 
 
-public:   
-
-    typedef QMap<QString, QString> DataType;
+public:       
 
     WidgetInterface(QWidget* parent = 0);    
 
-    WidgetInterface::DataType data();
+    QMap<QString, QString> data();
 
 
 private slots:
@@ -51,7 +49,7 @@ protected:
     QAction* m_actionRemove;
     QHBoxLayout* m_layout;    
     QLabel* m_text;
-    WidgetInterface::DataType m_data;
+    QMap<QString, QString> m_data;
     QMenu* m_popupMenu;   
 
 

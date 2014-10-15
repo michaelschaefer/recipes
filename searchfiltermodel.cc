@@ -15,7 +15,7 @@ void SearchFilterModel::clearItems() {
 }
 
 
-void SearchFilterModel::insertItem(Database::RecipeType recipe) {
+void SearchFilterModel::insertItem(QPair<QString, int> recipe) {
     int pos = m_internalModel->rowCount();
     m_internalModel->insertRow(pos);
     QModelIndex index = m_internalModel->index(pos, 0);

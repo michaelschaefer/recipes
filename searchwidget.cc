@@ -96,7 +96,8 @@ void SearchWidget::toggleVisibility() {
 
 void SearchWidget::updateData() {
     m_listViewModelRecipes->clearItems();
-    foreach (const Database::RecipeType& pair, m_library->getRecipeList()) {
-        m_listViewModelRecipes->insertItem(pair);
+    QPair<QString, int> recipe;
+    foreach (recipe, m_library->getRecipeList()) {
+        m_listViewModelRecipes->insertItem(recipe);
     }
 }

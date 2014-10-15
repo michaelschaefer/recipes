@@ -123,10 +123,10 @@ QTextEdit* Exporter::textEdit() {
     }
 
     // ingredient list
-    Exporter::EntryListType ingredients = m_recipeData.ingredients();
+    QList<QMap<QString, QString> > ingredients = m_recipeData.ingredients();
     int size = ingredients.size();
     for (int i = 0; i < size; ++i) {
-        Exporter::EntryType entry = ingredients[i];
+        QMap<QString, QString> entry = ingredients[i];
         if (i < size-1 && ingredients[i+1]["type"] == "section") {
             cursor.insertBlock(doubleSpacingFormat);
         } else {
@@ -154,9 +154,9 @@ QTextEdit* Exporter::textEdit() {
 
     // preparation steps
     cursor.createList(listFormat);
-    Exporter::EntryListType preparationSteps = m_recipeData.preparationSteps();
+    QList<QMap<QString, QString> > preparationSteps = m_recipeData.preparationSteps();
     for (int i = 0; i < preparationSteps.size(); ++i) {
-        Exporter::EntryType entry = preparationSteps[i];
+        QMap<QString, QString> entry = preparationSteps[i];
         if (entry["type"] == "preparationStep") {
             if (i > 0) {
                 cursor.insertBlock();
@@ -170,8 +170,8 @@ QTextEdit* Exporter::textEdit() {
 
 
 QString Exporter::xml() {
-    Exporter::EntryListType ingredientList = m_recipeData.ingredients();
-    Exporter::EntryListType preparationStepList = m_recipeData.preparationSteps();
+    QList<QMap<QString, QString> > ingredientList = m_recipeData.ingredients();
+    QList<QMap<QString, QString> > preparationStepList = m_recipeData.preparationSteps();
 
     QString xml;
     QXmlStreamWriter stream(&xml);
@@ -187,8 +187,8 @@ QString Exporter::xml() {
 
     // ingredients
     stream.writeStartElement("ingredients");
-    for (Exporter::EntryListType::Iterator it = ingredientList.begin(); it != ingredientList.end(); ++it) {
-        Exporter::EntryType entry = *it;
+    for (QList<QMap<QString, QString> >::Iterator it = ingredientList.begin(); it != ingredientList.end(); ++it) {
+        QMap<QString, QString> entry = *it;
         if (entry["type"] == "ingredient") {
             stream.writeStartElement("ingredient");
             stream.writeTextElement("amount", entry["amount"]);
@@ -203,8 +203,8 @@ QString Exporter::xml() {
 
     // preparation
     stream.writeStartElement("preparation");
-    for (Exporter::EntryListType::Iterator it = preparationStepList.begin(); it != preparationStepList.end(); ++it) {
-        Exporter::EntryType entry = *it;
+    for (QList<QMap<QString, QString> >::Iterator it = preparationStepList.begin(); it != preparationStepList.end(); ++it) {
+        QMap<QString, QString> entry = *it;
         stream.writeTextElement("step", entry["text"]);
     }
     stream.writeEndElement();

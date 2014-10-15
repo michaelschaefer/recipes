@@ -20,13 +20,11 @@ signals:
 
 public:
 
-    typedef QList<WidgetInterface::DataType> DataType;
-
     PreparationListEdit(QWidget* parent = 0);
 
     void addPreparationStep();
     void addPreparationStep(QString text);
-    PreparationListEdit::DataType data();
+    QList<QMap<QString, QString> > data();
 
 
 
