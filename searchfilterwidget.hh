@@ -2,9 +2,14 @@
 #define SEARCHFILTERWIDGET_HH
 
 
+#include <QCheckBox>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QLineEdit>
+#include <QListWidget>
+#include <QMenu>
 #include <QPlainTextEdit>
+#include <QVBoxLayout>
 #include <QWidget>
 
 
@@ -13,33 +18,52 @@ class SearchFilterWidget : public QWidget {
     Q_OBJECT
 
 
-signals:
-
-    void filterUpdated(QString, QList<QList<int> >);
-
-
 public:
+
+    struct FilterSettings {
+        Qt::CaseSensitivity caseSensitivity;
+    };
 
     SearchFilterWidget(QWidget* parent = 0);
 
-    QString headlineFilter();
-    QStringList ingredientFilter();
-    void setFocus();
+    void setFocus();    
+
+
+signals:
+
+    void filterSettingsUpdated(SearchFilterWidget::FilterSettings);
+    void filterUpdated(QString, QList<QList<int> >);
 
 
 private slots:
 
+    void editCurrentListItem();
     bool eventFilter(QObject* target, QEvent* event);
+    void insertIngredient();
+    void removeCurrentListItem();
     void updateFilter();
+    void updateFilterSettings();
     void updateIngredientIdList();
 
 
 private:
 
-    QFormLayout* m_layout;
+    void setupPopupMenu();
+
+    FilterSettings m_filterSettings;
+    QAction* m_actionEdit;
+    QAction* m_actionRemove;
+    QCheckBox* m_checkBoxCaseSensitive;
+    QFormLayout* m_layoutInput;
+    QGroupBox* m_groupBoxSearchSettings;
     QLineEdit* m_editHeadline;
+    QLineEdit* m_lineEditIngredients;
     QList<QList<int> > m_ingredientIdList;
-    QPlainTextEdit* m_editIngredients;
+    QListWidget* m_listWidgetIngredients;
+    QMenu* m_popupMenu;
+    QStringList m_ingredientNameList;
+    QVBoxLayout* m_layoutIngredients;
+    QVBoxLayout* m_layout;
 
 };
 

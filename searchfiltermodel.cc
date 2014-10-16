@@ -41,17 +41,19 @@ bool SearchFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourc
 
     if (m_headlineFilter.isEmpty() == false) {
         index = sourceModel()->index(sourceRow, 0, sourceParent);
-        if (sourceModel()->data(index).toString().contains(m_headlineFilter) == false)
+        QString headline = sourceModel()->data(index).toString();
+        QString headlineFilter = m_headlineFilter;
+        if (filterCaseSensitivity() == Qt::CaseInsensitive) {
+            headline = headline.toLower();
+            headlineFilter = headlineFilter.toLower();
+        }
+        if (headline.contains(headlineFilter) == false)
             return false;
     }
 
     if (m_ingredientIdFilter.isEmpty() == false) {
         index = sourceModel()->index(sourceRow, 2, sourceParent);
         QList<QVariant> ingredientIdList = sourceModel()->data(index).toList();
-        /*foreach (int ingredientId, m_ingredientIdFilter) {
-            if (ingredientList.contains(QVariant(ingredientId)) == false)
-                return false;
-        }*/
         foreach (const QList<int>& availableIdList, m_ingredientIdFilter) {
             bool containsAtLeastOne = false;
             foreach (int availableId, availableIdList) {
@@ -106,5 +108,7 @@ bool SearchFilterModel::lessThan(const QModelIndex& left, const QModelIndex& rig
 }
 
 
-
-
+void SearchFilterModel::updateFilterSettings(SearchFilterWidget::FilterSettings filterSettings) {
+    setFilterCaseSensitivity(filterSettings.caseSensitivity);
+    invalidateFilter();
+}

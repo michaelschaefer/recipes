@@ -22,9 +22,8 @@ QMap<QString, QString> WidgetInterface::data() {
 
 
 void WidgetInterface::mouseReleaseEvent(QMouseEvent* event) {
-    if (event->button() == Qt::RightButton) {        
+    if (event->button() == Qt::RightButton)
         m_popupMenu->exec(event->globalPos());
-    }
 }
 
 

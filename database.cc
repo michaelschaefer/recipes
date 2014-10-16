@@ -163,13 +163,28 @@ QList<int> Database::getIngredientIdList(int fileId) {
 }
 
 
-QList<int> Database::getIngredientIdList(QString substring) {
+QList<int> Database::getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity) {
     QList<int> ingredientIdList;
     QSqlQuery query(m_database);
     query.prepare("select id from ingredients where ingredient like :query");
     query.bindValue(":query", QString("%%1%").arg(substring));
-    if (query.exec() == false)
+
+    bool ret;
+    if (caseSensitivity == Qt::CaseSensitive) {
+        QSqlQuery pragmaQuery(m_database);
+        pragmaQuery.prepare("pragma case_sensitive_like=ON");
+        pragmaQuery.exec();
+
+        ret = query.exec();
+
+        pragmaQuery.prepare("pragma case_sensitive_like=OFF");
+        pragmaQuery.exec();
+    } else
+        ret = query.exec();
+
+    if (ret == false)
         return ingredientIdList;
+
     while (query.next() == true) {
         ingredientIdList.append(query.record().value(0).toInt());
     }

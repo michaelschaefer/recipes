@@ -31,6 +31,7 @@ SearchWidget::SearchWidget(QSplitter* parent) : QWidget() {
 
     connect(m_listViewRecipes->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(selectRecipe()));
     connect(m_listViewRecipes, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openRecipe()));                
+    connect(m_searchFilterWidget, SIGNAL(filterSettingsUpdated(SearchFilterWidget::FilterSettings)), m_searchFilterModel, SLOT(updateFilterSettings(SearchFilterWidget::FilterSettings)));
     connect(m_searchFilterWidget, SIGNAL(filterUpdated(QString,QList<QList<int> >)), m_searchFilterModel, SLOT(filter(QString,QList<QList<int> >)));
 
     setVisible(false);

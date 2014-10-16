@@ -22,7 +22,7 @@ public:
     static Library* instance();
 
     bool getFile(int fileId, Database::File& file);
-    QList<int> getIngredientIdList(QString substring);
+    QList<int> getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity);
     bool getPath(int pathId, Database::Path& path);
     QStringList getPathList();
     QList<Database::Recipe> getRecipeList();

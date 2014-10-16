@@ -34,7 +34,7 @@ public:
 public slots:
 
     void toggleVisibility();
-    void updateData();
+    void updateData();    
 
 
 private slots:

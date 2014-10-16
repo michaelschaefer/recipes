@@ -24,10 +24,10 @@ bool Library::getFile(int fileId, Database::File& file) {
 }
 
 
-QList<int> Library::getIngredientIdList(QString substring) {
+QList<int> Library::getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity) {
     if (m_database->isOpen() == false)
         m_database->open();
-    QList<int> ingredientIdList = m_database->getIngredientIdList(substring);
+    QList<int> ingredientIdList = m_database->getIngredientIdList(substring, caseSensitivity);
     m_database->close();
     return ingredientIdList;
 }

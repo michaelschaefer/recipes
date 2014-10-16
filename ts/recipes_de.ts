@@ -532,19 +532,44 @@
 <context>
     <name>SearchFilterWidget</name>
     <message>
-        <location filename="../searchfilterwidget.cc" line="8"/>
+        <location filename="../searchfilterwidget.cc" line="14"/>
         <source>Enter search query</source>
         <translation>Suchbegriff eingeben</translation>
     </message>
     <message>
-        <location filename="../searchfilterwidget.cc" line="17"/>
+        <location filename="../searchfilterwidget.cc" line="19"/>
+        <source>Press enter to add ingredient</source>
+        <translation>Drücken Sie Enter um die Zutat hinzuzufügen</translation>
+    </message>
+    <message>
+        <location filename="../searchfilterwidget.cc" line="30"/>
         <source>Ingredients filter:</source>
         <translation>Zutatenfilter:</translation>
     </message>
     <message>
-        <location filename="../searchfilterwidget.cc" line="18"/>
+        <location filename="../searchfilterwidget.cc" line="31"/>
         <source>Headline filter:</source>
         <translation>Überschriftenfilter:</translation>
+    </message>
+    <message>
+        <location filename="../searchfilterwidget.cc" line="33"/>
+        <source>Search settings</source>
+        <translation>Sucheinstellungen</translation>
+    </message>
+    <message>
+        <location filename="../searchfilterwidget.cc" line="35"/>
+        <source>Case sensitive</source>
+        <translation>Groß- und Kleinschreibung beachten</translation>
+    </message>
+    <message>
+        <location filename="../searchfilterwidget.cc" line="116"/>
+        <source>Edit</source>
+        <translation>Bearbeiten</translation>
+    </message>
+    <message>
+        <location filename="../searchfilterwidget.cc" line="117"/>
+        <source>Remove</source>
+        <translation>Entfernen</translation>
     </message>
 </context>
 <context>
@@ -563,14 +588,14 @@
         <translation>&lt;b&gt;Rezept-Information&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../searchwidget.cc" line="53"/>
-        <location filename="../searchwidget.cc" line="73"/>
+        <location filename="../searchwidget.cc" line="54"/>
+        <location filename="../searchwidget.cc" line="74"/>
         <source>Headline: </source>
         <translation>Überschrift: </translation>
     </message>
     <message>
-        <location filename="../searchwidget.cc" line="54"/>
-        <location filename="../searchwidget.cc" line="72"/>
+        <location filename="../searchwidget.cc" line="55"/>
+        <location filename="../searchwidget.cc" line="73"/>
         <source>Path: </source>
         <translation>Pfad: </translation>
     </message>
@@ -579,8 +604,8 @@
         <translation type="vanished">Pfad:</translation>
     </message>
     <message>
-        <location filename="../searchwidget.cc" line="53"/>
         <location filename="../searchwidget.cc" line="54"/>
+        <location filename="../searchwidget.cc" line="55"/>
         <source>no recipe selected</source>
         <translation>Kein Rezept markiert</translation>
     </message>
@@ -609,22 +634,22 @@
 <context>
     <name>WidgetInterface</name>
     <message>
-        <location filename="../widgetinterface.cc" line="34"/>
+        <location filename="../widgetinterface.cc" line="33"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../widgetinterface.cc" line="35"/>
+        <location filename="../widgetinterface.cc" line="34"/>
         <source>Move down</source>
         <translation>Verschieben nach unten</translation>
     </message>
     <message>
-        <location filename="../widgetinterface.cc" line="36"/>
+        <location filename="../widgetinterface.cc" line="35"/>
         <source>Move up</source>
         <translation>Verschieben nach oben</translation>
     </message>
     <message>
-        <location filename="../widgetinterface.cc" line="37"/>
+        <location filename="../widgetinterface.cc" line="36"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>

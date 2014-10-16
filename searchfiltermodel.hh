@@ -5,6 +5,7 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include "database.hh"
+#include "searchfilterwidget.hh"
 
 
 class SearchFilterModel : public QSortFilterProxyModel {
@@ -25,6 +26,7 @@ public:
 public slots:
 
     void filter(QString headlineFilter, QList<QList<int> > ingredientIdFilter);
+    void updateFilterSettings(SearchFilterWidget::FilterSettings filterSettings);
 
 
 protected:
