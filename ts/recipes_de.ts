@@ -79,17 +79,17 @@
         <translation>Abschnitt hinzufügen</translation>
     </message>
     <message>
-        <location filename="../ingredientlistedit.cc" line="83"/>
+        <location filename="../ingredientlistedit.cc" line="82"/>
         <source>For how many servings do the ingredients suffice?</source>
         <translation>Für wie viele Portionen reichen die Zutaten?</translation>
     </message>
     <message>
-        <location filename="../ingredientlistedit.cc" line="84"/>
+        <location filename="../ingredientlistedit.cc" line="83"/>
         <source>Edit serving count</source>
         <translation>Portionszahl bearbeiten</translation>
     </message>
     <message>
-        <location filename="../ingredientlistedit.cc" line="106"/>
+        <location filename="../ingredientlistedit.cc" line="105"/>
         <source>Ingredients</source>
         <translation>Zutaten</translation>
     </message>
@@ -97,49 +97,49 @@
 <context>
     <name>Library</name>
     <message>
-        <location filename="../library.cc" line="129"/>
+        <location filename="../library.cc" line="138"/>
         <source>rebuilding library...</source>
         <translation>Bibliothek wird neu erzeugt...</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="138"/>
+        <location filename="../library.cc" line="147"/>
         <source>rebuild complete</source>
         <translation>Neuerzeugung vollständig</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="151"/>
+        <location filename="../library.cc" line="160"/>
         <source>inserting paths into library...</source>
         <translation>Füge Pfade in die Bibliothek ein...</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="159"/>
+        <location filename="../library.cc" line="168"/>
         <source>library is now empty</source>
         <translation>Bibliothek ist jetzt leer</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="168"/>
-        <location filename="../library.cc" line="179"/>
+        <location filename="../library.cc" line="177"/>
+        <location filename="../library.cc" line="188"/>
         <source>inserting failed! Consider a library rebuild.</source>
         <translation>Einfügen fehlgeschlagen! Erwägen Sie, die Bibliothek neu zu erzeugen.</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="208"/>
-        <location filename="../library.cc" line="213"/>
+        <location filename="../library.cc" line="217"/>
+        <location filename="../library.cc" line="222"/>
         <source>update failed! Consider a library rebuild.</source>
         <translation>Aktualisierung fehlgeschlagen! Erwägen Sie, die Bibliothek neu zu erzeugen.</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="187"/>
+        <location filename="../library.cc" line="196"/>
         <source>inserting complete (%1 new, %2 removed)</source>
         <translation>Einfügen beendet (%1 neu, %2 entfernt)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="196"/>
+        <location filename="../library.cc" line="205"/>
         <source>updating library...</source>
         <translation>Bibliothek wird aktualisiert...</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="225"/>
+        <location filename="../library.cc" line="234"/>
         <source>update complete (%1 new, %2 removed)</source>
         <translation>Aktualisierung vollständig (%1 neu, %2 entfernt)</translation>
     </message>
@@ -530,31 +530,47 @@
     </message>
 </context>
 <context>
-    <name>SearchWidget</name>
+    <name>SearchFilterWidget</name>
     <message>
-        <location filename="../searchwidget.cc" line="11"/>
-        <source>Open</source>
-        <translation>Öffnen</translation>
-    </message>
-    <message>
-        <location filename="../searchwidget.cc" line="13"/>
+        <location filename="../searchfilterwidget.cc" line="8"/>
         <source>Enter search query</source>
         <translation>Suchbegriff eingeben</translation>
     </message>
     <message>
-        <location filename="../searchwidget.cc" line="15"/>
+        <location filename="../searchfilterwidget.cc" line="17"/>
+        <source>Ingredients filter:</source>
+        <translation>Zutatenfilter:</translation>
+    </message>
+    <message>
+        <location filename="../searchfilterwidget.cc" line="18"/>
+        <source>Headline filter:</source>
+        <translation>Überschriftenfilter:</translation>
+    </message>
+</context>
+<context>
+    <name>SearchWidget</name>
+    <message>
+        <source>Open</source>
+        <translation type="vanished">Öffnen</translation>
+    </message>
+    <message>
+        <source>Enter search query</source>
+        <translation type="vanished">Suchbegriff eingeben</translation>
+    </message>
+    <message>
+        <location filename="../searchwidget.cc" line="13"/>
         <source>&lt;b&gt;Recipe information&lt;/b&gt;</source>
         <translation>&lt;b&gt;Rezept-Information&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../searchwidget.cc" line="16"/>
-        <location filename="../searchwidget.cc" line="72"/>
+        <location filename="../searchwidget.cc" line="53"/>
+        <location filename="../searchwidget.cc" line="73"/>
         <source>Headline: </source>
         <translation>Überschrift: </translation>
     </message>
     <message>
-        <location filename="../searchwidget.cc" line="17"/>
-        <location filename="../searchwidget.cc" line="71"/>
+        <location filename="../searchwidget.cc" line="54"/>
+        <location filename="../searchwidget.cc" line="72"/>
         <source>Path: </source>
         <translation>Pfad: </translation>
     </message>
@@ -563,8 +579,8 @@
         <translation type="vanished">Pfad:</translation>
     </message>
     <message>
-        <location filename="../searchwidget.cc" line="16"/>
-        <location filename="../searchwidget.cc" line="17"/>
+        <location filename="../searchwidget.cc" line="53"/>
+        <location filename="../searchwidget.cc" line="54"/>
         <source>no recipe selected</source>
         <translation>Kein Rezept markiert</translation>
     </message>

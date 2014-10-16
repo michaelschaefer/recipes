@@ -22,9 +22,10 @@ public:
     static Library* instance();
 
     bool getFile(int fileId, Database::File& file);
+    QList<int> getIngredientIdList(QString substring);
     bool getPath(int pathId, Database::Path& path);
     QStringList getPathList();
-    QList<QPair<QString, int> > getRecipeList();
+    QList<Database::Recipe> getRecipeList();
     bool insertOrUpdateFile(QString fileName, QString pathName, RecipeData& recipeData);
     bool rebuild();
     bool setPathList(QStringList& newPathList);

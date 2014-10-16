@@ -27,6 +27,12 @@ public:
         QString pathName;
     };
 
+    struct Recipe {
+        QString headline;
+        int fileId;
+        QList<int> ingredientIdList;
+    };
+
     Database(QString fileName = QDir::currentPath() + QDir::toNativeSeparators("/library.sqlite"));
 
     void clear();
@@ -34,10 +40,11 @@ public:
     bool getFile(int fileId, File& file);
     bool getFileId(const QString& fileName, int pathId, int* fileId = 0);
     QStringList getFileNameList(int pathId);
+    QList<int> getIngredientIdList(QString substring);
     bool getPath(int pathId, Path& path);
     bool getPathId(const QString& pathName, int* pathId = 0);
     QStringList getPathNameList();
-    QList<QPair<QString, int> > getRecipeList();
+    QList<Recipe> getRecipeList();
     bool insertFile(const QString& fileName, int pathId, RecipeData& recipeData, int* fileId = 0);
     bool insertPath(const QString& pathName, int* pathId = 0);
     bool isOpen();
@@ -53,6 +60,7 @@ private:
     bool executeNoSelect(QString queryString);
     QList<int> getFileIdList(int pathId);
     bool getIngredientId(QString ingredientName, int* ingredientId);
+    QList<int> getIngredientIdList(int fileId);
     QList<QPair<QString, int> > getIngredientList(int fileId);
     bool insertIngredient(QString ingredientName, int* ingredientId);
     bool insertIngredientAssignment(int fileId, int ingredientId);

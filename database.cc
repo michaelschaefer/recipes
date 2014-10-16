@@ -150,6 +150,33 @@ QList<QPair<QString, int> > Database::getIngredientList(int fileId) {
 }
 
 
+QList<int> Database::getIngredientIdList(int fileId) {
+    QList<int> ingredientIdList;
+    QSqlQuery query(m_database);
+    query.prepare("select ingredient from ingredientAssignment where file=:fileId");
+    query.bindValue(":fileId", fileId);
+    if (query.exec() == false)
+        return ingredientIdList;
+    while (query.next() == true)
+        ingredientIdList.append(query.record().value(0).toInt());
+    return ingredientIdList;
+}
+
+
+QList<int> Database::getIngredientIdList(QString substring) {
+    QList<int> ingredientIdList;
+    QSqlQuery query(m_database);
+    query.prepare("select id from ingredients where ingredient like :query");
+    query.bindValue(":query", QString("%%1%").arg(substring));
+    if (query.exec() == false)
+        return ingredientIdList;
+    while (query.next() == true) {
+        ingredientIdList.append(query.record().value(0).toInt());
+    }
+    return ingredientIdList;
+}
+
+
 bool Database::getPath(int pathId, Path& path) {
     QSqlQuery query(m_database);
     query.prepare("select * from paths where id=:pathId");
@@ -202,21 +229,21 @@ QStringList Database::getPathNameList() {
 }
 
 
-QList<QPair<QString, int> > Database::getRecipeList() {
-    int id;
-    QList<QPair<QString, int> > recipeList;
-    QSqlQuery query(m_database);
-    QString headline;
+QList<Database::Recipe> Database::getRecipeList() {    
+    QList<Recipe> recipeList;
 
+    QSqlQuery query(m_database);    
     query.prepare("select headline, id from files");
     if (query.exec() == true) {
         while (query.next() == true) {
             QSqlRecord record = query.record();
             if (record.isEmpty() == true)
                 continue;
-            headline = record.value(0).toString();
-            id = record.value(1).toInt();
-            recipeList.append(QPair<QString, int>(headline, id));
+            Recipe recipe;
+            recipe.headline = record.value(0).toString();
+            recipe.fileId = record.value(1).toInt();
+            recipe.ingredientIdList = getIngredientIdList(recipe.fileId);
+            recipeList.append(recipe);
         }
     } else {
         qDebug() << query.lastError();

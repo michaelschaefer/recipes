@@ -24,6 +24,15 @@ bool Library::getFile(int fileId, Database::File& file) {
 }
 
 
+QList<int> Library::getIngredientIdList(QString substring) {
+    if (m_database->isOpen() == false)
+        m_database->open();
+    QList<int> ingredientIdList = m_database->getIngredientIdList(substring);
+    m_database->close();
+    return ingredientIdList;
+}
+
+
 bool Library::getPath(int pathId, Database::Path& path) {
     if (m_database->isOpen() == false)
         m_database->open();
@@ -42,10 +51,10 @@ QStringList Library::getPathList() {
 }
 
 
-QList<QPair<QString, int> > Library::getRecipeList() {
+QList<Database::Recipe> Library::getRecipeList() {
     if (m_database->isOpen() == false)
         m_database->open();
-    QList<QPair<QString, int> > recipeList = m_database->getRecipeList();
+    QList<Database::Recipe> recipeList = m_database->getRecipeList();
     m_database->close();
     return recipeList;
 }

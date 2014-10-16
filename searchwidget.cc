@@ -5,43 +5,35 @@ SearchWidget::SearchWidget(QSplitter* parent) : QWidget() {
     m_parent = parent;
     m_library = Library::instance();
 
-    m_gridLayout = new QGridLayout();    
-    setLayout(m_gridLayout);
+    m_layout = new QVBoxLayout();
+    setLayout(m_layout);
 
-    m_buttonOpen = new QPushButton(trUtf8("Open"));
-    m_editSearchQuery = new QLineEdit(this);
-    m_editSearchQuery->setPlaceholderText(trUtf8("Enter search query"));
+    m_searchFilterWidget = new SearchFilterWidget(this);
 
     m_labelRecipeInfoHeader = new QLabel(trUtf8("<b>Recipe information</b>"), this);
-    m_labelRecipeInfoHeadline = new QLabel(trUtf8("Headline: ") + trUtf8("no recipe selected"), this);
-    m_labelRecipeInfoPath = new QLabel(trUtf8("Path: ") + trUtf8("no recipe selected"), this);
+    m_labelRecipeInfoHeadline = new QLabel(this);
+    m_labelRecipeInfoPath = new QLabel(this);
+    resetLabelText();
 
-    m_listViewModelRecipes = new SearchFilterModel(this);
-    m_listViewModelRecipes->setFilterKeyColumn(0);
-    m_listViewModelRecipes->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_searchFilterModel = new SearchFilterModel(this);
+    m_searchFilterModel->setFilterKeyColumn(0);
+    m_searchFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     updateData();
 
     m_listViewRecipes = new QListView();
-    m_listViewRecipes->setModel(m_listViewModelRecipes);
+    m_listViewRecipes->setModel(m_searchFilterModel);
 
-    m_gridLayout->addWidget(m_editSearchQuery, 0, 0);
-    m_gridLayout->addWidget(m_buttonOpen, 0, 1);
-    m_gridLayout->addWidget(m_listViewRecipes, 1, 0, 1, 2);
-    m_gridLayout->addWidget(m_labelRecipeInfoHeader, 2, 0, 1, 2);
-    m_gridLayout->addWidget(m_labelRecipeInfoHeadline, 3, 0, 1, 2);
-    m_gridLayout->addWidget(m_labelRecipeInfoPath, 4, 0, 1, 2);
+    m_layout->addWidget(m_searchFilterWidget);
+    m_layout->addWidget(m_listViewRecipes, 100);
+    m_layout->addWidget(m_labelRecipeInfoHeader);
+    m_layout->addWidget(m_labelRecipeInfoHeadline);
+    m_layout->addWidget(m_labelRecipeInfoPath);
 
     connect(m_listViewRecipes->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(selectRecipe()));
-    connect(m_listViewRecipes, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openRecipe()));    
-    connect(m_buttonOpen, SIGNAL(clicked()), this, SLOT(openRecipe()));
-    connect(m_editSearchQuery, SIGNAL(textChanged(QString)), this, SLOT(filter(QString)));
+    connect(m_listViewRecipes, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openRecipe()));                
+    connect(m_searchFilterWidget, SIGNAL(filterUpdated(QString,QList<QList<int> >)), m_searchFilterModel, SLOT(filter(QString,QList<QList<int> >)));
 
     setVisible(false);
-}
-
-
-void SearchWidget::filter(QString pattern) {
-    m_listViewModelRecipes->setFilterFixedString(pattern);
 }
 
 
@@ -57,12 +49,21 @@ void SearchWidget::openRecipe() {
 }
 
 
-void SearchWidget::selectRecipe(bool open) {    
-    QModelIndex index = m_listViewRecipes->currentIndex();
+void SearchWidget::resetLabelText() {
+    m_labelRecipeInfoHeadline->setText(trUtf8("Headline: ") + trUtf8("no recipe selected"));
+    m_labelRecipeInfoPath->setText(trUtf8("Path: ") + trUtf8("no recipe selected"));
+}
+
+
+void SearchWidget::selectRecipe(bool open) {        
+    if (m_listViewRecipes->currentIndex().isValid() == false) {
+        resetLabelText();
+        return;
+    }
 
     Database::File fileInfo;
     Database::Path pathInfo;
-    int fileId = m_listViewModelRecipes->data(index, Qt::UserRole).toInt();
+    int fileId = m_searchFilterModel->getFileId(m_listViewRecipes->currentIndex());
     m_library->getFile(fileId, fileInfo);
     m_library->getPath(fileInfo.pathId, pathInfo);
 
@@ -89,15 +90,16 @@ void SearchWidget::toggleVisibility() {
             m_parent->setSizes(sizeList);
         }
         setVisible(true);
-        m_editSearchQuery->setFocus();
+        m_searchFilterWidget->setFocus();
     }
 }
 
 
 void SearchWidget::updateData() {
-    m_listViewModelRecipes->clearItems();
-    QPair<QString, int> recipe;
+    m_searchFilterModel->clearFilter();
+    m_searchFilterModel->clearItems();
+    Database::Recipe recipe;
     foreach (recipe, m_library->getRecipeList()) {
-        m_listViewModelRecipes->insertItem(recipe);
+        m_searchFilterModel->insertItem(recipe);
     }
 }
