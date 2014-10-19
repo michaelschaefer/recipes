@@ -30,7 +30,7 @@ public:
 
     RecipeEdit(QWidget* parent = 0);
 
-    QString fileName(bool withPath = true);
+    QString fileName(bool withPath = false);
     QString pathName();
     bool fill(QString fileName);
     bool hasUnsavedChanges();    

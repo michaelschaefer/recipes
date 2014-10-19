@@ -15,7 +15,7 @@ QString MainWindow::ApplicationVersion = "0.2";
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     m_splitter = new QSplitter(this);
-    m_searchWidget = new SearchWidget(m_splitter);
+    m_searchWidget = new SearchWidget(m_splitter);    
     m_tabWidget = new RecipeTabWidget(m_splitter);
 
     connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeCurrentRecipe()));
@@ -50,37 +50,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     m_library = Library::instance();
     connect(m_library, SIGNAL(statusBarMessage(QString)), this, SLOT(showStatusBarMessage(QString)));
     connect(m_library, SIGNAL(updated()), m_searchWidget, SLOT(updateData()));
-}
-
-
-void MainWindow::about() {
-    QString copyright = trUtf8(
-                "(c) 2014 Michael Schaefer, "
-                "<a href=\"http://www.michael-schaefer.org/en/\">"
-                "www.michael-schaefer.org/en/"
-                "</a>"
-                );
-    QString information = trUtf8(
-                "A program to create, store, export and print recipes."
-                );
-    QString text = QString("<b>%1 %2</b><br/><br/>%3<br/><br/>%4")
-            .arg(MainWindow::ApplicationName)
-            .arg(MainWindow::ApplicationVersion)
-            .arg(information)
-            .arg(copyright);
-    QString title = trUtf8("About ") + MainWindow::ApplicationName;
-
-    QMessageBox about(this);
-    about.setWindowTitle(title);
-    about.setText(text);
-    about.setIconPixmap(windowIcon().pixmap(128, 128));
-    about.show();
-    about.exec();
-}
-
-
-void MainWindow::aboutQt() {
-    QMessageBox::aboutQt(this);
 }
 
 
@@ -146,9 +115,48 @@ void MainWindow::disconnectRecipe(RecipeEdit* recipeEdit) {
 }
 
 
+void MainWindow::fileSettings() {
+    SettingsDialog settings(this);
+    settings.setWindowTitle(trUtf8("Settings"));
+    settings.show();
+    settings.exec();
+}
+
+
+void MainWindow::helpAbout() {
+    QString copyright = trUtf8(
+                "(c) 2014 Michael Schaefer, "
+                "<a href=\"http://www.michael-schaefer.org/en/\">"
+                "www.michael-schaefer.org/en/"
+                "</a>"
+                );
+    QString information = trUtf8(
+                "A program to create, store, export and print recipes."
+                );
+    QString text = QString("<b>%1 %2</b><br/><br/>%3<br/><br/>%4")
+            .arg(MainWindow::ApplicationName)
+            .arg(MainWindow::ApplicationVersion)
+            .arg(information)
+            .arg(copyright);
+    QString title = trUtf8("About ") + MainWindow::ApplicationName;
+
+    QMessageBox about(this);
+    about.setWindowTitle(title);
+    about.setText(text);
+    about.setIconPixmap(windowIcon().pixmap(128, 128));
+    about.show();
+    about.exec();
+}
+
+
+void MainWindow::helpAboutQt() {
+    QMessageBox::aboutQt(this);
+}
+
+
 void MainWindow::libraryManagePaths() {
     QString title = trUtf8("Manage paths");
-    LibraryPathDialog dialog;
+    LibraryPathDialog dialog(this);
     dialog.setWindowTitle(title);
     dialog.setPathList(m_library->getPathList());
     dialog.show();
@@ -247,6 +255,7 @@ void MainWindow::setupMenuFile() {
     m_actionSave = new QAction(trUtf8("&Save"), m_menuFile);    
     m_actionSaveAll = new QAction(trUtf8("S&ave all"), m_menuFile);
     m_actionSaveAs = new QAction(trUtf8("Sa&ve as"), m_menuFile);    
+    m_actionSettings = new QAction(trUtf8("Se&ttings"), m_menuFile);
 
     m_actionClose->setShortcut(Qt::CTRL + Qt::Key_W);
     m_actionCloseAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);    
@@ -263,6 +272,7 @@ void MainWindow::setupMenuFile() {
     connect(m_actionOpen, SIGNAL(triggered()), m_tabWidget, SLOT(openRecipe()));
     connect(m_actionQuit, SIGNAL(triggered()), this, SLOT(close()));
     connect(m_actionSaveAll, SIGNAL(triggered()), m_tabWidget, SLOT(saveAllTabs()));
+    connect(m_actionSettings, SIGNAL(triggered()), this, SLOT(fileSettings()));
 
     m_menuFile->addAction(m_actionNew);
     m_menuFile->addAction(m_actionOpen);
@@ -277,6 +287,8 @@ void MainWindow::setupMenuFile() {
     m_menuFile->addAction(m_actionExport);
     m_menuFile->addAction(m_actionPrint);
     m_menuFile->addSeparator();
+    m_menuFile->addAction(m_actionSettings);
+    m_menuFile->addSeparator();
     m_menuFile->addAction(m_actionQuit);        
 }
 
@@ -287,8 +299,8 @@ void MainWindow::setupMenuHelp() {
     m_actionAboutQt = new QAction(trUtf8("About &Qt"), m_menuHelp);
     m_actionAbout = new QAction(trUtf8("&About") + " " + MainWindow::ApplicationName, m_menuHelp);
 
-    connect(m_actionAboutQt, SIGNAL(triggered()), this, SLOT(aboutQt()));
-    connect(m_actionAbout, SIGNAL(triggered()), this, SLOT(about()));
+    connect(m_actionAboutQt, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
+    connect(m_actionAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
 
     m_menuHelp->addAction(m_actionAboutQt);
     m_menuHelp->addAction(m_actionAbout);    

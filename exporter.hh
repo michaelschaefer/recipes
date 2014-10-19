@@ -16,7 +16,7 @@ public:
 
     static Exporter* instance();
 
-    void exportAsPdf(QString dir = QDir::homePath());
+    void exportAsPdf(QString fileName = QString(), QString dir = QString());
     void print();
     void setRecipeData(RecipeData& recipeData);
     QTextEdit* textEdit();

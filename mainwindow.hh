@@ -15,6 +15,7 @@
 #include "recipeedit.hh"
 #include "recipetabwidget.hh"
 #include "searchwidget.hh"
+#include "settingsdialog.hh"
 
 
 class MainWindow : public QMainWindow {
@@ -32,8 +33,8 @@ public:
 
 public slots:
 
-    void about();
-    void aboutQt();
+    void helpAbout();
+    void helpAboutQt();
 
 
 private slots:
@@ -45,6 +46,7 @@ private slots:
     void libraryUpdate();
     void setActionInvisibility(bool invisible);    
     void setMenuLibraryEnabled(bool enabled = true);
+    void fileSettings();
     void showStatusBarMessage(QString message);
 
 
@@ -81,6 +83,7 @@ private:
     QAction* m_actionSearch;
     QAction* m_actionSection;
     QAction* m_actionServingCount;
+    QAction* m_actionSettings;
     QAction* m_actionToolBarClose;
     QAction* m_actionToolBarExport;
     QAction* m_actionToolBarHeadline;

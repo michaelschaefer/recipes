@@ -33,7 +33,9 @@ SOURCES += main.cc \
     librarypathdialog.cc \
     searchwidget.cc \
     searchfiltermodel.cc \
-    searchfilterwidget.cc
+    searchfilterwidget.cc \
+    settingsdialog.cc \
+    settingstablibrary.cc
 
 HEADERS  += mainwindow.hh \
     recipeedit.hh \
@@ -55,7 +57,9 @@ HEADERS  += mainwindow.hh \
     librarypathdialog.hh \
     searchwidget.hh \
     searchfiltermodel.hh \
-    searchfilterwidget.hh
+    searchfilterwidget.hh \
+    settingsdialog.hh \
+    settingstablibrary.hh
 
 RESOURCES += recipes.qrc
 

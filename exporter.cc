@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <QFileDialog>
 #include <QPainter>
 #include <QPrinter>
@@ -10,10 +11,14 @@
 #include "exporter.hh"
 
 
-void Exporter::exportAsPdf(QString dir) {
+void Exporter::exportAsPdf(QString fileName, QString dir) {
     QString title = trUtf8("Export as PDF");
-    QString filter = trUtf8("PDF documents (*.pdf)");
-    QString fileName = QFileDialog::getSaveFileName(m_parent, title, dir, filter);
+    QString filter = trUtf8("PDF documents (*.pdf)");    
+    if (dir.isEmpty() == false && fileName.isEmpty() == false) {
+        QString fileNameWithoutExtension = fileName.mid(0, fileName.lastIndexOf("."));
+        dir += QString("/%1.pdf").arg(fileNameWithoutExtension);
+    }
+    fileName = QFileDialog::getSaveFileName(m_parent, title, dir, filter);
     if (fileName.isEmpty() == false) {
         QPrinter* printer = new QPrinter(QPrinter::HighResolution);
         printer->setFontEmbeddingEnabled(true);

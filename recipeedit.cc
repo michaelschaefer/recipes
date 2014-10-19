@@ -91,11 +91,12 @@ void RecipeEdit::editServingCount() {
 
 void RecipeEdit::exportAsPdf() {   
     m_exporter->setRecipeData(recipeData());
-    QString exportPathName = pathName();
+    /*QString exportPathName = pathName();
     if (exportPathName.isEmpty() == true)
         m_exporter->exportAsPdf();
     else
-        m_exporter->exportAsPdf(exportPathName);
+        m_exporter->exportAsPdf(exportPathName);*/
+    m_exporter->exportAsPdf(fileName(), pathName());
 }
 
 
