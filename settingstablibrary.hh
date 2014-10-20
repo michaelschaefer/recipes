@@ -28,6 +28,8 @@ private slots:
     void checkConnection();
     void choosePath();
     void connectionChecked(bool successful);
+    void downloadFinished(QString fileName = QString());
+    void uploadFinished(QString fileName = QString());
     void toggleRemote();
 
 

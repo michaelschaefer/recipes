@@ -15,26 +15,33 @@ class FtpManager : public QObject {
 
 signals:
 
-    void loginSuccess(bool);
+    void loginSuccess(bool);    
+    void downloadFinished(QString);
+    void entireDownloadFinished();
+    void entireUploadFinished();
+    void uploadFinished(QString);
 
 
 public:
 
     static FtpManager* instance();
 
-    void login(QUrl url);
-    void setDir(QDir dir);
+    void download(QDir dir);
+    void login(QUrl url);    
     void upload(QDir dir);
 
 
 private slots:
 
     void commandFinished(int, bool error);
+    void listInfo(QUrlInfo urlInfo);
 
 
 private:
 
+    void download();
     void showError();
+    void upload();
 
 
     FtpManager();
@@ -42,8 +49,12 @@ private:
     void operator=(FtpManager const&);
 
 
-    QFile* m_file;
+    QDir m_downloadDir;
     QFtp* m_ftp;
+    QFile* m_downloadFile;
+    QFile* m_uploadFile;
+    QStringList m_downloadFileList;
+    QStringList m_uploadFileList;
     QUrl m_url;
 
 };

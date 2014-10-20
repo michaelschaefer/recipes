@@ -7,6 +7,10 @@
 SettingsTabLibrary::SettingsTabLibrary(QWidget *parent) : QWidget(parent) {
     m_ftpManager = FtpManager::instance();
     connect(m_ftpManager, SIGNAL(loginSuccess(bool)), this, SLOT(connectionChecked(bool)));
+    connect(m_ftpManager, SIGNAL(downloadFinished(QString)), this, SLOT(downloadFinished(QString)));
+    connect(m_ftpManager, SIGNAL(entireDownloadFinished()), this, SLOT(downloadFinished()));
+    connect(m_ftpManager, SIGNAL(uploadFinished(QString)), this, SLOT(uploadFinished(QString)));
+    connect(m_ftpManager, SIGNAL(entireUploadFinished()), this, SLOT(uploadFinished()));
 
     setupGroupBoxLocal();
     setupGroupBoxRemote();
@@ -35,7 +39,10 @@ void SettingsTabLibrary::checkConnection() {
 
 void SettingsTabLibrary::choosePath() {
     QString caption = trUtf8("Choose path");
-    QString pathName = QFileDialog::getExistingDirectory(this, caption, QDir::homePath());
+    QString dir = m_editLocalPath->text();
+    if (dir.isEmpty() == true)
+        dir = QDir::homePath();
+    QString pathName = QFileDialog::getExistingDirectory(this, caption, dir);
     if (pathName.isEmpty() == false)
         m_editLocalPath->setText(pathName);
 }
@@ -46,11 +53,28 @@ void SettingsTabLibrary::connectionChecked(bool successful) {
     if (successful == true) {
         QString text = trUtf8("Connection successfully established.");
         QMessageBox::information(this, title, text);
-        m_ftpManager->upload(QDir(m_editLocalPath->text()));
+        //m_ftpManager->upload(QDir(m_editLocalPath->text()));
+        m_ftpManager->download(QDir(m_editLocalPath->text()));
     } else {
         QString text = trUtf8("Connection failed.");
         QMessageBox::critical(this, title, text);
     }
+}
+
+
+void SettingsTabLibrary::downloadFinished(QString fileName) {
+    if (fileName.isEmpty() == true)
+        qDebug() << "Entire download finished!";
+    else
+        qDebug() << "Download of" << fileName << "complete";
+}
+
+
+void SettingsTabLibrary::uploadFinished(QString fileName) {
+    if (fileName.isEmpty() == true)
+        qDebug() << "Entire upload finished!";
+    else
+        qDebug() << "Upload of" << fileName << "complete";
 }
 
 
