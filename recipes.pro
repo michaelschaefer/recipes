@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui printsupport sql
+QT       += core gui printsupport sql network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -35,7 +35,8 @@ SOURCES += main.cc \
     searchfiltermodel.cc \
     searchfilterwidget.cc \
     settingsdialog.cc \
-    settingstablibrary.cc
+    settingstablibrary.cc \
+    ftpmanager.cc
 
 HEADERS  += mainwindow.hh \
     recipeedit.hh \
@@ -59,8 +60,22 @@ HEADERS  += mainwindow.hh \
     searchfiltermodel.hh \
     searchfilterwidget.hh \
     settingsdialog.hh \
-    settingstablibrary.hh
+    settingstablibrary.hh \
+    ftpmanager.hh
 
 RESOURCES += recipes.qrc
 
 TRANSLATIONS += ts/recipes_de.ts
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../local/build/qtftp-Desktop-Debug/lib/release/ -lQt5Ftp
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../local/build/qtftp-Desktop-Debug/lib/debug/ -lQt5Ftp
+else:unix: LIBS += -L$$PWD/../../local/build/qtftp-Desktop-Debug/lib/ -lQt5Ftp
+
+INCLUDEPATH += $$PWD/../../local/build/qtftp-Desktop-Debug/include
+DEPENDPATH += $$PWD/../../local/build/qtftp-Desktop-Debug/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../local/build/qtftp-Desktop-Debug/lib/release/libQt5Ftp.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../local/build/qtftp-Desktop-Debug/lib/debug/libQt5Ftp.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../local/build/qtftp-Desktop-Debug/lib/release/Qt5Ftp.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../local/build/qtftp-Desktop-Debug/lib/debug/Qt5Ftp.lib
+else:unix: PRE_TARGETDEPS += $$PWD/../../local/build/qtftp-Desktop-Debug/lib/libQt5Ftp.a
