@@ -18,7 +18,7 @@ SearchWidget::SearchWidget(QSplitter* parent) : QWidget() {
     m_searchFilterModel = new SearchFilterModel(this);
     m_searchFilterModel->setFilterKeyColumn(0);
     m_searchFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    updateData();
+    update();
 
     m_listViewRecipes = new QListView();
     m_listViewRecipes->setModel(m_searchFilterModel);
@@ -110,11 +110,12 @@ void SearchWidget::toggleVisibility() {
 }
 
 
-void SearchWidget::updateData() {
+void SearchWidget::update() {
+    m_searchFilterWidget->clearFilter();
     m_searchFilterModel->clearFilter();
     m_searchFilterModel->clearItems();
     Database::Recipe recipe;
     foreach (recipe, m_library->getRecipeList()) {
         m_searchFilterModel->insertItem(recipe);
-    }
+    }    
 }

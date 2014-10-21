@@ -26,6 +26,7 @@ public:
 
     SearchFilterWidget(QWidget* parent = 0);
 
+    void clearFilter();
     void setFocus();    
 
 

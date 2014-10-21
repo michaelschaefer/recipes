@@ -48,6 +48,14 @@ SearchFilterWidget::SearchFilterWidget(QWidget* parent) : QWidget(parent) {
 }
 
 
+void SearchFilterWidget::clearFilter() {
+    m_editHeadline->setText(QString());
+    m_lineEditIngredients->setText(QString());
+    m_listWidgetIngredients->clear();
+    updateFilter();
+}
+
+
 void SearchFilterWidget::editCurrentListItem() {
     QModelIndex index = m_listWidgetIngredients->selectionModel()->currentIndex();
     if (index.isValid() == true) {

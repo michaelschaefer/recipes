@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     };
     connect(m_library, &Library::errorMessage, errorMessageSlot);
     connect(m_library, SIGNAL(statusBarMessage(QString)), this, SLOT(showStatusBarMessage(QString)));
-    connect(m_library, SIGNAL(updated()), m_searchWidget, SLOT(updateData()));
+    connect(m_library, SIGNAL(updated()), m_searchWidget, SLOT(update()));
 
     if (m_settings.value("library/local/syncOnStart").toBool() == true)
         m_library->synchronize();
