@@ -90,12 +90,7 @@ void RecipeEdit::editServingCount() {
 
 
 void RecipeEdit::exportAsPdf() {   
-    m_exporter->setRecipeData(recipeData());
-    /*QString exportPathName = pathName();
-    if (exportPathName.isEmpty() == true)
-        m_exporter->exportAsPdf();
-    else
-        m_exporter->exportAsPdf(exportPathName);*/
+    m_exporter->setRecipeData(recipeData());    
     m_exporter->exportAsPdf(fileName(), pathName());
 }
 
@@ -261,9 +256,8 @@ void RecipeEdit::triggerChanged() {
 
 void RecipeEdit::updateLibrary() {
     int lastSeparator = m_fileName.lastIndexOf(QDir::separator());
-    QString fileName = m_fileName.mid(lastSeparator + 1);
-    QString pathName = m_fileName.mid(0, lastSeparator);
-    m_library->insertOrUpdateFile(fileName, pathName, recipeData());
+    QString fileName = m_fileName.mid(lastSeparator + 1);    
+    m_library->insertOrUpdateFile(fileName, recipeData());
 }
 
 

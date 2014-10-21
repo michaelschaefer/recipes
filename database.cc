@@ -48,26 +48,24 @@ bool Database::executeNoSelect(QString queryString) {
 
 bool Database::getFile(int fileId, File& file) {
     QSqlQuery query(m_database);
-    query.prepare("select * from files where id=:fileId");
+    query.prepare("select id, file, headline from files where id=:fileId");
     query.bindValue(":fileId", fileId);
     if (query.exec() == false || query.next() == false)
         return false;
     else {
         QSqlRecord record = query.record();
-        file.id = record.value(0).toInt();
-        file.pathId = record.value(1).toInt();
-        file.fileName = record.value(2).toString();
-        file.headline = record.value(3).toString();
+        file.id = record.value(0).toInt();        
+        file.fileName = record.value(1).toString();
+        file.headline = record.value(2).toString();
         return true;
     }
 }
 
 
-bool Database::getFileId(const QString& fileName, int pathId, int* fileId) {
+bool Database::getFileId(const QString& fileName, int* fileId) {
     QSqlQuery query(m_database);
-    query.prepare("select id from files where file=:file and path=:path");
-    query.bindValue(":file", fileName);
-    query.bindValue(":path", pathId);
+    query.prepare("select id from files where file=:fileName");
+    query.bindValue(":fileName", fileName);
     if (query.exec() == false)
         return false;
     else {
@@ -86,11 +84,10 @@ bool Database::getFileId(const QString& fileName, int pathId, int* fileId) {
 }
 
 
-QList<int> Database::getFileIdList(int pathId) {
+QList<int> Database::getFileIdList() {
     QList<int> idList;
-    QSqlQuery query(m_database);
-    query.prepare("select id from files where path=:pathId");
-    query.bindValue(":pathId", pathId);
+    QSqlQuery query(m_database);    
+    query.prepare("select id from files");
     if (query.exec() == false)
         return idList;
     while (query.next() == true)
@@ -99,25 +96,14 @@ QList<int> Database::getFileIdList(int pathId) {
 }
 
 
-QStringList Database::getFileNameList(int pathId) {
+QStringList Database::getFileNameList() {
     QStringList fileList;
-    QSqlQuery query(m_database);
-
-    if (pathId == -1) {
-        query.prepare("select paths.path || :sep || files.file from paths join files on files.path = paths.id");
-        query.bindValue(":sep", QDir::separator());
-        if (query.exec() == true) {
-            while (query.next() == true)
-                fileList.append(query.record().value(0).toString());
-        }
-    } else {
-        query.prepare("select file from files where path=:pathId");
-        query.bindValue(":pathId", pathId);
-        if (query.exec() == true) {
-            while (query.next() == true)
-                fileList.append(query.record().value(0).toString());
-        }
-    }
+    QSqlQuery query(m_database);    
+    query.prepare("select file from files");
+    if (query.exec() == true) {
+        while (query.next() == true)
+            fileList.append(query.record().value(0).toString());
+    }    
 
     return fileList;
 }
@@ -203,73 +189,22 @@ QList<int> Database::getIngredientIdList(QString substring, Qt::CaseSensitivity 
 }
 
 
-bool Database::getPath(int pathId, Path& path) {
-    QSqlQuery query(m_database);
-    query.prepare("select * from paths where id=:pathId");
-    query.bindValue(":pathId", pathId);
-    if (query.exec() == false || query.next() == false)
-        return false;
-    else {
-        QSqlRecord record = query.record();
-        path.id = record.value(0).toInt();
-        path.pathName = record.value(1).toString();
-        return true;
-    }
-}
-
-
-bool Database::getPathId(const QString& pathName, int* pathId) {
-    QSqlQuery query(m_database);
-    query.prepare("select id from paths where path=:path");
-    query.bindValue(":path", pathName);
-    if (query.exec() == false)
-        return false;
-    else {
-        if (pathId != 0) {
-            if (query.next() == false) {
-                *pathId = -1;
-                return true;
-            } else {
-                bool okay;
-                *pathId = query.record().value(0).toInt(&okay);
-                return okay;
-            }
-        } else
-            return true;
-    }
-}
-
-
-QString Database::getPathName() {
-    QString pathName;
-    QSqlQuery query(m_database);
-    query.prepare("select path from paths limit 0,1");
-    if (query.exec() == true && query.next() == true) {
-        pathName = query.record().value(0).toString();
-    }
-
-    return pathName;
-}
-
-
 QList<Database::Recipe> Database::getRecipeList() {    
     QList<Recipe> recipeList;
 
     QSqlQuery query(m_database);    
-    query.prepare("select headline, id from files");
+    query.prepare("select id, headline from files");
     if (query.exec() == true) {
         while (query.next() == true) {
             QSqlRecord record = query.record();
             if (record.isEmpty() == true)
                 continue;
             Recipe recipe;
-            recipe.headline = record.value(0).toString();
-            recipe.fileId = record.value(1).toInt();
+            recipe.fileId = record.value(0).toInt();
+            recipe.headline = record.value(1).toString();
             recipe.ingredientIdList = getIngredientIdList(recipe.fileId);
             recipeList.append(recipe);
         }
-    } else {
-        qDebug() << query.lastError();
     }
 
     return recipeList;
@@ -278,20 +213,10 @@ QList<Database::Recipe> Database::getRecipeList() {
 
 bool Database::init() {
     QString queryString;
-    QStringList tables = m_database.tables();
-
-    if (tables.contains("paths") == false) {
-        queryString = "create table paths (id integer primary key, path varchar unique)";
-        if (executeNoSelect(queryString) == false)
-            return false;
-    }
+    QStringList tables = m_database.tables();    
 
     if (tables.contains("files") == false) {
-        queryString = "create table files (id integer primary key, path integer, file varchar, headline varchar)";
-        if (executeNoSelect(queryString) == false)
-            return false;
-
-        queryString = "create unique index files_idx on files (file, path)";
+        queryString = "create table files (id integer primary key, file varchar, headline varchar)";
         if (executeNoSelect(queryString) == false)
             return false;
     }
@@ -316,16 +241,15 @@ bool Database::init() {
 }
 
 
-bool Database::insertFile(const QString& fileName, int pathId, RecipeData& recipeData, int* fileId) {
+bool Database::insertFile(const QString& fileName, RecipeData& recipeData, int* fileId) {
     int id;
-    QSqlQuery query(m_database);
-    query.prepare("insert into files (file, path, headline) values (:file, :path, :headline)");
-    query.bindValue(":file", fileName);
+    QSqlQuery query(m_database);    
+    query.prepare("insert into files (file, headline) values (:fileName, :headline)");
+    query.bindValue(":fileName", fileName);
     query.bindValue(":headline", recipeData.headline());
-    query.bindValue(":path", pathId);
     if (query.exec() == false) {
-        if (query.lastError().number() == 19) {            
-            if (getFileId(fileName, pathId, &id) == true) {
+        if (query.lastError().number() == 19) {
+            if (getFileId(fileName, &id) == true) {
                 query.prepare("update files set headline=:headline where id=:id");
                 query.bindValue(":headline", recipeData.headline());
                 query.bindValue(":id", id);
@@ -387,26 +311,6 @@ bool Database::insertIngredients(int fileId, RecipeData& recipeData) {
 }
 
 
-bool Database::insertPath(const QString& pathName, int* pathId) {
-    QSqlQuery query(m_database);
-    query.prepare("insert into paths (path) values (:path)");
-    query.bindValue(":path", pathName);
-    if (query.exec() == false) {
-        if (query.lastError().number() == 19)
-            if (pathId != 0)
-                return getPathId(pathName, pathId);
-            else
-                return true;
-        else
-            return false;
-    } else {
-        if (pathId != 0)
-            *pathId = query.lastInsertId().toInt();
-        return true;
-    }
-}
-
-
 bool Database::isOpen() {
     return m_database.isOpen();
 }
@@ -414,6 +318,14 @@ bool Database::isOpen() {
 
 bool Database::open() {
     return m_database.open();
+}
+
+
+bool Database::removeFile(const QString& fileName) {
+    QSqlQuery query(m_database);
+    query.prepare("delete from files where file=:fileName");
+    query.bindValue(":fileName", fileName);
+    return query.exec();
 }
 
 
@@ -425,51 +337,12 @@ bool Database::removeIngredients(int fileId) {
 }
 
 
-bool Database::removeFile(const QString& fileName, int pathId) {
-    QSqlQuery query(m_database);
-    query.prepare("delete from files where file=:file and path=:pathId");
-    query.bindValue(":file", fileName);
-    query.bindValue(":pathId", pathId);
-    return query.exec();
-}
-
-
 bool Database::removeIngredientAssignment(int fileId, int ingredientId) {
     QSqlQuery query(m_database);
     query.prepare("delete from ingredientAssignment where file=:fileId and ingredient=:ingredientId");
     query.bindValue(":fileId", fileId);
     query.bindValue(":ingredientId", ingredientId);
     return query.exec();
-}
-
-
-bool Database::removePath(const QString& pathName, int* nRemoved) {
-    int pathId;
-    if (getPathId(pathName, &pathId) == false)
-        return false;
-
-    QList<int> idList = getFileIdList(pathId);
-    foreach (int fileId, idList)
-        removeIngredients(fileId);
-    if (cleanIngredients() == false)
-        return false;
-
-    QSqlQuery query(m_database);
-    query.prepare("delete from files where path=:pathId");
-    query.bindValue(":pathId", pathId);
-    if (query.exec() == false)
-        return false;
-    else {
-        if (nRemoved != 0)
-            *nRemoved = query.numRowsAffected();
-    }
-
-    query.prepare("delete from paths where id=:pathId");
-    query.bindValue(":pathId", pathId);
-    if (query.exec() == false)
-        return false;
-
-    return true;
 }
 
 

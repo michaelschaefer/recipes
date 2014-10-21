@@ -67,7 +67,7 @@ void SearchWidget::openRecipe() {
 
 void SearchWidget::resetLabelText() {
     m_labelRecipeInfoHeadline->setText(trUtf8("Headline: ") + trUtf8("no recipe selected"));
-    m_labelRecipeInfoPath->setText(trUtf8("Path: ") + trUtf8("no recipe selected"));
+    m_labelRecipeInfoPath->setText(trUtf8("Filename: ") + trUtf8("no recipe selected"));
 }
 
 
@@ -78,17 +78,16 @@ void SearchWidget::selectRecipe(bool open) {
     }
 
     Database::File fileInfo;
-    Database::Path pathInfo;
     int fileId = m_searchFilterModel->getFileId(m_listViewRecipes->currentIndex());
     m_library->getFile(fileId, fileInfo);
-    m_library->getPath(fileInfo.pathId, pathInfo);
+    QString pathName = QSettings().value("library/local/path").toString();
 
     if (open == false) {
-        m_labelRecipeInfoPath->setText(trUtf8("Path: ") + fileInfo.fileName);
         m_labelRecipeInfoHeadline->setText(trUtf8("Headline: ") + fileInfo.headline);
+        m_labelRecipeInfoPath->setText(trUtf8("Filename: ") + fileInfo.fileName);
     } else {        
-        QString pathName = QString("%1%2%3").arg(pathInfo.pathName, QDir::separator(), fileInfo.fileName);
-        emit recipeSelected(pathName);
+        QString absoluteFileName = QString("%1%2%3").arg(pathName, QDir::separator(), fileInfo.fileName);
+        emit recipeSelected(absoluteFileName);
     }
 }
 

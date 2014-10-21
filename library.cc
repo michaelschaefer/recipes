@@ -66,15 +66,6 @@ QList<int> Library::getIngredientIdList(QString substring, Qt::CaseSensitivity c
 }
 
 
-bool Library::getPath(int pathId, Database::Path& path) {
-    if (m_database->isOpen() == false)
-        m_database->open();
-    bool res = m_database->getPath(pathId, path);
-    m_database->close();
-    return res;
-}
-
-
 QList<Database::Recipe> Library::getRecipeList() {
     if (m_database->isOpen() == false)
         m_database->open();
@@ -84,7 +75,7 @@ QList<Database::Recipe> Library::getRecipeList() {
 }
 
 
-bool Library::insertFiles(QDir& dir, int pathId, int* nAdded) {
+bool Library::insertFiles(QDir& dir, int* nAdded) {
     int added = 0, fileId = 0;
     RecipeData recipeData;
 
@@ -96,7 +87,7 @@ bool Library::insertFiles(QDir& dir, int pathId, int* nAdded) {
         recipeData.clear();
         if (recipeData.fill(fileInfo.absoluteFilePath()) == false)
             continue;
-        else if (m_database->insertFile(fileInfo.fileName(), pathId, recipeData, &fileId) == false)
+        else if (m_database->insertFile(fileInfo.fileName(), recipeData, &fileId) == false)
             continue;
         else
             added++;
@@ -109,25 +100,19 @@ bool Library::insertFiles(QDir& dir, int pathId, int* nAdded) {
 }
 
 
-bool Library::insertOrUpdateFile(QString fileName, QString pathName, RecipeData& recipeData) {
-    int fileId = 0, pathId = 0;
+bool Library::insertOrUpdateFile(QString fileName, RecipeData& recipeData) {
+    int fileId = 0;
 
     if (m_database->isOpen() == false)
-        m_database->open();
+        m_database->open();    
 
-    if (m_database->getPathId(pathName, &pathId) == false) {
-        m_database->close();
-        return false;
-    } else if (pathId == -1)
-        return true;
-
-    if (m_database->getFileId(fileName, pathId, &fileId) == false) {
+    if (m_database->getFileId(fileName, &fileId) == false) {
         m_database->close();
         return false;
     }
 
     if (fileId == -1) {
-         if (m_database->insertFile(fileName, pathId, recipeData) == false) {
+         if (m_database->insertFile(fileName, recipeData) == false) {
              m_database->close();
              return false;
          }
@@ -139,21 +124,6 @@ bool Library::insertOrUpdateFile(QString fileName, QString pathName, RecipeData&
 
     emit updated();
     m_database->close();
-    return true;
-}
-
-
-bool Library::insertPath(const QString& pathName, int* nAdded) {
-    QDir dir(pathName);
-    if (dir.exists() == false)
-        return false;
-
-    int pathId;
-    if (m_database->insertPath(pathName, &pathId) == false)
-        return false;
-    else if (insertFiles(dir, pathId, nAdded) == false)
-        return false;
-
     return true;
 }
 
@@ -172,7 +142,8 @@ bool Library::rebuild() {
         return true;
     }
 
-    bool ret = insertPath(pathName);
+    QDir dir(pathName);
+    bool ret = insertFiles(dir);
     m_database->close();
     emit statusBarMessage(trUtf8("rebuild complete"));
     emit updated();
@@ -250,7 +221,7 @@ bool Library::update() {
     if (m_database->isOpen() == false)
         m_database->open();
 
-    QString pathName = m_database->getPathName();
+    QString pathName = QSettings().value("library/local/path").toString();
     if (pathName.isEmpty() == true) {
         clear();
         return true;
@@ -258,13 +229,7 @@ bool Library::update() {
 
     QDir dir(pathName);
     if (dir.exists() == true) {
-        int pathId;
-        if (m_database->getPathId(pathName, &pathId) == false) {
-            m_database->close();
-            emit statusBarMessage(trUtf8("update failed! Consider a library rebuild."));
-            return false;
-        }
-        if (updateFiles(dir, pathId, &added, &removed) == false) {
+        if (updateFiles(dir, &added, &removed) == false) {
             m_database->close();
             emit statusBarMessage(trUtf8("update failed! Consider a library rebuild."));
             return false;
@@ -281,9 +246,9 @@ bool Library::update() {
 }
 
 
-bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
+bool Library::updateFiles(QDir& dir, int* nAdded, int* nRemoved) {
     int added = 0, removed = 0;
-    const QStringList& databaseFileList = m_database->getFileNameList(pathId);
+    const QStringList& databaseFileList = m_database->getFileNameList();
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.xml");
     const QStringList& discFileList = dir.entryList();
@@ -299,7 +264,7 @@ bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
     RecipeData recipeData;
     foreach (const QString& fileName, databaseFileList) {
         if (discFileList.contains(fileName) == false) {
-            if (m_database->removeFile(fileName, pathId) == true)
+            if (m_database->removeFile(fileName) == true)
                 removed++;
             else
                 return false;
@@ -307,7 +272,7 @@ bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
             pathName = QString("%1%2%3").arg(dir.absolutePath(), QDir::separator(), fileName);
             recipeData.clear();
             if (recipeData.fill(pathName) == false) {
-                if (m_database->removeFile(fileName, pathId) == true)
+                if (m_database->removeFile(fileName) == true)
                     removed++;
                 else
                     return false;
@@ -326,7 +291,7 @@ bool Library::updateFiles(QDir& dir, int pathId, int* nAdded, int* nRemoved) {
             recipeData.clear();
             if (recipeData.fill(fileInfo.absoluteFilePath()) == false)
                 continue;
-            if (m_database->insertFile(fileName, pathId, recipeData) == true)
+            if (m_database->insertFile(fileName, recipeData) == true)
                 added++;
             else
                 return false;

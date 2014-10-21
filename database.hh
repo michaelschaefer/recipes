@@ -19,13 +19,7 @@ public:
         QString fileName;
         QString headline;
         int id;
-        int pathId;
-    };
-
-    struct Path {
-        int id;
-        QString pathName;
-    };
+    };    
 
     struct Recipe {
         QString headline;
@@ -38,19 +32,14 @@ public:
     void clear();
     void close();
     bool getFile(int fileId, File& file);
-    bool getFileId(const QString& fileName, int pathId, int* fileId = 0);
-    QStringList getFileNameList(int pathId = -1);
+    bool getFileId(const QString& fileName, int* fileId = 0);
+    QStringList getFileNameList();
     QList<int> getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity);
-    bool getPath(int pathId, Path& path);
-    bool getPathId(const QString& pathName, int* pathId = 0);
-    QString getPathName();
     QList<Recipe> getRecipeList();
-    bool insertFile(const QString& fileName, int pathId, RecipeData& recipeData, int* fileId = 0);
-    bool insertPath(const QString& pathName, int* pathId = 0);
+    bool insertFile(const QString& fileName, RecipeData& recipeData, int* fileId = 0);
     bool isOpen();
     bool open();
-    bool removeFile(const QString& fileName, int pathId);
-    bool removePath(const QString& pathName, int* nRemoved);
+    bool removeFile(const QString& fileName);    
     bool updateFile(int fileId, RecipeData& recipeData);
 
 
@@ -58,7 +47,7 @@ private:
 
     bool cleanIngredients();
     bool executeNoSelect(QString queryString);
-    QList<int> getFileIdList(int pathId);
+    QList<int> getFileIdList();
     bool getIngredientId(QString ingredientName, int* ingredientId);
     QList<int> getIngredientIdList(int fileId);
     QList<QPair<QString, int> > getIngredientList(int fileId);
