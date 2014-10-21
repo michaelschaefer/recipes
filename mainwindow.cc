@@ -10,17 +10,20 @@
 
 
 QString MainWindow::ApplicationName = "recipes";
-QString MainWindow::ApplicationVersion = "0.2";
+QString MainWindow::ApplicationOrganization = "www.michael-schaefer.org";
+QString MainWindow::ApplicationVersion = "0.3";
 
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     m_splitter = new QSplitter(this);
     m_searchWidget = new SearchWidget(m_splitter);    
+    m_settingsDialog = new SettingsDialog(this);
     m_tabWidget = new RecipeTabWidget(m_splitter);
 
     connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeCurrentRecipe()));
-    connect(m_tabWidget, SIGNAL(empty(bool)), this, SLOT(setActionInvisibility(bool)));
+    connect(m_tabWidget, SIGNAL(empty(bool)), this, SLOT(setEditActionInvisibility(bool)));
     connect(m_searchWidget, SIGNAL(recipeSelected(QString)), m_tabWidget, SLOT(openRecipe(QString)));    
+    connect(m_settingsDialog, SIGNAL(libraryPathChanged()), this, SLOT(libraryRebuild()));
 
     m_splitter->addWidget(m_tabWidget);
     m_splitter->addWidget(m_searchWidget);
@@ -42,14 +45,23 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     menuBar()->addMenu(m_menuHelp);
 
     setupToolBar();
-    setActionInvisibility(true);
+    setEditActionInvisibility(true);
 
     m_statusBarLabel = new QLabel(statusBar());
     statusBar()->addWidget(m_statusBarLabel);
 
     m_library = Library::instance();
+    auto errorMessageSlot = [this] (const QString& text) {
+        this->errorMessage(trUtf8("Library"), text);
+    };
+    connect(m_library, &Library::errorMessage, errorMessageSlot);
     connect(m_library, SIGNAL(statusBarMessage(QString)), this, SLOT(showStatusBarMessage(QString)));
     connect(m_library, SIGNAL(updated()), m_searchWidget, SLOT(updateData()));
+
+    if (m_settings.value("library/local/syncOnStart").toBool() == true)
+        m_library->synchronize();
+    if (m_settings.value("library/local/path").toString().isEmpty() == true)
+        setMenuLibraryEnabled(false);
 }
 
 
@@ -72,10 +84,13 @@ void MainWindow::closeEvent(QCloseEvent* event) {
                 break;
             } else {
                 event->ignore();
-                break;
+                return;
             }
         }
     }
+
+    if (m_settings.value("library/local/syncOnQuit").toBool() == true)
+        m_library->synchronize();
 }
 
 
@@ -115,11 +130,15 @@ void MainWindow::disconnectRecipe(RecipeEdit* recipeEdit) {
 }
 
 
+void MainWindow::errorMessage(QString title, QString text) {
+    QMessageBox::critical(this, title, text);
+}
+
+
 void MainWindow::fileSettings() {
-    SettingsDialog settings(this);
-    settings.setWindowTitle(trUtf8("Settings"));
-    settings.show();
-    settings.exec();
+    m_settingsDialog->setWindowTitle(trUtf8("Settings"));
+    m_settingsDialog->show();
+    m_settingsDialog->exec();
 }
 
 
@@ -154,25 +173,7 @@ void MainWindow::helpAboutQt() {
 }
 
 
-void MainWindow::libraryManagePaths() {
-    QString title = trUtf8("Manage paths");
-    LibraryPathDialog dialog(this);
-    dialog.setWindowTitle(title);
-    dialog.setPathList(m_library->getPathList());
-    dialog.show();
-
-    if (dialog.exec() == QDialog::Accepted) {
-        QStringList pathList = dialog.getPathList();
-        setMenuLibraryEnabled(false);
-        LibraryThread* thread = new LibraryThread(m_library, LibraryThread::SetPathList, this);
-        thread->setPathList(pathList);
-        connect(thread, SIGNAL(finished()), this, SLOT(setMenuLibraryEnabled()));
-        thread->start();
-    }
-}
-
-
-void MainWindow::libraryRebuild() {
+void MainWindow::libraryRebuild() {    
     setMenuLibraryEnabled(false);
     LibraryThread* thread = new LibraryThread(m_library, LibraryThread::Rebuild, this);
     connect(thread, SIGNAL(finished()), this, SLOT(setMenuLibraryEnabled()));
@@ -188,7 +189,7 @@ void MainWindow::libraryUpdate() {
 }
 
 
-void MainWindow::setActionInvisibility(bool invisible) {
+void MainWindow::setEditActionInvisibility(bool invisible) {
     m_actionClose->setEnabled(!invisible);
     m_actionCloseAll->setEnabled(!invisible);
     m_actionExport->setEnabled(!invisible);
@@ -310,26 +311,26 @@ void MainWindow::setupMenuHelp() {
 void MainWindow::setupMenuLibrary() {
     m_menuLibrary = new QMenu(trUtf8("&Library"), menuBar());
 
-    m_actionManagePaths = new QAction(trUtf8("Manager &paths"), m_menuLibrary);
     m_actionRebuild = new QAction(trUtf8("&Rebuild"), m_menuLibrary);
-    m_actionSearch = new QAction(trUtf8("&Search"), m_menuLibrary);
+    m_actionBrowse = new QAction(trUtf8("&Browse"), m_menuLibrary);
+    m_actionSynchronize = new QAction(trUtf8("&Synchronize"), m_menuLibrary);
     m_actionUpdate = new QAction(trUtf8("&Update"), m_menuLibrary);
 
-    m_actionManagePaths->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_P));
     m_actionRebuild->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_R));
-    m_actionSearch->setShortcut(Qt::Key_F2);
+    m_actionBrowse->setShortcut(Qt::Key_F2);
+    m_actionSynchronize->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_S));
     m_actionUpdate->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_U));
 
-    connect(m_actionManagePaths, SIGNAL(triggered()), this, SLOT(libraryManagePaths()));
     connect(m_actionRebuild, SIGNAL(triggered()), this, SLOT(libraryRebuild()));
-    connect(m_actionSearch, SIGNAL(triggered()), m_searchWidget, SLOT(toggleVisibility()));
+    connect(m_actionBrowse, SIGNAL(triggered()), m_searchWidget, SLOT(toggleVisibility()));
+    connect(m_actionSynchronize, &QAction::triggered, [this] () { m_library->synchronize(); });
     connect(m_actionUpdate, SIGNAL(triggered()), this, SLOT(libraryUpdate()));    
 
-    m_menuLibrary->addAction(m_actionManagePaths);
     m_menuLibrary->addAction(m_actionRebuild);
     m_menuLibrary->addAction(m_actionUpdate);
+    m_menuLibrary->addAction(m_actionSynchronize);
     m_menuLibrary->addSeparator();
-    m_menuLibrary->addAction(m_actionSearch);
+    m_menuLibrary->addAction(m_actionBrowse);
 }
 
 
@@ -359,7 +360,7 @@ void MainWindow::setupToolBar() {
     m_actionToolBarPreview = new QAction("\uF06E", m_toolBar);
     m_actionToolBarPrint = new QAction("\uF02F", m_toolBar);
     m_actionToolBarSave = new QAction("\uF0C7", m_toolBar);
-    m_actionToolBarSearch = new QAction("\uF002", m_toolBar);
+    m_actionToolBarBrowse = new QAction("\uF002", m_toolBar);
 
     m_actionToolBarClose->setFont(toolBarFont);
     m_actionToolBarExport->setFont(toolBarFont);
@@ -370,7 +371,7 @@ void MainWindow::setupToolBar() {
     m_actionToolBarPreparationStep->setFont(toolBarFont);
     m_actionToolBarPreview->setFont(toolBarFont);
     m_actionToolBarSave->setFont(toolBarFont);
-    m_actionToolBarSearch->setFont(toolBarFont);
+    m_actionToolBarBrowse->setFont(toolBarFont);
 
     m_actionToolBarClose->setToolTip(trUtf8("Close"));
     m_actionToolBarExport->setToolTip(trUtf8("Export as PDF"));
@@ -381,7 +382,7 @@ void MainWindow::setupToolBar() {
     m_actionToolBarPreparationStep->setToolTip(trUtf8("Add preparation step"));
     m_actionToolBarPreview->setToolTip(trUtf8("Toggle preview"));
     m_actionToolBarSave->setToolTip(trUtf8("Save"));
-    m_actionToolBarSearch->setToolTip(trUtf8("Search library"));
+    m_actionToolBarBrowse->setToolTip(trUtf8("Browse library"));
 
     m_actionToolButtonIngredient = new QToolButton(m_toolBar);
     m_actionToolButtonIngredient->setFont(toolBarFont);
@@ -404,11 +405,11 @@ void MainWindow::setupToolBar() {
     connect(m_actionToolBarPreparationStep, SIGNAL(triggered()), m_actionPreparationStep, SLOT(trigger()));
     connect(m_actionToolBarPreview, SIGNAL(triggered()), m_actionPreview, SLOT(trigger()));
     connect(m_actionToolBarSave, SIGNAL(triggered()), m_actionSave, SLOT(trigger()));
-    connect(m_actionToolBarSearch, SIGNAL(triggered()), m_actionSearch, SLOT(trigger()));
+    connect(m_actionToolBarBrowse, SIGNAL(triggered()), m_actionBrowse, SLOT(trigger()));
 
     m_toolBar->addAction(m_actionToolBarNew);
     m_toolBar->addAction(m_actionToolBarOpen);
-    m_toolBar->addAction(m_actionToolBarSearch);
+    m_toolBar->addAction(m_actionToolBarBrowse);
     m_toolBar->addSeparator();
     m_toolBar->addAction(m_actionToolBarSave);
     m_toolBar->addAction(m_actionToolBarClose);

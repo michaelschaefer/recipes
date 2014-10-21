@@ -5,6 +5,7 @@
 #include <QtFtp/QFtp>
 #include <QDir>
 #include <QObject>
+#include <QSettings>
 #include <QUrl>
 
 
@@ -15,10 +16,12 @@ class FtpManager : public QObject {
 
 signals:
 
-    void loginSuccess(bool);    
+    void connectionFailed();
+    void connectionReady();
     void downloadFinished(QString);
     void entireDownloadFinished();
     void entireUploadFinished();
+    void fileListReady();
     void uploadFinished(QString);
 
 
@@ -26,9 +29,13 @@ public:
 
     static FtpManager* instance();
 
-    void download(QDir dir);
-    void login(QUrl url);    
-    void upload(QDir dir);
+    void download(QStringList fileNameList);
+    void fetchFileList();
+    QList<QUrlInfo> fileList();
+    void login();
+    void updateConnectionSettings();
+    void updateConnectionSettings(QUrl url);
+    void upload(QStringList fileNameList);
 
 
 private slots:
@@ -49,10 +56,11 @@ private:
     void operator=(FtpManager const&);
 
 
-    QDir m_downloadDir;
     QFtp* m_ftp;
     QFile* m_downloadFile;
     QFile* m_uploadFile;
+    QList<QUrlInfo> m_urlInfoList;
+    QSettings m_settings;
     QStringList m_downloadFileList;
     QStringList m_uploadFileList;
     QUrl m_url;

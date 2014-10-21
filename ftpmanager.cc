@@ -12,16 +12,19 @@ void FtpManager::commandFinished(int, bool error) {
     QFtp::Command cmd = m_ftp->currentCommand();
     if (cmd == QFtp::ConnectToHost) {
         if (error == true)
-            emit loginSuccess(false);
+            emit connectionFailed();
         else
             m_ftp->login(m_url.userName(), m_url.password());
     } else if (cmd == QFtp::Login) {
         if (error == true)
-            emit loginSuccess(false);
+            emit connectionFailed();
         else
             m_ftp->cd(m_url.path());
     } else if (cmd == QFtp::Cd) {
-        emit loginSuccess(error == false);
+        if (error == true)
+            emit connectionFailed();
+        else
+            emit connectionReady();
     } else if (cmd == QFtp::Put) {
         m_uploadFile->close();
         emit uploadFinished(m_uploadFileList.takeFirst());
@@ -30,7 +33,7 @@ void FtpManager::commandFinished(int, bool error) {
         else
             upload();
     } else if (cmd == QFtp::List) {
-        download();
+        emit fileListReady();
     } else if (cmd == QFtp::Get) {
         m_downloadFile->close();
         emit downloadFinished(m_downloadFileList.takeFirst());
@@ -46,17 +49,30 @@ void FtpManager::download() {
     if (m_downloadFileList.isEmpty() == true)
         return;
     QString fileName = m_downloadFileList.first();
-    QString pathName = QString("%1/%2").arg(m_downloadDir.absolutePath(), fileName);
-    m_downloadFile = new QFile(pathName);
+    QString pathName = m_settings.value("library/local/path").toString();
+    m_downloadFile = new QFile(QString("%1%2%3").arg(pathName, QDir::separator(), fileName));
     m_downloadFile->open(QFile::WriteOnly);
     m_ftp->get(fileName, m_downloadFile);
 }
 
 
-void FtpManager::download(QDir dir) {
-    m_downloadFileList.clear();
-    m_downloadDir = dir;
+void FtpManager::download(QStringList fileNameList) {
+    m_downloadFileList = fileNameList;
+    download();
+    /*m_downloadFileList.clear();
+    m_downloadDir = fileNameList;
+    m_ftp->list();*/
+}
+
+
+void FtpManager::fetchFileList() {
+    m_urlInfoList.clear();
     m_ftp->list();
+}
+
+
+QList<QUrlInfo> FtpManager::fileList() {
+    return m_urlInfoList;
 }
 
 
@@ -74,21 +90,28 @@ void FtpManager::listInfo(QUrlInfo urlInfo) {
     int length = fileName.length();
     if (fileName.mid(length-4) != ".xml")
         return;
-    else
-        m_downloadFileList.append(fileName);
+    else {
+        m_urlInfoList.append(urlInfo);
+        //m_downloadFileList.append(fileName);
+    }
 }
 
 
-void FtpManager::login(QUrl url) {
+void FtpManager::login() {
+    if (m_ftp != 0) {
+        m_ftp->close();
+        delete m_ftp;
+        m_ftp = 0;
+    }
+
     m_ftp = new QFtp(this);
     connect(m_ftp, SIGNAL(commandFinished(int, bool)), this, SLOT(commandFinished(int, bool)));
     connect(m_ftp, SIGNAL(listInfo(QUrlInfo)), this, SLOT(listInfo(QUrlInfo)));
 
-    m_url = url;
     if (m_url.isValid() == true) {
         m_ftp->connectToHost(m_url.host(), m_url.port());
     } else
-        emit loginSuccess(false);
+        emit connectionFailed();
 }
 
 
@@ -107,6 +130,20 @@ void FtpManager::showError() {
 }
 
 
+void FtpManager::updateConnectionSettings() {
+    m_url.setHost(m_settings.value("library/remote/address").toString());
+    m_url.setPort(m_settings.value("library/remote/port").toInt());
+    m_url.setUserName(m_settings.value("library/remote/userName").toString());
+    m_url.setPassword(m_settings.value("library/remote/password").toString());
+    m_url.setPath(m_settings.value("library/remote/path").toString());
+}
+
+
+void FtpManager::updateConnectionSettings(QUrl url) {
+    m_url = url;
+}
+
+
 void FtpManager::upload() {
     if (m_uploadFileList.isEmpty() == true)
         return;
@@ -118,12 +155,18 @@ void FtpManager::upload() {
 }
 
 
-void FtpManager::upload(QDir dir) {
-    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+void FtpManager::upload(QStringList fileNameList) {
+    QString pathName = m_settings.value("library/local/path").toString();
+    m_uploadFileList.clear();
+    foreach (const QString& fileName, fileNameList)
+        m_uploadFileList.append(QString("%1%2%3").arg(pathName, QDir::separator(), fileName));
+    upload();
+
+    /*dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.xml");    
     m_uploadFileList.clear();
     foreach (const QFileInfo& fileInfo, dir.entryInfoList()) {
         m_uploadFileList.append(fileInfo.absoluteFilePath());
     }
-    upload();
+    upload();*/
 }

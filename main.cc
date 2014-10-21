@@ -7,6 +7,9 @@
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setOrganizationName(MainWindow::ApplicationOrganization);
+    QCoreApplication::setApplicationName(MainWindow::ApplicationName);
+
     QApplication application(argc, argv);
 
     QString locale;

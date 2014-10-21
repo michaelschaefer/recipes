@@ -6,6 +6,7 @@
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QSettings>
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include "settingstablibrary.hh"
@@ -14,6 +15,11 @@
 class SettingsDialog : public QDialog {
 
     Q_OBJECT
+
+
+signals:
+
+    void libraryPathChanged();
 
 
 public:
@@ -26,12 +32,14 @@ private slots:
     void save();
 
 
-private:
+private:    
 
+    void fill();
     void setupDialogButtons();
 
 
     QDialogButtonBox* m_buttonBox;
+    QSettings m_settings;
     QTabWidget* m_tabWidget;
     QVBoxLayout* m_layout;
     SettingsTabLibrary* m_tabLibrary;

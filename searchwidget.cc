@@ -12,7 +12,7 @@ SearchWidget::SearchWidget(QSplitter* parent) : QWidget() {
 
     m_labelRecipeInfoHeader = new QLabel(trUtf8("<b>Recipe information</b>"), this);
     m_labelRecipeInfoHeadline = new QLabel(this);
-    m_labelRecipeInfoPath = new QLabel(this);
+    m_labelRecipeInfoPath = new QLabel(this);    
     resetLabelText();
 
     m_searchFilterModel = new SearchFilterModel(this);
@@ -22,6 +22,7 @@ SearchWidget::SearchWidget(QSplitter* parent) : QWidget() {
 
     m_listViewRecipes = new QListView();
     m_listViewRecipes->setModel(m_searchFilterModel);
+    m_listViewRecipes->installEventFilter(this);
 
     m_layout->addWidget(m_searchFilterWidget);
     m_layout->addWidget(m_listViewRecipes, 100);
@@ -35,6 +36,20 @@ SearchWidget::SearchWidget(QSplitter* parent) : QWidget() {
     connect(m_searchFilterWidget, SIGNAL(filterUpdated(QString,QList<QList<int> >)), m_searchFilterModel, SLOT(filter(QString,QList<QList<int> >)));
 
     setVisible(false);
+}
+
+
+bool SearchWidget::eventFilter(QObject* target, QEvent* event) {
+    if (target == m_listViewRecipes) {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent != 0 && (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return)) {
+                openRecipe();
+            }
+        }
+    }
+
+    return QWidget::eventFilter(target, event);
 }
 
 
@@ -68,11 +83,11 @@ void SearchWidget::selectRecipe(bool open) {
     m_library->getFile(fileId, fileInfo);
     m_library->getPath(fileInfo.pathId, pathInfo);
 
-    QString pathName = QString("%1/%2").arg(pathInfo.pathName, fileInfo.fileName);
     if (open == false) {
-        m_labelRecipeInfoPath->setText(trUtf8("Path: ") + pathName);
+        m_labelRecipeInfoPath->setText(trUtf8("Path: ") + fileInfo.fileName);
         m_labelRecipeInfoHeadline->setText(trUtf8("Headline: ") + fileInfo.headline);
     } else {        
+        QString pathName = QString("%1%2%3").arg(pathInfo.pathName, QDir::separator(), fileInfo.fileName);
         emit recipeSelected(pathName);
     }
 }

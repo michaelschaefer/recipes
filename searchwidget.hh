@@ -39,6 +39,7 @@ public slots:
 
 private slots:
 
+    bool eventFilter(QObject* target, QEvent* event);
     void openRecipe();
     void resetLabelText();
     void selectRecipe(bool open = false);

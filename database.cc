@@ -102,12 +102,23 @@ QList<int> Database::getFileIdList(int pathId) {
 QStringList Database::getFileNameList(int pathId) {
     QStringList fileList;
     QSqlQuery query(m_database);
-    query.prepare("select file from files where path=:pathId");
-    query.bindValue(":pathId", pathId);
-    if (query.exec() == true) {
-        while (query.next() == true)
-            fileList.append(query.record().value(0).toString());
+
+    if (pathId == -1) {
+        query.prepare("select paths.path || :sep || files.file from paths join files on files.path = paths.id");
+        query.bindValue(":sep", QDir::separator());
+        if (query.exec() == true) {
+            while (query.next() == true)
+                fileList.append(query.record().value(0).toString());
+        }
+    } else {
+        query.prepare("select file from files where path=:pathId");
+        query.bindValue(":pathId", pathId);
+        if (query.exec() == true) {
+            while (query.next() == true)
+                fileList.append(query.record().value(0).toString());
+        }
     }
+
     return fileList;
 }
 
@@ -229,18 +240,15 @@ bool Database::getPathId(const QString& pathName, int* pathId) {
 }
 
 
-QStringList Database::getPathNameList() {
-    QStringList pathList;
-
+QString Database::getPathName() {
+    QString pathName;
     QSqlQuery query(m_database);
-    query.prepare("select path from paths");
-    if (query.exec() == true) {
-        while (query.next() == true) {
-            pathList << query.record().value(0).toString();
-        }
+    query.prepare("select path from paths limit 0,1");
+    if (query.exec() == true && query.next() == true) {
+        pathName = query.record().value(0).toString();
     }
 
-    return pathList;
+    return pathName;
 }
 
 

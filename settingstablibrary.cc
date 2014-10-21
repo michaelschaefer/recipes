@@ -6,7 +6,8 @@
 
 SettingsTabLibrary::SettingsTabLibrary(QWidget *parent) : QWidget(parent) {
     m_ftpManager = FtpManager::instance();
-    connect(m_ftpManager, SIGNAL(loginSuccess(bool)), this, SLOT(connectionChecked(bool)));
+    connect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
+    connect(m_ftpManager, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
     connect(m_ftpManager, SIGNAL(downloadFinished(QString)), this, SLOT(downloadFinished(QString)));
     connect(m_ftpManager, SIGNAL(entireDownloadFinished()), this, SLOT(downloadFinished()));
     connect(m_ftpManager, SIGNAL(uploadFinished(QString)), this, SLOT(uploadFinished(QString)));
@@ -28,12 +29,14 @@ SettingsTabLibrary::SettingsTabLibrary(QWidget *parent) : QWidget(parent) {
 
 void SettingsTabLibrary::checkConnection() {
     QUrl url;
-    url.setHost(m_editRemoteServer->text());
+    url.setHost(m_editRemoteAddress->text());
     url.setPort(m_spinRemotePort->value());
     url.setUserName(m_editRemoteUserName->text());
     url.setPassword(m_editRemotePassword->text());
     url.setPath(m_editRemotePath->text());
-    m_ftpManager->login(url);
+
+    m_ftpManager->updateConnectionSettings(url);
+    m_ftpManager->login();
 }
 
 
@@ -48,17 +51,17 @@ void SettingsTabLibrary::choosePath() {
 }
 
 
-void SettingsTabLibrary::connectionChecked(bool successful) {
+void SettingsTabLibrary::connectionFailed() {
+    QString title = trUtf8("Connection check");    
+    QString text = trUtf8("Connection failed.");
+    QMessageBox::critical(this, title, text);
+}
+
+
+void SettingsTabLibrary::connectionReady() {
     QString title = trUtf8("Connection check");
-    if (successful == true) {
-        QString text = trUtf8("Connection successfully established.");
-        QMessageBox::information(this, title, text);
-        //m_ftpManager->upload(QDir(m_editLocalPath->text()));
-        m_ftpManager->download(QDir(m_editLocalPath->text()));
-    } else {
-        QString text = trUtf8("Connection failed.");
-        QMessageBox::critical(this, title, text);
-    }
+    QString text = trUtf8("Connection successfully established.");
+    QMessageBox::information(this, title, text);    
 }
 
 
@@ -67,6 +70,39 @@ void SettingsTabLibrary::downloadFinished(QString fileName) {
         qDebug() << "Entire download finished!";
     else
         qDebug() << "Download of" << fileName << "complete";
+}
+
+
+void SettingsTabLibrary::setSettings(LibrarySettings settings) {
+    m_editLocalPath->setText(settings.localPath);
+    m_editRemoteAddress->setText(settings.remoteAddress);
+    m_editRemotePassword->setText(settings.remotePassword);
+    m_editRemotePath->setText(settings.remotePath);
+    m_spinRemotePort->setValue(settings.remotePort);
+    m_editRemoteUserName->setText(settings.remoteUserName);
+    m_checkBoxSyncOnQuit->setChecked(settings.syncOnQuit);
+    m_checkBoxSyncOnStart->setChecked(settings.syncOnStart);
+    m_groupBoxRemote->setChecked(settings.useRemote);
+
+    if (settings.localPath.isEmpty() == true) {
+        m_checkBoxSyncOnQuit->setEnabled(false);
+        m_checkBoxSyncOnStart->setEnabled(false);
+    }
+}
+
+
+SettingsTabLibrary::LibrarySettings SettingsTabLibrary::settings() {
+    SettingsTabLibrary::LibrarySettings librarySettings;
+    librarySettings.localPath = m_editLocalPath->text();
+    librarySettings.remoteAddress = m_editRemoteAddress->text();
+    librarySettings.remotePassword = m_editRemotePassword->text();
+    librarySettings.remotePath = m_editRemotePath->text();
+    librarySettings.remotePort = m_spinRemotePort->value();
+    librarySettings.remoteUserName = m_editRemoteUserName->text();
+    librarySettings.syncOnQuit = m_checkBoxSyncOnQuit->isChecked();
+    librarySettings.syncOnStart = m_checkBoxSyncOnStart->isChecked();
+    librarySettings.useRemote = m_groupBoxRemote->isChecked();
+    return librarySettings;
 }
 
 
@@ -84,13 +120,17 @@ void SettingsTabLibrary::setupGroupBoxLocal() {
 
     m_editLocalPath = new QLineEdit(m_groupBoxLocal);
     m_editLocalPath->setPlaceholderText(trUtf8("No path selected"));
-    m_editLocalPath->setText("/home/mscha_08/Dokumente/rezepte");
 
     m_buttonLocalPath = new QPushButton(trUtf8("Choose path"), m_groupBoxLocal);
 
-    m_layoutLocal = new QHBoxLayout();
-    m_layoutLocal->addWidget(m_editLocalPath);
-    m_layoutLocal->addWidget(m_buttonLocalPath);
+    m_checkBoxSyncOnStart = new QCheckBox(trUtf8("Synchronize on start"), m_groupBoxLocal);
+    m_checkBoxSyncOnQuit = new QCheckBox(trUtf8("Synchronize on quit"), m_groupBoxLocal);
+
+    m_layoutLocal = new QGridLayout();
+    m_layoutLocal->addWidget(m_editLocalPath, 0, 0);
+    m_layoutLocal->addWidget(m_buttonLocalPath, 0, 1);
+    m_layoutLocal->addWidget(m_checkBoxSyncOnStart, 1, 0, 1, 2);
+    m_layoutLocal->addWidget(m_checkBoxSyncOnQuit, 2, 0, 1, 2);
     m_groupBoxLocal->setLayout(m_layoutLocal);
 }
 
@@ -98,35 +138,33 @@ void SettingsTabLibrary::setupGroupBoxLocal() {
 void SettingsTabLibrary::setupGroupBoxRemote() {
     m_groupBoxRemote = new QGroupBox(trUtf8("Remote"), this);
     m_groupBoxRemote->setCheckable(true);
-    m_groupBoxRemote->setChecked(true);
+    m_groupBoxRemote->setChecked(false);
 
-    m_editRemotePassword = new QLineEdit(m_groupBoxRemote);
-    m_editRemotePassword->setEchoMode(QLineEdit::Password);
-    m_editRemotePassword->setText("eV89j5KvEQ");
-
+    m_editRemoteAddress = new QLineEdit(m_groupBoxRemote);
     m_editRemotePath = new QLineEdit(m_groupBoxRemote);
-    m_editRemotePath->setText("/rezepte");
 
     m_spinRemotePort = new QSpinBox(m_groupBoxRemote);
     m_spinRemotePort->setMinimum(1);
     m_spinRemotePort->setMaximum(65535);
-    m_spinRemotePort->setValue(21);
-
-    m_editRemoteServer = new QLineEdit(m_groupBoxRemote);
-    m_editRemoteServer->setText("ftp.michael-schaefer.org");
 
     m_editRemoteUserName = new QLineEdit(m_groupBoxRemote);
-    m_editRemoteUserName->setText("w005d352");
+
+    m_editRemotePassword = new QLineEdit(m_groupBoxRemote);
+    m_editRemotePassword->setEchoMode(QLineEdit::Password);            
 
     m_buttonRemoteCheckConnection = new QPushButton(trUtf8("Check connection"), m_groupBoxRemote);
 
-    m_layoutRemote = new QFormLayout();
-    m_layoutRemote->addRow(trUtf8("Address:"), m_editRemoteServer);
-    m_layoutRemote->addRow(trUtf8("Path:"), m_editRemotePath);
-    m_layoutRemote->addRow(trUtf8("Port:"), m_spinRemotePort);
-    m_layoutRemote->addRow(trUtf8("Username:"), m_editRemoteUserName);
-    m_layoutRemote->addRow(trUtf8("Password:"), m_editRemotePassword);
-    m_layoutRemote->addWidget(m_buttonRemoteCheckConnection);
+    m_layoutRemoteConnection = new QFormLayout();
+    m_layoutRemoteConnection->addRow(trUtf8("Address:"), m_editRemoteAddress);
+    m_layoutRemoteConnection->addRow(trUtf8("Path:"), m_editRemotePath);
+    m_layoutRemoteConnection->addRow(trUtf8("Port:"), m_spinRemotePort);
+    m_layoutRemoteConnection->addRow(trUtf8("Username:"), m_editRemoteUserName);
+    m_layoutRemoteConnection->addRow(trUtf8("Password:"), m_editRemotePassword);
+
+    m_layoutRemote = new QVBoxLayout();
+    m_layoutRemote->addLayout(m_layoutRemoteConnection);
+    m_layoutRemote->addWidget(m_buttonRemoteCheckConnection, 0, Qt::AlignRight);
+
     m_groupBoxRemote->setLayout(m_layoutRemote);
 
     toggleRemote();
@@ -134,5 +172,8 @@ void SettingsTabLibrary::setupGroupBoxRemote() {
 
 
 void SettingsTabLibrary::toggleRemote() {
-    m_groupBoxRemote->setEnabled(!m_editLocalPath->text().isEmpty());
+    bool hasPath = !m_editLocalPath->text().isEmpty();
+    m_checkBoxSyncOnQuit->setEnabled(hasPath);
+    m_checkBoxSyncOnStart->setEnabled(hasPath);
+    m_groupBoxRemote->setEnabled(hasPath);
 }

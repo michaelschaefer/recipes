@@ -13,14 +13,14 @@ SearchFilterWidget::SearchFilterWidget(QWidget* parent) : QWidget(parent) {
     m_editHeadline = new QLineEdit(this);
     m_editHeadline->setPlaceholderText(trUtf8("Enter search query"));
 
-    m_layoutIngredients = new QVBoxLayout();
-
-    m_lineEditIngredients = new QLineEdit(this);
-    m_lineEditIngredients->setPlaceholderText(trUtf8("Press enter to add ingredient"));
+    m_layoutIngredients = new QVBoxLayout();    
 
     m_listWidgetIngredients = new QListWidget(this);
     m_listWidgetIngredients->installEventFilter(this);
     m_listWidgetIngredients->setSortingEnabled(true);
+
+    m_lineEditIngredients = new QLineEdit(this);
+    m_lineEditIngredients->setPlaceholderText(trUtf8("Press enter to add ingredient"));
 
     m_layoutIngredients->addWidget(m_lineEditIngredients);
     m_layoutIngredients->addWidget(m_listWidgetIngredients);

@@ -10,7 +10,6 @@
 #include <QToolBar>
 #include <QToolButton>
 #include "library.hh"
-#include "librarypathdialog.hh"
 #include "librarythread.hh"
 #include "recipeedit.hh"
 #include "recipetabwidget.hh"
@@ -28,6 +27,7 @@ public:
     MainWindow(QWidget* parent = 0);
 
     static QString ApplicationName;
+    static QString ApplicationOrganization;
     static QString ApplicationVersion;
 
 
@@ -41,12 +41,12 @@ private slots:
 
     void changeCurrentRecipe();
     void closeEvent(QCloseEvent* event);    
-    void libraryManagePaths();
+    void errorMessage(QString title, QString text);
+    void fileSettings();
     void libraryRebuild();
     void libraryUpdate();
-    void setActionInvisibility(bool invisible);    
-    void setMenuLibraryEnabled(bool enabled = true);
-    void fileSettings();
+    void setEditActionInvisibility(bool invisible);
+    void setMenuLibraryEnabled(bool enabled = true);    
     void showStatusBarMessage(QString message);
 
 
@@ -64,12 +64,12 @@ private:
     Library* m_library;
     QAction* m_actionAbout;
     QAction* m_actionAboutQt;
+    QAction* m_actionBrowse;
     QAction* m_actionClose;
     QAction* m_actionCloseAll;
     QAction* m_actionExport;
     QAction* m_actionHeadline;
-    QAction* m_actionIngredient;
-    QAction* m_actionManagePaths;
+    QAction* m_actionIngredient;    
     QAction* m_actionNew;
     QAction* m_actionOpen;
     QAction* m_actionPreparationStep;
@@ -79,11 +79,12 @@ private:
     QAction* m_actionRebuild;
     QAction* m_actionSave;
     QAction* m_actionSaveAs;
-    QAction* m_actionSaveAll;
-    QAction* m_actionSearch;
+    QAction* m_actionSaveAll;    
     QAction* m_actionSection;
     QAction* m_actionServingCount;
     QAction* m_actionSettings;
+    QAction* m_actionSynchronize;
+    QAction* m_actionToolBarBrowse;
     QAction* m_actionToolBarClose;
     QAction* m_actionToolBarExport;
     QAction* m_actionToolBarHeadline;
@@ -92,8 +93,7 @@ private:
     QAction* m_actionToolBarPreparationStep;
     QAction* m_actionToolBarPreview;
     QAction* m_actionToolBarPrint;
-    QAction* m_actionToolBarSave;    
-    QAction* m_actionToolBarSearch;
+    QAction* m_actionToolBarSave;        
     QAction* m_actionUpdate;
     QLabel* m_statusBarLabel;
     QMenu* m_menuEdit;
@@ -102,12 +102,14 @@ private:
     QMenu* m_menuHelp;
     QMenu* m_menuLibrary;
     QMenu* m_menuToolButtonIngredient;
+    QSettings m_settings;
     QSplitter* m_splitter;
     QToolBar* m_toolBar;
     QToolButton* m_actionToolButtonIngredient;
     RecipeEdit* m_currentRecipe;
     RecipeTabWidget* m_tabWidget;
     SearchWidget* m_searchWidget;
+    SettingsDialog* m_settingsDialog;
 
 };
 

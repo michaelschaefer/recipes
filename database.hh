@@ -39,11 +39,11 @@ public:
     void close();
     bool getFile(int fileId, File& file);
     bool getFileId(const QString& fileName, int pathId, int* fileId = 0);
-    QStringList getFileNameList(int pathId);
+    QStringList getFileNameList(int pathId = -1);
     QList<int> getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity);
     bool getPath(int pathId, Path& path);
     bool getPathId(const QString& pathName, int* pathId = 0);
-    QStringList getPathNameList();
+    QString getPathName();
     QList<Recipe> getRecipeList();
     bool insertFile(const QString& fileName, int pathId, RecipeData& recipeData, int* fileId = 0);
     bool insertPath(const QString& pathName, int* pathId = 0);

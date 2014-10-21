@@ -10,6 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = recipes
 TEMPLATE = app
+QMAKE_CXXFLAGS += -std=c++11
 
 
 SOURCES += main.cc \
@@ -30,7 +31,6 @@ SOURCES += main.cc \
     library.cc \
     database.cc \
     librarythread.cc \
-    librarypathdialog.cc \
     searchwidget.cc \
     searchfiltermodel.cc \
     searchfilterwidget.cc \
@@ -55,7 +55,6 @@ HEADERS  += mainwindow.hh \
     library.hh \
     database.hh \
     librarythread.hh \
-    librarypathdialog.hh \
     searchwidget.hh \
     searchfiltermodel.hh \
     searchfilterwidget.hh \
