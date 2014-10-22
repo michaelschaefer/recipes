@@ -30,7 +30,9 @@ public:
 
     static Library* instance();
 
+    void exportAsPdf(QString pathName);
     bool getFile(int fileId, Database::File& file);    
+    QList<QFileInfo> getFileInfoList();
     QList<int> getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity);
     QList<Database::Recipe> getRecipeList();
     bool insertOrUpdateFile(QString absoluteFileName, RecipeData& recipeData);
@@ -55,6 +57,9 @@ private:
     void operator=(Library const&);
 
 
+    static QString msgExportComplete;
+    static QString msgExportingLibrary;
+    static QString msgExportProgress;
     static QString msgFileInserted;
     static QString msgFileInsertedOrUpdated;
     static QString msgFileUpdated;
@@ -68,8 +73,7 @@ private:
     static QString msgUpdateComplete;
 
 
-    void clear();
-    QList<QFileInfo> getFileInfoList();
+    void clear();    
     bool insertFiles(QDir& dir, int* nAdded = 0);    
     bool updateFiles(QDir& dir, int* nAdded = 0, int* nRemoved = 0);
 

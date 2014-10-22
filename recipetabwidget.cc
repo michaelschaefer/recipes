@@ -121,7 +121,9 @@ void RecipeTabWidget::newRecipe() {
 void RecipeTabWidget::openRecipe(QString fileName) {    
     if (fileName.isEmpty()) {
         QString caption = trUtf8("Open recipe");
-        QString dir = QDir::homePath();
+        QString dir = QSettings().value("library/local/path").toString();
+        if (dir.isEmpty() == true)
+            dir = QDir::homePath();
         QString filter = trUtf8("Recipe files (*.xml)");
 
         fileName = QFileDialog::getOpenFileName(this, caption, dir, filter);
@@ -153,7 +155,10 @@ void RecipeTabWidget::openRecipe(QString fileName) {
 void RecipeTabWidget::recipeChanged(RecipeEdit *recipeEdit) {
     int index = indexOf(recipeEdit);
     if (index != -1) {
-        setTabText(index, recipeEdit->fileName() + " (*)");
+        QString text = recipeEdit->fileName();
+        if (text.isEmpty() == true)
+            text = trUtf8("unsaved");
+        setTabText(index, text + " (*)");
     }
 }
 
@@ -176,9 +181,11 @@ void RecipeTabWidget::updateTabText(int index) {
     if (index < 0 || index >= count())
         return;
 
-    RecipeEdit* edit = m_recipes[index];
-    QString text = edit->fileName();
-    if (edit->hasUnsavedChanges() == true)
+    RecipeEdit* recipeEdit = m_recipes[index];
+    QString text = recipeEdit->fileName();
+    if (text.isEmpty() == true)
+        text = trUtf8("unsaved");
+    if (recipeEdit->hasUnsavedChanges() == true)
         text += " (*)";
 
     setTabText(index, text);

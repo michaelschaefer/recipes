@@ -1,35 +1,53 @@
+#include <QApplication>
 #include <QDebug>
 #include <QFileDialog>
 #include <QPainter>
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
+#include <QProgressDialog>
 #include <QTextCodec>
 #include <QTextList>
 #include <QTextTable>
 #include <QXmlStreamWriter>
+#include <QSettings>
 #include "exporter.hh"
+#include "library.hh"
 
 
-void Exporter::exportAsPdf(QString fileName, QString dir) {
-    QString title = trUtf8("Export as PDF");
-    QString filter = trUtf8("PDF documents (*.pdf)");    
-    if (dir.isEmpty() == false && fileName.isEmpty() == false) {
-        QString fileNameWithoutExtension = fileName.mid(0, fileName.lastIndexOf("."));
-        dir.append(QString("%1%2.pdf").arg(QDir::separator(), fileNameWithoutExtension));
+Exporter::Exporter() {}
+
+
+void Exporter::exportAsPdf(QString absoluteFileName, bool withPrompt) {
+    if (absoluteFileName.isEmpty() == true || withPrompt == true) {
+        QString caption = trUtf8("Export as PDF");
+        QString filter = trUtf8("PDF documents (*.pdf)");
+        QString dir = absoluteFileName;
+        if (dir.isEmpty() == true) {
+            dir = QSettings().value("library/local/path").toString();
+            if (dir.isEmpty() == true)
+                dir = QDir::homePath();
+        } else
+            dir = dir.mid(0, dir.lastIndexOf(".")) + ".pdf";
+
+        absoluteFileName = QFileDialog::getSaveFileName(0, caption, dir, filter);
+        if (absoluteFileName.isEmpty() == true)
+            return;
     }
-    fileName = QFileDialog::getSaveFileName(m_parent, title, dir, filter);
-    if (fileName.isEmpty() == false) {
-        // check for extension .pdf
-        if (fileName.endsWith(".pdf") == false)
-            fileName.append(".pdf");
-        QPrinter* printer = new QPrinter(QPrinter::HighResolution);
-        printer->setFontEmbeddingEnabled(true);
-        printer->setOutputFileName(fileName);
-        printer->setOutputFormat(QPrinter::PdfFormat);
-        printer->setPaperSize(QPrinter::A4);
-        printDocument(printer);
+
+    if (absoluteFileName.endsWith(".xml") == true)
+        absoluteFileName.replace(absoluteFileName.lastIndexOf("."), 4, ".pdf");
+    else {
+        if (absoluteFileName.endsWith(".pdf") == false)
+            absoluteFileName.append(".pdf");
     }
+
+    QPrinter* printer = new QPrinter(QPrinter::HighResolution);
+    printer->setFontEmbeddingEnabled(true);
+    printer->setOutputFileName(absoluteFileName);
+    printer->setOutputFormat(QPrinter::PdfFormat);
+    printer->setPaperSize(QPrinter::A4);
+    printDocument(printer);
 }
 
 
@@ -40,7 +58,7 @@ Exporter* Exporter::instance() {
 
 
 void Exporter::print() {
-    QPrintPreviewDialog previewDialog(m_parent);
+    QPrintPreviewDialog previewDialog;
     previewDialog.setModal(true);
     connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printDocument(QPrinter*)));
     previewDialog.show();
@@ -49,9 +67,9 @@ void Exporter::print() {
 
 
 void Exporter::printDocument(QPrinter* printer) {
-    QTextEdit* textEdit = this->textEdit();
-    if (textEdit != 0)
-        textEdit->document()->print(printer);
+    QTextDocument* document = this->document();
+    if (document != 0)
+        document->print(printer);
 }
 
 
@@ -60,9 +78,9 @@ void Exporter::setRecipeData(RecipeData& recipeData) {
 }
 
 
-QTextEdit* Exporter::textEdit() {
-    QTextEdit* textEdit = new QTextEdit();
-    textEdit->setReadOnly(true);
+QTextDocument* Exporter::document() {
+    QTextDocument* document = new QTextDocument();
+    QTextCursor cursor(document);
 
     /*
      * setup fonts
@@ -97,6 +115,9 @@ QTextEdit* Exporter::textEdit() {
     QTextBlockFormat oneHalfSpacingFormat;
     oneHalfSpacingFormat.setLineHeight(120, QTextBlockFormat::ProportionalHeight);
 
+    QTextBlockFormat centeredFormat;
+    centeredFormat.setAlignment(Qt::AlignHCenter);
+
     QTextCharFormat defaultFormat;
     defaultFormat.setFont(defaultFont);
 
@@ -113,13 +134,10 @@ QTextEdit* Exporter::textEdit() {
 
     /*
      * recipe
-     */
-
-    QTextCursor cursor(textEdit->textCursor());
+     */    
 
     // headline
-    textEdit->setAlignment(Qt::AlignHCenter);
-    textEdit->setFont(defaultFont);
+    cursor.setBlockFormat(centeredFormat);
     cursor.insertText(m_recipeData.headline(), h1Format);
     cursor.insertBlock(oneHalfSpacingFormat, defaultFormat);
 
@@ -173,7 +191,7 @@ QTextEdit* Exporter::textEdit() {
         }
     }
 
-    return textEdit;
+    return document;
 }
 
 

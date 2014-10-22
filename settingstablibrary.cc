@@ -52,7 +52,7 @@ void SettingsTabLibrary::connectionFailed() {
     disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
     disconnect(m_ftpManager, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
 
-    QString title = trUtf8("Connection check");    
+    QString title = trUtf8("Check connection");
     QString text = trUtf8("Connection failed.");
     QMessageBox::critical(this, title, text);
 }
@@ -62,7 +62,7 @@ void SettingsTabLibrary::connectionReady() {
     disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
     disconnect(m_ftpManager, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
 
-    QString title = trUtf8("Connection check");
+    QString title = trUtf8("Check connection");
     QString text = trUtf8("Connection successfully established.");
     QMessageBox::information(this, title, text);    
 }

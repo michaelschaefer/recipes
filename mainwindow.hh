@@ -43,6 +43,7 @@ private slots:
     void closeEvent(QCloseEvent* event);    
     void errorMessage(QString title, QString text);
     void fileSettings();
+    void libraryExport();
     void libraryRebuild();
     void libraryUpdate();
     void setEditActionInvisibility(bool invisible);
@@ -68,6 +69,7 @@ private:
     QAction* m_actionClose;
     QAction* m_actionCloseAll;
     QAction* m_actionExport;
+    QAction* m_actionExportLibrary;
     QAction* m_actionHeadline;
     QAction* m_actionIngredient;    
     QAction* m_actionNew;

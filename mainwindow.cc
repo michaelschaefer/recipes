@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QFileDialog>
 #include <QFontDatabase>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -173,6 +174,24 @@ void MainWindow::helpAboutQt() {
 }
 
 
+void MainWindow::libraryExport() {
+    QString caption = trUtf8("Choose export path");
+    QString dir = QSettings().value("library/local/path").toString();
+    if (dir.isEmpty() == true)
+        dir = QDir::homePath();
+
+    QString pathName = QFileDialog::getExistingDirectory(this, caption, dir);
+    if (pathName.isEmpty() == true)
+        return;
+
+    setMenuLibraryEnabled(false);
+    LibraryThread* thread = new LibraryThread(m_library, LibraryThread::Export, this);
+    connect(thread, SIGNAL(finished()), this, SLOT(setMenuLibraryEnabled()));
+    thread->setExportPath(pathName);
+    thread->start();
+}
+
+
 void MainWindow::libraryRebuild() {    
     setMenuLibraryEnabled(false);
     LibraryThread* thread = new LibraryThread(m_library, LibraryThread::Rebuild, this);
@@ -311,18 +330,21 @@ void MainWindow::setupMenuHelp() {
 void MainWindow::setupMenuLibrary() {
     m_menuLibrary = new QMenu(trUtf8("&Library"), menuBar());
 
-    m_actionRebuild = new QAction(trUtf8("&Rebuild"), m_menuLibrary);
+    m_actionExportLibrary = new QAction(trUtf8("&Export"), m_menuLibrary);
     m_actionBrowse = new QAction(trUtf8("&Browse"), m_menuLibrary);
+    m_actionRebuild = new QAction(trUtf8("&Rebuild"), m_menuLibrary);
     m_actionSynchronize = new QAction(trUtf8("&Synchronize"), m_menuLibrary);
     m_actionUpdate = new QAction(trUtf8("&Update"), m_menuLibrary);
 
-    m_actionRebuild->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_R));
+    m_actionExportLibrary->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_E));
     m_actionBrowse->setShortcut(Qt::Key_F2);
+    m_actionRebuild->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_R));
     m_actionSynchronize->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_S));
     m_actionUpdate->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L, Qt::Key_U));
 
-    connect(m_actionRebuild, SIGNAL(triggered()), this, SLOT(libraryRebuild()));
+    connect(m_actionExportLibrary, SIGNAL(triggered()), this, SLOT(libraryExport()));
     connect(m_actionBrowse, SIGNAL(triggered()), m_searchWidget, SLOT(toggleVisibility()));
+    connect(m_actionRebuild, SIGNAL(triggered()), this, SLOT(libraryRebuild()));
     connect(m_actionSynchronize, &QAction::triggered, [this] () { m_library->synchronize(); });
     connect(m_actionUpdate, SIGNAL(triggered()), this, SLOT(libraryUpdate()));    
 
@@ -331,6 +353,7 @@ void MainWindow::setupMenuLibrary() {
     m_menuLibrary->addAction(m_actionSynchronize);
     m_menuLibrary->addSeparator();
     m_menuLibrary->addAction(m_actionBrowse);
+    m_menuLibrary->addAction(m_actionExportLibrary);
 }
 
 

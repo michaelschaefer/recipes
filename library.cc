@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QXmlStreamReader>
+#include "exporter.hh"
 #include "library.hh"
 
 
@@ -18,6 +19,9 @@ Library* Library::instance() {
 }
 
 
+QString Library::msgExportComplete = trUtf8("Export complete");
+QString Library::msgExportingLibrary = trUtf8("Exporting library");
+QString Library::msgExportProgress = trUtf8("(%1 of %2 finished)");
 QString Library::msgFileInserted = trUtf8("(File %1 inserted)");
 QString Library::msgFileInsertedOrUpdated = trUtf8("(File %1 inserted or updated)");
 QString Library::msgFileUpdated = trUtf8("(File %1 updated)");
@@ -47,6 +51,27 @@ void Library::connectionFailed() {
 }
 
 
+void Library::exportAsPdf(QString pathName) {
+    emit statusBarMessage(msgExportingLibrary);
+    Exporter* exporter = Exporter::instance();
+    RecipeData recipeData;
+    QList<QFileInfo> fileInfoList = getFileInfoList();
+    if (fileInfoList.isEmpty() == true)
+        return;
+    int n = 0, N = fileInfoList.size();
+    foreach (const QFileInfo& fileInfo, fileInfoList) {
+        recipeData.clear();
+        if (recipeData.fill(fileInfo.absoluteFilePath()) == false)
+            continue;
+        exporter->setRecipeData(recipeData);
+        exporter->exportAsPdf(QString("%1%2%3").arg(pathName, QDir::separator(), fileInfo.fileName()), false);
+        n++;
+        emit statusBarMessage(msgExportingLibrary + " " + msgExportProgress.arg(n).arg(N));
+    }
+    emit statusBarMessage(msgExportComplete);
+}
+
+
 bool Library::getFile(int fileId, Database::File& file) {
     if (m_database->isOpen() == false)
         m_database->open();
@@ -63,8 +88,10 @@ QList<QFileInfo> Library::getFileInfoList() {
     m_database->close();
 
     QList<QFileInfo> fileInfoList;
-    foreach (const QString& fileName, fileNameList) {
-        fileInfoList.append(QFileInfo(fileName));
+    QString dir = QSettings().value("library/local/path").toString();
+    if (dir.isEmpty() == false) {
+        foreach (const QString& fileName, fileNameList)
+            fileInfoList.append(QFileInfo(dir + QDir::separator() + fileName));
     }
 
     return fileInfoList;

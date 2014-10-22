@@ -14,18 +14,22 @@ class LibraryThread : public QThread {
 public:
 
     enum LibraryFunction {
-        Rebuild = 1,
-        Update = 2
+        Export,
+        Rebuild,
+        Update
     };
 
     LibraryThread(Library* library, LibraryFunction libraryFunction, QObject* parent = 0);
+
     void run();
+    void setExportPath(QString exportPath);
 
 
 private:
 
     Library* m_library;
     LibraryFunction m_libraryFunction;
+    QString m_exportPath;
 
 };
 

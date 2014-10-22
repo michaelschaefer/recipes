@@ -16,26 +16,25 @@ public:
 
     static Exporter* instance();
 
-    void exportAsPdf(QString fileName = QString(), QString dir = QString());
+    QTextDocument* document();
+    void exportAsPdf(QString absoluteFileName = QString(), bool withPrompt = true);
     void print();
-    void setRecipeData(RecipeData& recipeData);
-    QTextEdit* textEdit();
+    void setRecipeData(RecipeData& recipeData);    
     QString xml();
-
 
 
 private slots:
 
-    void printDocument(QPrinter* printer);
+    void printDocument(QPrinter* printer);    
 
 
 private:
 
-    Exporter() { m_parent = 0; }
+    Exporter();
     Exporter(Exporter const&);
     void operator=(Exporter const&);
 
-    QWidget* m_parent;
+
     RecipeData m_recipeData;
 
 };
