@@ -260,10 +260,8 @@ void RecipeEdit::triggerChanged() {
 }
 
 
-void RecipeEdit::updateLibrary() {
-    int lastSeparator = m_fileName.lastIndexOf(QDir::separator());
-    QString fileName = m_fileName.mid(lastSeparator + 1);    
-    m_library->insertOrUpdateFile(fileName, recipeData());
+void RecipeEdit::updateLibrary() {    
+    m_library->insertOrUpdateFile(m_fileName, recipeData());
 }
 
 

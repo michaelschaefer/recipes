@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <QFile>
 #include <QXmlStreamReader>
 #include "recipedata.hh"
@@ -29,7 +30,7 @@ void RecipeData::addSection(QString sectionTitle) {
 }
 
 
-bool RecipeData::fill(QString fileName) {
+bool RecipeData::fill(QString fileName) {    
     QByteArray data;
     QFile file(fileName);
     if (file.open(QFile::ReadOnly) == false)

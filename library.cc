@@ -18,11 +18,24 @@ Library* Library::instance() {
 }
 
 
+QString Library::msgFileInserted = trUtf8("(File %1 inserted)");
+QString Library::msgFileInsertedOrUpdated = trUtf8("(File %1 inserted or updated)");
+QString Library::msgFileUpdated = trUtf8("(File %1 updated)");
+QString Library::msgFileRemoved = trUtf8("(File %1 removed)");
+QString Library::msgLibraryEmpty = trUtf8("Library is empty");
+QString Library::msgLibraryUpdated = trUtf8("Library updated");
+QString Library::msgRebuildComplete = trUtf8("Rebuild complete");
+QString Library::msgRebuildingLibrary = trUtf8("Rebuilding library");
+QString Library::msgUpdateComplete = trUtf8("Update complete (%1 new, %2 removed)");
+QString Library::msgUpdateFailed = trUtf8("Update failed (you may consider rebuilding the entire library)");
+QString Library::msgUpdatingLibrary = trUtf8("Updating library");
+
+
 void Library::clear() {
     if (m_database->isOpen() == false)
         m_database->open();
     m_database->clear();
-    emit statusBarMessage(trUtf8("library is now empty"));
+    emit statusBarMessage(msgLibraryEmpty);
     emit updated();
 
 }
@@ -90,8 +103,10 @@ bool Library::insertFiles(QDir& dir, int* nAdded) {
             continue;
         else if (m_database->insertFile(fileInfo.fileName(), recipeData, &fileId) == false)
             continue;
-        else
+        else {
             added++;
+            emit statusBarMessage(msgRebuildingLibrary + " " + msgFileInserted.arg(fileInfo.fileName()));
+        }
     }
 
     if (nAdded != 0)
@@ -101,12 +116,14 @@ bool Library::insertFiles(QDir& dir, int* nAdded) {
 }
 
 
-bool Library::insertOrUpdateFile(QString fileName, RecipeData& recipeData) {
+bool Library::insertOrUpdateFile(QString absoluteFileName, RecipeData& recipeData) {
     int fileId = 0;
 
     // is library configured for data?
+    int lastSeparatorIndex = absoluteFileName.lastIndexOf(QDir::separator());
+    QString fileName = absoluteFileName.mid(lastSeparatorIndex + 1);
+    QString pathName = absoluteFileName.mid(0, lastSeparatorIndex);
     QString libraryPath = QSettings().value("library/local/path").toString();
-    QString pathName = fileName.mid(0, fileName.lastIndexOf(QDir::separator()));
     if (libraryPath.isEmpty() || libraryPath != pathName)
         return false;
 
@@ -122,12 +139,14 @@ bool Library::insertOrUpdateFile(QString fileName, RecipeData& recipeData) {
          if (m_database->insertFile(fileName, recipeData) == false) {
              m_database->close();
              return false;
-         }
+         } else
+             emit statusBarMessage(msgLibraryUpdated + " " + msgFileInserted.arg(fileName));
     } else
         if (m_database->updateFile(fileId, recipeData) == false) {
             m_database->close();
             return false;
-        }
+        } else
+            emit statusBarMessage(msgLibraryUpdated + " " + msgFileUpdated.arg(fileName));
 
     emit updated();
     m_database->close();
@@ -136,7 +155,7 @@ bool Library::insertOrUpdateFile(QString fileName, RecipeData& recipeData) {
 
 
 bool Library::rebuild() {
-    emit statusBarMessage(trUtf8("rebuilding library..."));
+    emit statusBarMessage(msgRebuildingLibrary);
 
     if (m_database->isOpen() == false)
         m_database->open();
@@ -144,15 +163,15 @@ bool Library::rebuild() {
     m_database->clear();
     QString pathName = QSettings().value("library/local/path").toString();
     if (pathName.isEmpty() == true) {
-        emit statusBarMessage(trUtf8("library is now empty"));
+        emit statusBarMessage(msgLibraryEmpty);
         emit updated();
         return true;
     }
 
     QDir dir(pathName);
-    bool ret = insertFiles(dir);
+    bool ret = insertFiles(dir);    
     m_database->close();
-    emit statusBarMessage(trUtf8("rebuild complete"));
+    emit statusBarMessage(msgRebuildComplete);
     emit updated();
     return ret;
 }
@@ -226,7 +245,7 @@ void Library::synchronize(SyncState state) {
 bool Library::update() {
     int added = 0, removed = 0;
 
-    emit statusBarMessage(trUtf8("updating library..."));
+    emit statusBarMessage(msgUpdatingLibrary);
 
     if (m_database->isOpen() == false)
         m_database->open();
@@ -241,7 +260,7 @@ bool Library::update() {
     if (dir.exists() == true) {
         if (updateFiles(dir, &added, &removed) == false) {
             m_database->close();
-            emit statusBarMessage(trUtf8("update failed! Consider a library rebuild."));
+            emit statusBarMessage(msgUpdateFailed);
             return false;
         }
     } else {
@@ -250,7 +269,7 @@ bool Library::update() {
     }
 
     m_database->close();    
-    emit statusBarMessage(trUtf8("update complete (%1 new, %2 removed)").arg(added).arg(removed));
+    emit statusBarMessage(msgUpdateComplete.arg(added).arg(removed));
     emit updated();
     return true;
 }
@@ -274,17 +293,19 @@ bool Library::updateFiles(QDir& dir, int* nAdded, int* nRemoved) {
     RecipeData recipeData;
     foreach (const QString& fileName, databaseFileList) {
         if (discFileList.contains(fileName) == false) {
-            if (m_database->removeFile(fileName) == true)
+            if (m_database->removeFile(fileName) == true) {
                 removed++;
-            else
+                emit statusBarMessage(msgUpdatingLibrary + " " + msgFileRemoved.arg(fileName));
+            } else
                 return false;
         } else {
             pathName = QString("%1%2%3").arg(dir.absolutePath(), QDir::separator(), fileName);
             recipeData.clear();
             if (recipeData.fill(pathName) == false) {
-                if (m_database->removeFile(fileName) == true)
+                if (m_database->removeFile(fileName) == true) {
                     removed++;
-                else
+                    emit statusBarMessage(msgUpdatingLibrary + " " + msgFileRemoved.arg(fileName));
+                } else
                     return false;
             }
         }
@@ -295,15 +316,16 @@ bool Library::updateFiles(QDir& dir, int* nAdded, int* nRemoved) {
      */
 
     QString fileName;
-    foreach (const QFileInfo& fileInfo, discFileInfoList) {
+    foreach (const QFileInfo& fileInfo, discFileInfoList) {        
         fileName = fileInfo.fileName();
         if (databaseFileList.contains(fileName) == false) {
             recipeData.clear();
             if (recipeData.fill(fileInfo.absoluteFilePath()) == false)
                 continue;
-            if (m_database->insertFile(fileName, recipeData) == true)
+            if (m_database->insertFile(fileName, recipeData) == true) {
                 added++;
-            else
+                emit statusBarMessage(msgUpdatingLibrary + " " + msgFileInsertedOrUpdated.arg(fileName));
+            } else
                 return false;
         }
     }

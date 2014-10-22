@@ -8,9 +8,9 @@ Database::Database(QString fileName) {
     m_database.setDatabaseName(m_databaseName);
 
     if (m_database.open() == true) {
-        init();
+        init();        
         m_database.close();
-    }
+    }    
 }
 
 
@@ -241,7 +241,7 @@ bool Database::init() {
 }
 
 
-bool Database::insertFile(const QString& fileName, RecipeData& recipeData, int* fileId) {
+bool Database::insertFile(const QString& fileName, RecipeData& recipeData, int* fileId) {    
     int id;
     QSqlQuery query(m_database);    
     query.prepare("insert into files (file, headline) values (:fileName, :headline)");
@@ -298,7 +298,7 @@ bool Database::insertIngredientAssignment(int fileId, int ingredientId) {
 }
 
 
-bool Database::insertIngredients(int fileId, RecipeData& recipeData) {
+bool Database::insertIngredients(int fileId, RecipeData& recipeData) {    
     int ingredientId;
     foreach (const QString& ingredientName, recipeData.ingredientNameList()) {
         if (insertIngredient(ingredientName, &ingredientId) == false)
@@ -317,7 +317,17 @@ bool Database::isOpen() {
 
 
 bool Database::open() {
-    return m_database.open();
+    if (m_database.open() == false)
+        return false;
+
+    QSqlQuery("pragma page_size=4096");
+    QSqlQuery("pragma cache_size=16384");
+    QSqlQuery("pragma temp_store=MEMORY");
+    QSqlQuery("pragma journal_mode=OFF");
+    QSqlQuery("pragma locking_mode=EXCLUSIVE");
+    QSqlQuery("pragma synchronous=OFF");
+
+    return true;
 }
 
 

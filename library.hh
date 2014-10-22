@@ -33,7 +33,7 @@ public:
     bool getFile(int fileId, Database::File& file);    
     QList<int> getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity);
     QList<Database::Recipe> getRecipeList();
-    bool insertOrUpdateFile(QString fileName, RecipeData& recipeData);
+    bool insertOrUpdateFile(QString absoluteFileName, RecipeData& recipeData);
     bool rebuild();
     void synchronize(SyncState state = Library::Connect);
 
@@ -53,6 +53,20 @@ private:
     Library();
     Library(Library const&);
     void operator=(Library const&);
+
+
+    static QString msgFileInserted;
+    static QString msgFileInsertedOrUpdated;
+    static QString msgFileUpdated;
+    static QString msgFileRemoved;
+    static QString msgLibraryEmpty;
+    static QString msgLibraryUpdated;
+    static QString msgRebuildComplete;
+    static QString msgRebuildingLibrary;
+    static QString msgUpdatingLibrary;
+    static QString msgUpdateFailed;
+    static QString msgUpdateComplete;
+
 
     void clear();
     QList<QFileInfo> getFileInfoList();
