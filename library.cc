@@ -7,13 +7,8 @@
 
 Library::Library() {
     m_database = new Database();
-    m_ftpManager = FtpManager::instance();
-
-    auto connectionFailedSlot = [this] () {
-        emit this->errorMessage(trUtf8("Connection to FTP server failed. Synchronization cannot be executed."));
-    };
-    connect(m_ftpManager, &FtpManager::connectionFailed, connectionFailedSlot);
-    connect(m_ftpManager, &FtpManager::entireDownloadFinished, this, &Library::update);
+    m_ftpManager = FtpManager::instance();       
+    connect(m_ftpManager, SIGNAL(entireDownloadFinished()), this, SLOT(update()));
 }
 
 
@@ -30,6 +25,12 @@ void Library::clear() {
     emit statusBarMessage(trUtf8("library is now empty"));
     emit updated();
 
+}
+
+
+void Library::connectionFailed() {
+    disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
+    emit errorMessage(trUtf8("Connection to FTP server failed. Synchronization cannot be executed."));
 }
 
 
@@ -159,11 +160,14 @@ bool Library::rebuild() {
 
 void Library::synchronize(SyncState state) {
     static QMetaObject::Connection conn;
+
     if (state == Library::Connect) {
+        connect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
         conn = connect(m_ftpManager, &FtpManager::connectionReady, [this] () { synchronize(Library::FetchRemote); });
         m_ftpManager->updateConnectionSettings();
         m_ftpManager->login();
     } else if (state == Library::FetchRemote) {
+        disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
         disconnect(conn);
         conn = connect(m_ftpManager, &FtpManager::fileListReady, [this] () { synchronize(Library::ExchangeData); });
         m_ftpManager->fetchFileList();

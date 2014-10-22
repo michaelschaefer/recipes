@@ -5,13 +5,7 @@
 
 
 SettingsTabLibrary::SettingsTabLibrary(QWidget *parent) : QWidget(parent) {
-    m_ftpManager = FtpManager::instance();
-    connect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
-    connect(m_ftpManager, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
-    connect(m_ftpManager, SIGNAL(downloadFinished(QString)), this, SLOT(downloadFinished(QString)));
-    connect(m_ftpManager, SIGNAL(entireDownloadFinished()), this, SLOT(downloadFinished()));
-    connect(m_ftpManager, SIGNAL(uploadFinished(QString)), this, SLOT(uploadFinished(QString)));
-    connect(m_ftpManager, SIGNAL(entireUploadFinished()), this, SLOT(uploadFinished()));
+    m_ftpManager = FtpManager::instance();    
 
     setupGroupBoxLocal();
     setupGroupBoxRemote();
@@ -35,6 +29,9 @@ void SettingsTabLibrary::checkConnection() {
     url.setPassword(m_editRemotePassword->text());
     url.setPath(m_editRemotePath->text());
 
+    connect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
+    connect(m_ftpManager, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
+
     m_ftpManager->updateConnectionSettings(url);
     m_ftpManager->login();
 }
@@ -52,6 +49,9 @@ void SettingsTabLibrary::choosePath() {
 
 
 void SettingsTabLibrary::connectionFailed() {
+    disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
+    disconnect(m_ftpManager, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
+
     QString title = trUtf8("Connection check");    
     QString text = trUtf8("Connection failed.");
     QMessageBox::critical(this, title, text);
@@ -59,17 +59,12 @@ void SettingsTabLibrary::connectionFailed() {
 
 
 void SettingsTabLibrary::connectionReady() {
+    disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
+    disconnect(m_ftpManager, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
+
     QString title = trUtf8("Connection check");
     QString text = trUtf8("Connection successfully established.");
     QMessageBox::information(this, title, text);    
-}
-
-
-void SettingsTabLibrary::downloadFinished(QString fileName) {
-    if (fileName.isEmpty() == true)
-        qDebug() << "Entire download finished!";
-    else
-        qDebug() << "Download of" << fileName << "complete";
 }
 
 
@@ -103,14 +98,6 @@ SettingsTabLibrary::LibrarySettings SettingsTabLibrary::settings() {
     librarySettings.syncOnStart = m_checkBoxSyncOnStart->isChecked();
     librarySettings.useRemote = m_groupBoxRemote->isChecked();
     return librarySettings;
-}
-
-
-void SettingsTabLibrary::uploadFinished(QString fileName) {
-    if (fileName.isEmpty() == true)
-        qDebug() << "Entire upload finished!";
-    else
-        qDebug() << "Upload of" << fileName << "complete";
 }
 
 

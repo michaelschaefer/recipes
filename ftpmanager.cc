@@ -58,10 +58,7 @@ void FtpManager::download() {
 
 void FtpManager::download(QStringList fileNameList) {
     m_downloadFileList = fileNameList;
-    download();
-    /*m_downloadFileList.clear();
-    m_downloadDir = fileNameList;
-    m_ftp->list();*/
+    download();    
 }
 
 
@@ -92,7 +89,6 @@ void FtpManager::listInfo(QUrlInfo urlInfo) {
         return;
     else {
         m_urlInfoList.append(urlInfo);
-        //m_downloadFileList.append(fileName);
     }
 }
 
@@ -160,13 +156,5 @@ void FtpManager::upload(QStringList fileNameList) {
     m_uploadFileList.clear();
     foreach (const QString& fileName, fileNameList)
         m_uploadFileList.append(QString("%1%2%3").arg(pathName, QDir::separator(), fileName));
-    upload();
-
-    /*dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.xml");    
-    m_uploadFileList.clear();
-    foreach (const QFileInfo& fileInfo, dir.entryInfoList()) {
-        m_uploadFileList.append(fileInfo.absoluteFilePath());
-    }
-    upload();*/
+    upload();    
 }

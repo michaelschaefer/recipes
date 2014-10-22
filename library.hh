@@ -36,7 +36,16 @@ public:
     bool insertOrUpdateFile(QString fileName, RecipeData& recipeData);
     bool rebuild();
     void synchronize(SyncState state = Library::Connect);
+
+
+public slots:
+
     bool update();
+
+
+private slots:
+
+    void connectionFailed();
 
 
 private:
