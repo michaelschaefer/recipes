@@ -16,10 +16,13 @@ void Exporter::exportAsPdf(QString fileName, QString dir) {
     QString filter = trUtf8("PDF documents (*.pdf)");    
     if (dir.isEmpty() == false && fileName.isEmpty() == false) {
         QString fileNameWithoutExtension = fileName.mid(0, fileName.lastIndexOf("."));
-        dir += QString("/%1.pdf").arg(fileNameWithoutExtension);
+        dir.append(QString("%1%2.pdf").arg(QDir::separator(), fileNameWithoutExtension));
     }
     fileName = QFileDialog::getSaveFileName(m_parent, title, dir, filter);
     if (fileName.isEmpty() == false) {
+        // check for extension .pdf
+        if (fileName.endsWith(".pdf") == false)
+            fileName.append(".pdf");
         QPrinter* printer = new QPrinter(QPrinter::HighResolution);
         printer->setFontEmbeddingEnabled(true);
         printer->setOutputFileName(fileName);

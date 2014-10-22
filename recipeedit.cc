@@ -173,9 +173,11 @@ bool RecipeEdit::save() {
     if (hasUnsavedChanges() == false)
         return true;
 
-    if (m_fileName.isEmpty()) {
+    if (m_fileName.isEmpty() == true) {
         QString caption = trUtf8("Save recipe");
-        QString dir = QDir::homePath();
+        QString dir = QSettings().value("library/local/path").toString();
+        if (dir.isEmpty() == true)
+            dir = QDir::homePath();
         QString filter = trUtf8("Recipe files (*.xml)");
 
         QString absoluteFileName = QFileDialog::getSaveFileName(this, caption, dir, filter);
@@ -184,6 +186,10 @@ bool RecipeEdit::save() {
         else
             return false;
     }
+
+    // check for extension .xml
+    if (m_fileName.endsWith(".xml") == false)
+        m_fileName.append(".xml");
 
     m_exporter->setRecipeData(recipeData());
 
@@ -203,9 +209,11 @@ bool RecipeEdit::save() {
 bool RecipeEdit::saveAs() {
     QString caption = trUtf8("Save recipe as");
     QString dir;
-    if (m_fileName.isEmpty())
-        dir = QDir::homePath();
-    else
+    if (m_fileName.isEmpty()) {
+        dir = QSettings().value("library/local/path").toString();
+        if (dir.isEmpty() == true)
+            dir = QDir::homePath();
+    } else
         dir = m_fileName.mid(0, m_fileName.lastIndexOf(QDir::separator()));
     QString filter = trUtf8("Recipe files (*.xml)");
 
@@ -215,9 +223,7 @@ bool RecipeEdit::saveAs() {
     else
         return false;
 
-    m_unsavedChanges = true;
-    updateLibrary();
-    emit saved(this);
+    m_unsavedChanges = true;    
     return save();
 }
 

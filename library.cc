@@ -103,8 +103,14 @@ bool Library::insertFiles(QDir& dir, int* nAdded) {
 bool Library::insertOrUpdateFile(QString fileName, RecipeData& recipeData) {
     int fileId = 0;
 
+    // is library configured for data?
+    QString libraryPath = QSettings().value("library/local/path").toString();
+    QString pathName = fileName.mid(0, fileName.lastIndexOf(QDir::separator()));
+    if (libraryPath.isEmpty() || libraryPath != pathName)
+        return false;
+
     if (m_database->isOpen() == false)
-        m_database->open();    
+        m_database->open();           
 
     if (m_database->getFileId(fileName, &fileId) == false) {
         m_database->close();
