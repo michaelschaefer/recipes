@@ -17,7 +17,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
 
     // tab widget
     m_tabWidget = new QTabWidget(this);
-    m_tabWidget->addTab(m_tabFormat, trUtf8("Format"));
+    m_tabWidget->addTab(m_tabFormat, trUtf8("Formatting"));
     m_tabWidget->addTab(m_tabLibrary, trUtf8("Library"));
 
     m_layout->addWidget(m_tabWidget);

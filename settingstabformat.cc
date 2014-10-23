@@ -53,7 +53,7 @@ void SettingsTabFormat::setupGroupBoxFont() {
 
     m_radioButtonDefaultFont = new QRadioButton(trUtf8("use default font (Gentium)"), this);
     m_radioButtonDefaultFont->setChecked(true);
-    m_radioButtonUserFont = new QRadioButton(trUtf8("use specified font"), this);
+    m_radioButtonUserFont = new QRadioButton(trUtf8("use font specified below"), this);
     m_radioButtonDefaultFont->setChecked(false);
 
     m_comboBoxFont = new QFontComboBox(this);
@@ -73,7 +73,7 @@ void SettingsTabFormat::setupGroupBoxParagraphTitles() {
 
     m_radioButtonDefaultParagraph = new QRadioButton(trUtf8("use default titles"), this);
     m_radioButtonDefaultParagraph->setChecked(true);
-    m_radioButtonUserParagraph = new QRadioButton(trUtf8("use specified titles"), this);
+    m_radioButtonUserParagraph = new QRadioButton(trUtf8("use titles specified below"), this);
     m_radioButtonUserParagraph->setChecked(false);
 
     m_editParagraphTitleEmptyHeadline = new QLineEdit(this);
@@ -86,7 +86,7 @@ void SettingsTabFormat::setupGroupBoxParagraphTitles() {
     m_layoutParagraphTitlesForm = new QFormLayout();
     m_layoutParagraphTitlesForm->addRow(trUtf8("Unnamed recipe:"), m_editParagraphTitleEmptyHeadline);
     m_layoutParagraphTitlesForm->addRow(trUtf8("Ingredients:"), m_editParagraphTitleIngredients);
-    m_layoutParagraphTitlesForm->addRow(trUtf8("Preparation steps:"), m_editParagraphTitlePreparation);
+    m_layoutParagraphTitlesForm->addRow(trUtf8("Preparation:"), m_editParagraphTitlePreparation);
 
     m_layoutParagraphTitles = new QVBoxLayout();
     m_layoutParagraphTitles->addWidget(m_radioButtonDefaultParagraph);
