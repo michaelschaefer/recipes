@@ -373,6 +373,11 @@ Fehler: %1</translation>
         <translation>&amp;Bibliothek</translation>
     </message>
     <message>
+        <location filename="../mainwindow.cc" line="333"/>
+        <source>&amp;Export as PDFs</source>
+        <translation>&amp;Exportieren als PDFs</translation>
+    </message>
+    <message>
         <location filename="../mainwindow.cc" line="408"/>
         <source>Browse library</source>
         <translation>Bibliothek durchsuchen</translation>
@@ -467,9 +472,8 @@ Fehler: %1</translation>
         <translation>Speichern &amp;unter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="333"/>
         <source>&amp;Export</source>
-        <translation>&amp;Exportieren</translation>
+        <translation type="vanished">&amp;Exportieren</translation>
     </message>
     <message>
         <location filename="../mainwindow.cc" line="334"/>

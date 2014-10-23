@@ -46,8 +46,11 @@ void FtpManager::commandFinished(int, bool error) {
 
 
 void FtpManager::download() {
-    if (m_downloadFileList.isEmpty() == true)
+    if (m_downloadFileList.isEmpty() == true) {
+        emit entireDownloadFinished();
         return;
+    }
+
     QString fileName = m_downloadFileList.first();
     QString pathName = m_settings.value("library/local/path").toString();
     m_downloadFile = new QFile(QString("%1%2%3").arg(pathName, QDir::separator(), fileName));
@@ -58,7 +61,7 @@ void FtpManager::download() {
 
 void FtpManager::download(QStringList fileNameList) {
     m_downloadFileList = fileNameList;
-    download();    
+    download();
 }
 
 
@@ -141,8 +144,11 @@ void FtpManager::updateConnectionSettings(QUrl url) {
 
 
 void FtpManager::upload() {
-    if (m_uploadFileList.isEmpty() == true)
+    if (m_uploadFileList.isEmpty() == true) {
+        emit entireUploadFinished();
         return;
+    }
+
     QString pathName = m_uploadFileList.first();
     QString fileName = pathName.mid(pathName.lastIndexOf(QDir::separator()));
     m_uploadFile = new QFile(pathName);
@@ -156,5 +162,5 @@ void FtpManager::upload(QStringList fileNameList) {
     m_uploadFileList.clear();
     foreach (const QString& fileName, fileNameList)
         m_uploadFileList.append(QString("%1%2%3").arg(pathName, QDir::separator(), fileName));
-    upload();    
+    upload();
 }

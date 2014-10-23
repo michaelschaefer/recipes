@@ -33,8 +33,10 @@ public:
     QString fileName(bool withPath = false);
     QString pathName();
     bool fill(QString fileName);
-    bool hasUnsavedChanges();    
+    bool hasUnsavedChanges();
     RecipeData& recipeData();
+    void updateParagraphTitles();
+    void updatePreview();
 
 
 public slots:
@@ -43,7 +45,7 @@ public slots:
     void addPreparationStep();
     void addSection();
     void editHeadline();
-    void editServingCount();    
+    void editServingCount();
     void exportAsPdf();
     void print();
     bool save();
@@ -59,10 +61,11 @@ private slots:
 private:
 
     void setupFonts();
+    void updateDefaultHeadline();
     void updateLibrary();
-    void updatePreview();
 
 
+    bool m_emptyHeadline;
     bool m_unsavedChanges;
     Exporter* m_exporter;
     IngredientListEdit* m_ingredients;

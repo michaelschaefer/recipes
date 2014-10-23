@@ -16,6 +16,7 @@ RecipeEdit::RecipeEdit(QWidget *parent)
 {
     setupFonts();
 
+    m_emptyHeadline = true;
     m_unsavedChanges = true;
     m_library = Library::instance();
     m_editWidget = new QWidget(this);
@@ -24,7 +25,7 @@ RecipeEdit::RecipeEdit(QWidget *parent)
     m_previewWidget = new QTextEdit(this);
     m_previewWidget->setReadOnly(true);
 
-    m_headline = new QLabel(trUtf8("unnamed"), m_editWidget);
+    m_headline = new QLabel(m_editWidget);
     m_headline->setAlignment(Qt::AlignHCenter);
     m_headline->setFont(m_h1Font);
 
@@ -51,6 +52,8 @@ RecipeEdit::RecipeEdit(QWidget *parent)
 
     connect(m_ingredients, SIGNAL(changed()), this, SLOT(triggerChanged()));
     connect(m_preparation, SIGNAL(changed()), this, SLOT(triggerChanged()));
+
+    updateParagraphTitles();
 }
 
 
@@ -77,8 +80,10 @@ void RecipeEdit::editHeadline() {
 
     QString headline = QInputDialog::getText(this, title, label, QLineEdit::Normal, text, &okay);
     if (okay == true && headline != m_headline->text()) {
+        m_emptyHeadline = headline.isEmpty();
         headline.replace("\\n", "\n");
         m_headline->setText(headline);
+        updateParagraphTitles();
         triggerChanged();
     }
 }
@@ -89,8 +94,8 @@ void RecipeEdit::editServingCount() {
 }
 
 
-void RecipeEdit::exportAsPdf() {   
-    m_exporter->setRecipeData(recipeData());    
+void RecipeEdit::exportAsPdf() {
+    m_exporter->setRecipeData(recipeData());
     m_exporter->exportAsPdf(fileName(true));
 }
 
@@ -132,6 +137,7 @@ bool RecipeEdit::fill(QString fileName) {
 
     m_fileName = fileName;
     m_unsavedChanges = false;
+    updateParagraphTitles();
     updatePreview();
     return true;
 }
@@ -191,7 +197,7 @@ bool RecipeEdit::save() {
 
     QFile file(m_fileName);
     QTextStream stream(&file);
-    file.open(QIODevice::WriteOnly);    
+    file.open(QIODevice::WriteOnly);
     stream << m_exporter->xml();
     file.close();
 
@@ -219,7 +225,7 @@ bool RecipeEdit::saveAs() {
     else
         return false;
 
-    m_unsavedChanges = true;    
+    m_unsavedChanges = true;
     return save();
 }
 
@@ -242,7 +248,7 @@ void RecipeEdit::togglePreview(bool visible) {
         QList<int> sizeList;
         sizeList.append(half);
         sizeList.append(w - half);
-        setSizes(sizeList);        
+        setSizes(sizeList);
         m_previewWidget->verticalScrollBar()->triggerAction(QScrollBar::SliderToMinimum);
     }
     m_previewWidget->setVisible(visible);
@@ -256,8 +262,25 @@ void RecipeEdit::triggerChanged() {
 }
 
 
-void RecipeEdit::updateLibrary() {    
+void RecipeEdit::updateDefaultHeadline() {
+    if (m_emptyHeadline == false)
+        return;
+    QString headline = trUtf8("unnamed");
+    if (QSettings().value("format/paragraphTitles/default") == false)
+        headline = QSettings().value("format/paragraphTitles/emptyHeadline").toString();
+    m_headline->setText(headline);
+}
+
+
+void RecipeEdit::updateLibrary() {
     m_library->insertOrUpdateFile(m_fileName, recipeData());
+}
+
+
+void RecipeEdit::updateParagraphTitles() {
+    updateDefaultHeadline();
+    m_ingredients->updateHeadline();
+    m_preparation->updateHeadline();
 }
 
 

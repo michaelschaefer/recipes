@@ -36,7 +36,8 @@ SOURCES += main.cc \
     searchfilterwidget.cc \
     settingsdialog.cc \
     settingstablibrary.cc \
-    ftpmanager.cc
+    ftpmanager.cc \
+    settingstabformat.cc
 
 HEADERS  += mainwindow.hh \
     recipeedit.hh \
@@ -60,7 +61,8 @@ HEADERS  += mainwindow.hh \
     searchfilterwidget.hh \
     settingsdialog.hh \
     settingstablibrary.hh \
-    ftpmanager.hh
+    ftpmanager.hh \
+    settingstabformat.hh
 
 RESOURCES += recipes.qrc
 

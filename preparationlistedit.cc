@@ -1,4 +1,5 @@
 #include <QFont>
+#include <QSettings>
 #include "preparationstepdialog.hh"
 #include "preparationstepedit.hh"
 #include "preparationlistedit.hh"
@@ -10,8 +11,9 @@ PreparationListEdit::PreparationListEdit(QWidget* parent)
     QFont boldFont;
     boldFont.setBold(true);
 
-    m_headline = new QLabel(trUtf8("Preparation"), this);
+    m_headline = new QLabel(this);
     m_headline->setFont(boldFont);
+    updateHeadline();
 
     m_flexibleLayout = new FlexibleLayout();
     connect(m_flexibleLayout, SIGNAL(changed()), this, SLOT(triggerChanged()));
@@ -54,4 +56,12 @@ QList<QMap<QString, QString> > PreparationListEdit::data() {
 
 void PreparationListEdit::triggerChanged() {
     emit changed();
+}
+
+
+void PreparationListEdit::updateHeadline() {
+    QString headline = trUtf8("Preparation");
+    if (QSettings().value("format/paragraphTitles/default").toBool() == false)
+        headline = QSettings().value("format/paragraphTitles/preparation").toString();
+    m_headline->setText(headline);
 }

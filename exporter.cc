@@ -86,8 +86,13 @@ QTextDocument* Exporter::document() {
      * setup fonts
      */
 
-    int id = QFontDatabase::addApplicationFont(":/font/gentium");
-    QString family = QFontDatabase::applicationFontFamilies(id).at(0);
+    QString family;
+    if (QSettings().value("format/font/default").toBool() == true) {
+        int id = QFontDatabase::addApplicationFont(":/font/gentium");
+        family = QFontDatabase::applicationFontFamilies(id).at(0);
+    } else {
+        family = QSettings().value("format/font/familyName").toString();
+    }
 
     double basePointSize = 12;
     QFont defaultFont(family), h1(family), h2(family);
@@ -134,7 +139,7 @@ QTextDocument* Exporter::document() {
 
     /*
      * recipe
-     */    
+     */
 
     // headline
     cursor.setBlockFormat(centeredFormat);
@@ -143,7 +148,10 @@ QTextDocument* Exporter::document() {
 
     // ingredients headline
     cursor.insertBlock(doubleSpacingFormat);
-    cursor.insertText(trUtf8("Ingredients"), h2Format);
+    QString ingredientTitle = trUtf8("Ingredients");
+    if (QSettings().value("format/paragraphTitles/default").toBool() == false)
+        ingredientTitle = QSettings().value("format/paragraphTitles/ingredients").toString();
+    cursor.insertText(ingredientTitle, h2Format);
     if (m_recipeData.servingCount().isEmpty() == false) {
         cursor.insertText(" " + m_recipeData.servingCount());
     }
@@ -173,7 +181,10 @@ QTextDocument* Exporter::document() {
 
     // preparation headline
     cursor.insertBlock(doubleSpacingFormat);
-    cursor.insertText(trUtf8("Preparation"), h2Format);
+    QString preparationTitle = trUtf8("Preparation");
+    if (QSettings().value("format/paragraphTitles/default").toBool() == false)
+        preparationTitle = QSettings().value("format/paragraphTitles/preparation").toString();
+    cursor.insertText(preparationTitle, h2Format);
 
     oneHalfSpacingFormat.setBottomMargin(basePointSize);
     cursor.insertBlock(oneHalfSpacingFormat, defaultFormat);

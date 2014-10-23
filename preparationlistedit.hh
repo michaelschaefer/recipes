@@ -25,6 +25,7 @@ public:
     void addPreparationStep();
     void addPreparationStep(QString text);
     QList<QMap<QString, QString> > data();
+    void updateHeadline();
 
 
 

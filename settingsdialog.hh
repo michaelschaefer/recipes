@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include "settingstabformat.hh"
 #include "settingstablibrary.hh"
 
 
@@ -19,7 +20,9 @@ class SettingsDialog : public QDialog {
 
 signals:
 
+    void fontChanged();
     void libraryPathChanged();
+    void paragraphTitlesChanged();
 
 
 public:
@@ -32,7 +35,7 @@ private slots:
     void save();
 
 
-private:    
+private:
 
     void fill();
     void setupDialogButtons();
@@ -42,6 +45,7 @@ private:
     QSettings m_settings;
     QTabWidget* m_tabWidget;
     QVBoxLayout* m_layout;
+    SettingsTabFormat* m_tabFormat;
     SettingsTabLibrary* m_tabLibrary;
 
 

@@ -12,11 +12,13 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
     setLayout(m_layout);
 
     // tabs
+    m_tabFormat = new SettingsTabFormat(this);
     m_tabLibrary = new SettingsTabLibrary(this);
 
     // tab widget
     m_tabWidget = new QTabWidget(this);
-    m_tabWidget->addTab(m_tabLibrary, trUtf8("Library"));    
+    m_tabWidget->addTab(m_tabFormat, trUtf8("Format"));
+    m_tabWidget->addTab(m_tabLibrary, trUtf8("Library"));
 
     m_layout->addWidget(m_tabWidget);
     m_layout->addWidget(m_buttonBox, Qt::AlignRight);
@@ -30,16 +32,17 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
 
 void SettingsDialog::fill() {
     SettingsTabLibrary::LibrarySettings librarySettings;
+    SettingsTabFormat::FormatSettings formatSettings;
 
     m_settings.beginGroup("library");
     m_settings.beginGroup("local");
-    librarySettings.localPath = m_settings.value("path", QString()).toString();
+    librarySettings.localPath = m_settings.value("path").toString();
     librarySettings.syncOnQuit = m_settings.value("syncOnQuit", false).toBool();
     librarySettings.syncOnStart = m_settings.value("syncOnStart", false).toBool();
     m_settings.endGroup();
     m_settings.beginGroup("remote");
-    librarySettings.remoteAddress = m_settings.value("address", QString()).toString();
-    librarySettings.remotePassword = m_settings.value("password", QString()).toString();
+    librarySettings.remoteAddress = m_settings.value("address").toString();
+    librarySettings.remotePassword = m_settings.value("password").toString();
     librarySettings.remotePath = m_settings.value("path", QDir::separator()).toString();
     librarySettings.remotePort = m_settings.value("port", 21).toInt();
     librarySettings.remoteUserName = m_settings.value("userName", "anonymous").toString();
@@ -47,14 +50,32 @@ void SettingsDialog::fill() {
     m_settings.endGroup();
     m_settings.endGroup();
     m_tabLibrary->setSettings(librarySettings);
+
+    m_settings.beginGroup("format");
+    m_settings.beginGroup("font");
+    formatSettings.fontDefault = m_settings.value("default", true).toBool();
+    formatSettings.fontFamilyName = m_settings.value("familyName", QString()).toString();
+    formatSettings.fontUser = m_settings.value("user", false).toBool();
+    m_settings.endGroup();
+    m_settings.beginGroup("paragraphTitles");
+    formatSettings.paragraphDefault = m_settings.value("default", true).toBool();
+    formatSettings.paragraphEmptyHeadline = m_settings.value("emptyHeadline").toString();
+    formatSettings.paragraphIngredients = m_settings.value("ingredients").toString();
+    formatSettings.paragraphPreparation = m_settings.value("preparation").toString();
+    formatSettings.paragraphUser = m_settings.value("user", false).toBool();
+    m_settings.endGroup();
+    m_settings.endGroup();
+    m_tabFormat->setSettings(formatSettings);
 }
 
 
-void SettingsDialog::save() {    
+void SettingsDialog::save() {
     SettingsTabLibrary::LibrarySettings librarySettings = m_tabLibrary->settings();
+    SettingsTabFormat::FormatSettings formatSettings = m_tabFormat->settings();
+
     m_settings.beginGroup("library");
     m_settings.beginGroup("local");
-    QString oldLibraryPath = m_settings.value("path").toString();    
+    QString oldLibraryPath = m_settings.value("path").toString();
     m_settings.setValue("path", librarySettings.localPath);
     m_settings.setValue("syncOnQuit", librarySettings.syncOnQuit);
     m_settings.setValue("syncOnStart", librarySettings.syncOnStart);
@@ -69,9 +90,45 @@ void SettingsDialog::save() {
     m_settings.endGroup();
     m_settings.endGroup();
 
+    m_settings.beginGroup("format");
+    m_settings.beginGroup("font");
+    bool oldFontDefault = m_settings.value("default").toBool();
+    m_settings.setValue("default", formatSettings.fontDefault);
+    QString oldFamilyName = m_settings.value("familyName").toString();
+    m_settings.setValue("familyName", formatSettings.fontFamilyName);
+    m_settings.setValue("user", formatSettings.fontUser);
+    m_settings.endGroup();
+    m_settings.beginGroup("paragraphTitles");
+    bool oldParagraphDefault = m_settings.value("default").toBool();
+    m_settings.setValue("default", formatSettings.paragraphDefault);
+    QString oldEmptyHeadline = m_settings.value("emptyHeadline").toString();
+    m_settings.setValue("emptyHeadline", formatSettings.paragraphEmptyHeadline);
+    QString oldIngredients = m_settings.value("ingredients").toString();
+    m_settings.setValue("ingredients", formatSettings.paragraphIngredients);
+    QString oldPreparation = m_settings.value("preparation").toString();
+    m_settings.setValue("preparation", formatSettings.paragraphPreparation);
+    m_settings.setValue("user", formatSettings.paragraphUser);
+    m_settings.endGroup();
+    m_settings.endGroup();
+
     if (oldLibraryPath != librarySettings.localPath)
         emit libraryPathChanged();
-    accept();    
+
+    if (oldFontDefault != formatSettings.fontDefault)
+        emit fontChanged();
+    else if (oldFamilyName != formatSettings.fontFamilyName)
+        emit fontChanged();
+
+    if (oldParagraphDefault != formatSettings.paragraphDefault)
+        emit paragraphTitlesChanged();
+    else if (oldEmptyHeadline != formatSettings.paragraphEmptyHeadline)
+        emit paragraphTitlesChanged();
+    else if (oldIngredients != formatSettings.paragraphIngredients)
+        emit paragraphTitlesChanged();
+    else if (oldPreparation != formatSettings.paragraphPreparation)
+        emit paragraphTitlesChanged();
+
+    accept();
 }
 
 

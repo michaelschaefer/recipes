@@ -19,7 +19,7 @@ signals:
 
 public:
 
-    RecipeTabWidget(QWidget* parent = 0);    
+    RecipeTabWidget(QWidget* parent = 0);
 
 
 public slots:
@@ -31,6 +31,8 @@ public slots:
     void openRecipe(QString fileName = QString());
     void recipeChanged(RecipeEdit* recipeEdit);
     void saveAllTabs();
+    void updateParagraphTitles();
+    void updatePreviews();
     void updateTabText(RecipeEdit* recipeEdit);
 
 
@@ -41,7 +43,7 @@ private slots:
 
 private:
 
-    void addRecipe(RecipeEdit* recipeEdit);    
+    void addRecipe(RecipeEdit* recipeEdit);
     RecipeEdit* currentRecipe();
     void updateTabText(int index);
 

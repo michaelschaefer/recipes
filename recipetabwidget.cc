@@ -6,8 +6,8 @@
 
 RecipeTabWidget::RecipeTabWidget(QWidget* parent)
     : QTabWidget(parent)
-{    
-    setTabsClosable(true);        
+{
+    setTabsClosable(true);
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
 }
 
@@ -96,7 +96,7 @@ void RecipeTabWidget::keyPressEvent(QKeyEvent* event) {
     if (cnt == 0) {
         event->ignore();
         return;
-    }        
+    }
 
     if (event->modifiers() == Qt::ControlModifier) {
         if (event->key() == Qt::Key_PageUp) {
@@ -118,7 +118,7 @@ void RecipeTabWidget::newRecipe() {
 }
 
 
-void RecipeTabWidget::openRecipe(QString fileName) {    
+void RecipeTabWidget::openRecipe(QString fileName) {
     if (fileName.isEmpty()) {
         QString caption = trUtf8("Open recipe");
         QString dir = QSettings().value("library/local/path").toString();
@@ -129,7 +129,7 @@ void RecipeTabWidget::openRecipe(QString fileName) {
         fileName = QFileDialog::getOpenFileName(this, caption, dir, filter);
         if (fileName.isEmpty() == true)
             return;
-    }    
+    }
 
     // select tab if chosen file is already opened
     QList<RecipeEdit*>::Iterator it = m_recipes.begin();
@@ -138,10 +138,10 @@ void RecipeTabWidget::openRecipe(QString fileName) {
             setCurrentWidget(*it);
             return;
         }
-    }    
+    }
 
     // create new tab with the selected recipe
-    RecipeEdit* recipeEdit = new RecipeEdit(this);    
+    RecipeEdit* recipeEdit = new RecipeEdit(this);
     if (recipeEdit->fill(fileName) == true) {
         addRecipe(recipeEdit);
     } else {
@@ -174,6 +174,19 @@ void RecipeTabWidget::saveAllTabs() {
         else
             updateTabText(index);
     }
+}
+
+
+void RecipeTabWidget::updateParagraphTitles() {
+    foreach (RecipeEdit* recipeEdit, m_recipes)
+        recipeEdit->updateParagraphTitles();
+    updatePreviews();
+}
+
+
+void RecipeTabWidget::updatePreviews() {
+    foreach (RecipeEdit* recipeEdit, m_recipes)
+        recipeEdit->updatePreview();
 }
 
 

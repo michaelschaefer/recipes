@@ -8,8 +8,10 @@
 
 Library::Library() {
     m_database = new Database();
-    m_ftpManager = FtpManager::instance();       
+    m_ftpManager = FtpManager::instance();
     connect(m_ftpManager, SIGNAL(entireDownloadFinished()), this, SLOT(update()));
+    connect(m_ftpManager, SIGNAL(downloadFinished(QString)), this, SLOT(fileDownloaded(QString)));
+    connect(m_ftpManager, SIGNAL(uploadFinished(QString)), this, SLOT(fileUploaded(QString)));
 }
 
 
@@ -22,14 +24,17 @@ Library* Library::instance() {
 QString Library::msgExportComplete = trUtf8("Export complete");
 QString Library::msgExportingLibrary = trUtf8("Exporting library");
 QString Library::msgExportProgress = trUtf8("(%1 of %2 finished)");
+QString Library::msgFileDownloaded = trUtf8("(File %1 downloaded)");
 QString Library::msgFileInserted = trUtf8("(File %1 inserted)");
 QString Library::msgFileInsertedOrUpdated = trUtf8("(File %1 inserted or updated)");
 QString Library::msgFileUpdated = trUtf8("(File %1 updated)");
+QString Library::msgFileUploaded = trUtf8("(File %1 uploaded)");
 QString Library::msgFileRemoved = trUtf8("(File %1 removed)");
 QString Library::msgLibraryEmpty = trUtf8("Library is empty");
 QString Library::msgLibraryUpdated = trUtf8("Library updated");
 QString Library::msgRebuildComplete = trUtf8("Rebuild complete");
 QString Library::msgRebuildingLibrary = trUtf8("Rebuilding library");
+QString Library::msgSynchronizing = trUtf8("Synchronizing files");
 QString Library::msgUpdateComplete = trUtf8("Update complete (%1 new, %2 removed)");
 QString Library::msgUpdateFailed = trUtf8("Update failed (you may consider rebuilding the entire library)");
 QString Library::msgUpdatingLibrary = trUtf8("Updating library");
@@ -69,6 +74,16 @@ void Library::exportAsPdf(QString pathName) {
         emit statusBarMessage(msgExportingLibrary + " " + msgExportProgress.arg(n).arg(N));
     }
     emit statusBarMessage(msgExportComplete);
+}
+
+
+void Library::fileDownloaded(QString fileName) {
+    emit statusBarMessage(msgSynchronizing + " " + msgFileDownloaded.arg(fileName));
+}
+
+
+void Library::fileUploaded(QString fileName) {
+    emit statusBarMessage(msgSynchronizing + " " + msgFileUploaded.arg(fileName));
 }
 
 
@@ -155,7 +170,7 @@ bool Library::insertOrUpdateFile(QString absoluteFileName, RecipeData& recipeDat
         return false;
 
     if (m_database->isOpen() == false)
-        m_database->open();           
+        m_database->open();
 
     if (m_database->getFileId(fileName, &fileId) == false) {
         m_database->close();
@@ -196,7 +211,7 @@ bool Library::rebuild() {
     }
 
     QDir dir(pathName);
-    bool ret = insertFiles(dir);    
+    bool ret = insertFiles(dir);
     m_database->close();
     emit statusBarMessage(msgRebuildComplete);
     emit updated();
@@ -204,18 +219,18 @@ bool Library::rebuild() {
 }
 
 
-void Library::synchronize(SyncState state) {
+void Library::synchronizeFiles(SyncState state) {
     static QMetaObject::Connection conn;
 
     if (state == Library::Connect) {
         connect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
-        conn = connect(m_ftpManager, &FtpManager::connectionReady, [this] () { synchronize(Library::FetchRemote); });
+        conn = connect(m_ftpManager, &FtpManager::connectionReady, [this] () { synchronizeFiles(Library::FetchRemote); });
         m_ftpManager->updateConnectionSettings();
         m_ftpManager->login();
     } else if (state == Library::FetchRemote) {
         disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
         disconnect(conn);
-        conn = connect(m_ftpManager, &FtpManager::fileListReady, [this] () { synchronize(Library::ExchangeData); });
+        conn = connect(m_ftpManager, &FtpManager::fileListReady, [this] () { synchronizeFiles(Library::ExchangeData); });
         m_ftpManager->fetchFileList();
     } else if (state == Library::ExchangeData) {
         disconnect(conn);
@@ -225,19 +240,31 @@ void Library::synchronize(SyncState state) {
         QList<QString> remoteNames;
         QList<qint64> remoteSizes;
         QList<QDateTime> remoteModified;
+        QTime time;
+        QDateTime dateTime;
         foreach (const QUrlInfo& urlInfo, remoteInfoList) {
             remoteNames.append(urlInfo.name());
             remoteSizes.append(urlInfo.size());
-            remoteModified.append(urlInfo.lastModified());
+
+            dateTime = urlInfo.lastModified();
+            time = dateTime.time();
+            time.setHMS(time.hour(), time.minute(), 0);
+            dateTime.setTime(time);
+            remoteModified.append(dateTime);
         }
 
         QList<QString> localNames;
         QList<qint64> localSizes;
         QList<QDateTime> localModified;
-        foreach (const QFileInfo& fileInfo, localInfoList) {
+        foreach (QFileInfo fileInfo, localInfoList) {
             localNames.append(fileInfo.fileName());
             localSizes.append(fileInfo.size());
-            localModified.append(fileInfo.lastModified());
+
+            dateTime = fileInfo.lastModified();
+            time = dateTime.time();
+            time.setHMS(time.hour(), time.minute(), 0);
+            dateTime.setTime(time);
+            localModified.append(dateTime);
         }
 
         QStringList downloadList;
@@ -295,7 +322,7 @@ bool Library::update() {
         return true;
     }
 
-    m_database->close();    
+    m_database->close();
     emit statusBarMessage(msgUpdateComplete.arg(added).arg(removed));
     emit updated();
     return true;
@@ -343,7 +370,7 @@ bool Library::updateFiles(QDir& dir, int* nAdded, int* nRemoved) {
      */
 
     QString fileName;
-    foreach (const QFileInfo& fileInfo, discFileInfoList) {        
+    foreach (const QFileInfo& fileInfo, discFileInfoList) {
         fileName = fileInfo.fileName();
         if (databaseFileList.contains(fileName) == false) {
             recipeData.clear();

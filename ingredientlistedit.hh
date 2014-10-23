@@ -21,7 +21,7 @@ signals:
     void changed();
 
 
-public:    
+public:
 
     IngredientListEdit(QWidget* parent = 0);
 
@@ -32,6 +32,7 @@ public:
     QList<QMap<QString, QString> > data();
     void editServingCount();
     QString servingCount();
+    void updateHeadline();
 
 
 private slots:
@@ -40,9 +41,6 @@ private slots:
 
 
 private:
-
-    void updateHeadline();
-
 
     FlexibleLayout* m_flexibleLayout;
     QFont m_boldFont;

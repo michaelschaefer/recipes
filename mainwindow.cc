@@ -17,14 +17,16 @@ QString MainWindow::ApplicationVersion = "0.3";
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     m_splitter = new QSplitter(this);
-    m_searchWidget = new SearchWidget(m_splitter);    
+    m_searchWidget = new SearchWidget(m_splitter);
     m_settingsDialog = new SettingsDialog(this);
     m_tabWidget = new RecipeTabWidget(m_splitter);
 
     connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeCurrentRecipe()));
     connect(m_tabWidget, SIGNAL(empty(bool)), this, SLOT(setEditActionInvisibility(bool)));
-    connect(m_searchWidget, SIGNAL(recipeSelected(QString)), m_tabWidget, SLOT(openRecipe(QString)));    
+    connect(m_searchWidget, SIGNAL(recipeSelected(QString)), m_tabWidget, SLOT(openRecipe(QString)));
     connect(m_settingsDialog, SIGNAL(libraryPathChanged()), this, SLOT(libraryRebuild()));
+    connect(m_settingsDialog, SIGNAL(fontChanged()), m_tabWidget, SLOT(updatePreviews()));
+    connect(m_settingsDialog, SIGNAL(paragraphTitlesChanged()), m_tabWidget, SLOT(updateParagraphTitles()));
 
     m_splitter->addWidget(m_tabWidget);
     m_splitter->addWidget(m_searchWidget);
@@ -32,11 +34,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     m_currentRecipe = 0;
 
     setCentralWidget(m_splitter);
-    setWindowIcon(QIcon(":/img/recipes"));       
+    setWindowIcon(QIcon(":/img/recipes"));
     showMaximized();
 
     setupMenuEdit();
-    setupMenuFile();    
+    setupMenuFile();
     setupMenuHelp();
     setupMenuLibrary();
 
@@ -60,7 +62,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(m_library, SIGNAL(updated()), m_searchWidget, SLOT(update()));
 
     if (m_settings.value("library/local/syncOnStart").toBool() == true)
-        m_library->synchronize();
+        m_library->synchronizeFiles();
     if (m_settings.value("library/local/path").toString().isEmpty() == true)
         setMenuLibraryEnabled(false);
 }
@@ -91,7 +93,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
     }
 
     if (m_settings.value("library/local/syncOnQuit").toBool() == true)
-        m_library->synchronize();
+        m_library->synchronizeFiles();
 }
 
 
@@ -192,7 +194,7 @@ void MainWindow::libraryExport() {
 }
 
 
-void MainWindow::libraryRebuild() {    
+void MainWindow::libraryRebuild() {
     setMenuLibraryEnabled(false);
     LibraryThread* thread = new LibraryThread(m_library, LibraryThread::Rebuild, this);
     connect(thread, SIGNAL(finished()), this, SLOT(setMenuLibraryEnabled()));
@@ -213,6 +215,8 @@ void MainWindow::setEditActionInvisibility(bool invisible) {
     m_actionCloseAll->setEnabled(!invisible);
     m_actionExport->setEnabled(!invisible);
     m_actionPreview->setEnabled(!invisible);
+    if (invisible == false)
+        m_actionPreview->setChecked(false);
     m_actionPrint->setEnabled(!invisible);
     m_actionSave->setEnabled(!invisible);
     m_actionSaveAll->setEnabled(!invisible);
@@ -258,7 +262,7 @@ void MainWindow::setupMenuEdit() {
     m_menuEdit->addAction(m_actionHeadline);
     m_menuEdit->addMenu(m_menuEditIngredients);
     m_menuEdit->addAction(m_actionPreparationStep);
-    m_menuEdit->addAction(m_actionPreview);    
+    m_menuEdit->addAction(m_actionPreview);
 }
 
 
@@ -269,20 +273,20 @@ void MainWindow::setupMenuFile() {
     m_actionCloseAll = new QAction(trUtf8("C&lose all"), m_menuFile);
     m_actionExport = new QAction(trUtf8("&Export as PDF"), m_menuFile);
     m_actionNew = new QAction(trUtf8("&New"), m_menuFile);
-    m_actionOpen = new QAction(trUtf8("&Open"), m_menuFile);    
+    m_actionOpen = new QAction(trUtf8("&Open"), m_menuFile);
     m_actionPrint = new QAction(trUtf8("&Print"), m_menuFile);
     m_actionQuit = new QAction(trUtf8("&Quit"), m_menuFile);
-    m_actionSave = new QAction(trUtf8("&Save"), m_menuFile);    
+    m_actionSave = new QAction(trUtf8("&Save"), m_menuFile);
     m_actionSaveAll = new QAction(trUtf8("S&ave all"), m_menuFile);
-    m_actionSaveAs = new QAction(trUtf8("Sa&ve as"), m_menuFile);    
+    m_actionSaveAs = new QAction(trUtf8("Sa&ve as"), m_menuFile);
     m_actionSettings = new QAction(trUtf8("Se&ttings"), m_menuFile);
 
     m_actionClose->setShortcut(Qt::CTRL + Qt::Key_W);
-    m_actionCloseAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);    
+    m_actionCloseAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);
     m_actionNew->setShortcut(Qt::CTRL + Qt::Key_N);
     m_actionOpen->setShortcut(Qt::CTRL + Qt::Key_O);
     m_actionPrint->setShortcut(Qt::CTRL + Qt::Key_P);
-    m_actionQuit->setShortcut(Qt::CTRL + Qt::Key_Q);        
+    m_actionQuit->setShortcut(Qt::CTRL + Qt::Key_Q);
     m_actionSave->setShortcut(Qt::CTRL + Qt::Key_S);
     m_actionSaveAll->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_S);
 
@@ -303,17 +307,17 @@ void MainWindow::setupMenuFile() {
     m_menuFile->addSeparator();
     m_menuFile->addAction(m_actionClose);
     m_menuFile->addAction(m_actionCloseAll);
-    m_menuFile->addSeparator();    
+    m_menuFile->addSeparator();
     m_menuFile->addAction(m_actionExport);
     m_menuFile->addAction(m_actionPrint);
     m_menuFile->addSeparator();
     m_menuFile->addAction(m_actionSettings);
     m_menuFile->addSeparator();
-    m_menuFile->addAction(m_actionQuit);        
+    m_menuFile->addAction(m_actionQuit);
 }
 
 
-void MainWindow::setupMenuHelp() {    
+void MainWindow::setupMenuHelp() {
     m_menuHelp = new QMenu(trUtf8("&Help"), menuBar());
 
     m_actionAboutQt = new QAction(trUtf8("About &Qt"), m_menuHelp);
@@ -323,14 +327,14 @@ void MainWindow::setupMenuHelp() {
     connect(m_actionAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
 
     m_menuHelp->addAction(m_actionAboutQt);
-    m_menuHelp->addAction(m_actionAbout);    
+    m_menuHelp->addAction(m_actionAbout);
 }
 
 
 void MainWindow::setupMenuLibrary() {
     m_menuLibrary = new QMenu(trUtf8("&Library"), menuBar());
 
-    m_actionExportLibrary = new QAction(trUtf8("&Export"), m_menuLibrary);
+    m_actionExportLibrary = new QAction(trUtf8("&Export as PDFs"), m_menuLibrary);
     m_actionBrowse = new QAction(trUtf8("&Browse"), m_menuLibrary);
     m_actionRebuild = new QAction(trUtf8("&Rebuild"), m_menuLibrary);
     m_actionSynchronize = new QAction(trUtf8("&Synchronize"), m_menuLibrary);
@@ -345,8 +349,8 @@ void MainWindow::setupMenuLibrary() {
     connect(m_actionExportLibrary, SIGNAL(triggered()), this, SLOT(libraryExport()));
     connect(m_actionBrowse, SIGNAL(triggered()), m_searchWidget, SLOT(toggleVisibility()));
     connect(m_actionRebuild, SIGNAL(triggered()), this, SLOT(libraryRebuild()));
-    connect(m_actionSynchronize, &QAction::triggered, [this] () { m_library->synchronize(); });
-    connect(m_actionUpdate, SIGNAL(triggered()), this, SLOT(libraryUpdate()));    
+    connect(m_actionSynchronize, &QAction::triggered, [this] () { m_library->synchronizeFiles(); });
+    connect(m_actionUpdate, SIGNAL(triggered()), this, SLOT(libraryUpdate()));
 
     m_menuLibrary->addAction(m_actionRebuild);
     m_menuLibrary->addAction(m_actionUpdate);
@@ -442,7 +446,7 @@ void MainWindow::setupToolBar() {
     m_toolBar->addSeparator();
     m_toolBar->addAction(m_actionToolBarHeadline);
     m_toolBar->addWidget(m_actionToolButtonIngredient);
-    m_toolBar->addAction(m_actionToolBarPreparationStep);    
+    m_toolBar->addAction(m_actionToolBarPreparationStep);
 }
 
 

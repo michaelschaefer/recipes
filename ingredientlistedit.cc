@@ -1,4 +1,5 @@
 #include <QInputDialog>
+#include <QSettings>
 #include "ingredientdialog.hh"
 #include "ingredientedit.hh"
 #include "ingredientlistedit.hh"
@@ -29,7 +30,7 @@ IngredientListEdit::IngredientListEdit(QWidget* parent)
 void IngredientListEdit::addIngredient() {
     IngredientDialog dialog(this);
     dialog.show();
-    if (dialog.exec() == QDialog::Accepted) {        
+    if (dialog.exec() == QDialog::Accepted) {
         addIngredient(dialog.amount(), dialog.unit(), dialog.name());
     }
 }
@@ -103,6 +104,8 @@ void IngredientListEdit::triggerChanged() {
 
 void IngredientListEdit::updateHeadline() {
     QString headline = trUtf8("Ingredients");
+    if (QSettings().value("format/paragraphTitles/default").toBool() == false)
+        headline = QSettings().value("format/paragraphTitles/ingredients").toString();
     if (m_servingCount.isEmpty() == false) {
         headline += " " + m_servingCount;
     }
