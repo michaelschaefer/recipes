@@ -4,14 +4,36 @@
 #include <QXmlStreamReader>
 #include "exporter.hh"
 #include "library.hh"
+#include "synchronizationdialog.hh"
 
 
 Library::Library() {
     m_database = new Database();
     m_ftpManager = FtpManager::instance();
-    connect(m_ftpManager, SIGNAL(entireDownloadFinished()), this, SLOT(update()));
+    connect(m_ftpManager, SIGNAL(entireDownloadFinished()), this, SLOT(downloadFinished()));
+    connect(m_ftpManager, SIGNAL(entireUploadFinished()), this, SLOT(uploadFinished()));
     connect(m_ftpManager, SIGNAL(downloadFinished(QString)), this, SLOT(fileDownloaded(QString)));
     connect(m_ftpManager, SIGNAL(uploadFinished(QString)), this, SLOT(fileUploaded(QString)));
+
+    msgDownloadFinished = trUtf8("(Download finished)");
+    msgExportComplete = trUtf8("Export complete");
+    msgExportingLibrary = trUtf8("Exporting library");
+    msgExportProgress = trUtf8("(%1 of %2 finished)");
+    msgFileDownloaded = trUtf8("(File %1 downloaded)");
+    msgFileInserted = trUtf8("(File %1 inserted)");
+    msgFileInsertedOrUpdated = trUtf8("(File %1 inserted or updated)");
+    msgFileUpdated = trUtf8("(File %1 updated)");
+    msgFileUploaded = trUtf8("(File %1 uploaded)");
+    msgFileRemoved = trUtf8("(File %1 removed)");
+    msgLibraryEmpty = trUtf8("Library is empty");
+    msgLibraryUpdated = trUtf8("Library updated");
+    msgRebuildComplete = trUtf8("Rebuild complete");
+    msgRebuildingLibrary = trUtf8("Rebuilding library");
+    msgSynchronizing = trUtf8("Synchronizing files");
+    msgUpdateComplete = trUtf8("Update complete (%1 new, %2 removed)");
+    msgUpdateFailed = trUtf8("Update failed (you may consider rebuilding the entire library)");
+    msgUpdatingLibrary = trUtf8("Updating library");
+    msgUploadFinished = trUtf8("(Upload finished)");
 }
 
 
@@ -19,25 +41,6 @@ Library* Library::instance() {
     static Library instance;
     return &instance;
 }
-
-
-QString Library::msgExportComplete = trUtf8("Export complete");
-QString Library::msgExportingLibrary = trUtf8("Exporting library");
-QString Library::msgExportProgress = trUtf8("(%1 of %2 finished)");
-QString Library::msgFileDownloaded = trUtf8("(File %1 downloaded)");
-QString Library::msgFileInserted = trUtf8("(File %1 inserted)");
-QString Library::msgFileInsertedOrUpdated = trUtf8("(File %1 inserted or updated)");
-QString Library::msgFileUpdated = trUtf8("(File %1 updated)");
-QString Library::msgFileUploaded = trUtf8("(File %1 uploaded)");
-QString Library::msgFileRemoved = trUtf8("(File %1 removed)");
-QString Library::msgLibraryEmpty = trUtf8("Library is empty");
-QString Library::msgLibraryUpdated = trUtf8("Library updated");
-QString Library::msgRebuildComplete = trUtf8("Rebuild complete");
-QString Library::msgRebuildingLibrary = trUtf8("Rebuilding library");
-QString Library::msgSynchronizing = trUtf8("Synchronizing files");
-QString Library::msgUpdateComplete = trUtf8("Update complete (%1 new, %2 removed)");
-QString Library::msgUpdateFailed = trUtf8("Update failed (you may consider rebuilding the entire library)");
-QString Library::msgUpdatingLibrary = trUtf8("Updating library");
 
 
 void Library::clear() {
@@ -53,6 +56,12 @@ void Library::clear() {
 void Library::connectionFailed() {
     disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
     emit errorMessage(trUtf8("Connection to FTP server failed. Synchronization cannot be executed."));
+}
+
+
+void Library::downloadFinished() {
+    emit statusBarMessage(msgSynchronizing + " " + msgDownloadFinished);
+    update();
 }
 
 
@@ -269,14 +278,21 @@ void Library::synchronizeFiles(SyncState state) {
 
         QStringList downloadList;
         QStringList uploadList;
+        QList<QStringList> unknownList;
+        QString dateFormat = trUtf8("yyyy-MM-dd hh:mm");
 
         for (int i = 0; i < remoteNames.size(); ++i) {
             int index = localNames.indexOf(remoteNames[i]);
             if (index == -1)
                 downloadList.append(remoteNames[i]);
             else {
-                if (localModified[index] < remoteModified[i])
-                    downloadList.append(remoteNames[i]);
+                QStringList syncData;
+                syncData << remoteNames[i];
+                syncData << localModified[index].toLocalTime().toString(dateFormat);
+                syncData << QString::number(localSizes[index]);
+                syncData << remoteModified[i].toLocalTime().toString(dateFormat);
+                syncData << QString::number(remoteSizes[i]);
+                unknownList.append(syncData);
             }
         }
 
@@ -284,10 +300,14 @@ void Library::synchronizeFiles(SyncState state) {
             int index = remoteNames.indexOf(localNames[i]);
             if (index == -1)
                 uploadList.append(localNames[i]);
-            else {
-                if (remoteModified[index] < localModified[i])
-                    uploadList.append(localNames[i]);
-            }
+        }
+
+        SynchronizationDialog dialog;
+        dialog.setData(unknownList);
+        dialog.show();
+        if (dialog.exec() == QDialog::Accepted) {
+            downloadList.append(dialog.downloadFileList());
+            uploadList.append(dialog.uploadFileList());
         }
 
         m_ftpManager->upload(uploadList);
@@ -390,4 +410,9 @@ bool Library::updateFiles(QDir& dir, int* nAdded, int* nRemoved) {
         *nRemoved = removed;
 
     return true;
+}
+
+
+void Library::uploadFinished() {
+    emit statusBarMessage(msgSynchronizing + " " + msgUploadFinished);
 }

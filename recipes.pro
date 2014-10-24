@@ -37,7 +37,8 @@ SOURCES += main.cc \
     settingsdialog.cc \
     settingstablibrary.cc \
     ftpmanager.cc \
-    settingstabformat.cc
+    settingstabformat.cc \
+    synchronizationdialog.cc
 
 HEADERS  += mainwindow.hh \
     recipeedit.hh \
@@ -62,7 +63,8 @@ HEADERS  += mainwindow.hh \
     settingsdialog.hh \
     settingstablibrary.hh \
     ftpmanager.hh \
-    settingstabformat.hh
+    settingstabformat.hh \
+    synchronizationdialog.hh
 
 RESOURCES += recipes.qrc
 

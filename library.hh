@@ -48,8 +48,10 @@ public slots:
 private slots:
 
     void connectionFailed();
+    void downloadFinished();
     void fileDownloaded(QString fileName);
     void fileUploaded(QString fileName);
+    void uploadFinished();
 
 
 private:
@@ -59,23 +61,25 @@ private:
     void operator=(Library const&);
 
 
-    static QString msgExportComplete;
-    static QString msgExportingLibrary;
-    static QString msgExportProgress;
-    static QString msgFileDownloaded;
-    static QString msgFileInserted;
-    static QString msgFileInsertedOrUpdated;
-    static QString msgFileRemoved;
-    static QString msgFileUpdated;
-    static QString msgFileUploaded;
-    static QString msgLibraryEmpty;
-    static QString msgLibraryUpdated;
-    static QString msgRebuildComplete;
-    static QString msgRebuildingLibrary;
-    static QString msgSynchronizing;
-    static QString msgUpdatingLibrary;
-    static QString msgUpdateFailed;
-    static QString msgUpdateComplete;
+    QString msgDownloadFinished;
+    QString msgExportComplete;
+    QString msgExportingLibrary;
+    QString msgExportProgress;
+    QString msgFileDownloaded;
+    QString msgFileInserted;
+    QString msgFileInsertedOrUpdated;
+    QString msgFileRemoved;
+    QString msgFileUpdated;
+    QString msgFileUploaded;
+    QString msgLibraryEmpty;
+    QString msgLibraryUpdated;
+    QString msgRebuildComplete;
+    QString msgRebuildingLibrary;
+    QString msgSynchronizing;
+    QString msgUpdatingLibrary;
+    QString msgUpdateFailed;
+    QString msgUpdateComplete;
+    QString msgUploadFinished;
 
 
     void clear();

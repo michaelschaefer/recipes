@@ -8,6 +8,7 @@
 #include "exporter.hh"
 #include "librarythread.hh"
 #include "mainwindow.hh"
+#include "synchronizationdialog.hh"
 
 
 QString MainWindow::ApplicationName = "recipes";
@@ -160,7 +161,7 @@ void MainWindow::helpAbout() {
             .arg(MainWindow::ApplicationVersion)
             .arg(information)
             .arg(copyright);
-    QString title = trUtf8("About ") + MainWindow::ApplicationName;
+    QString title = trUtf8("About") + " " + MainWindow::ApplicationName;
 
     QMessageBox about(this);
     about.setWindowTitle(title);
