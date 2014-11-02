@@ -15,6 +15,7 @@
 #include "recipetabwidget.hh"
 #include "searchwidget.hh"
 #include "settingsdialog.hh"
+#include "synchronizer.hh"
 
 
 class MainWindow : public QMainWindow {
@@ -40,21 +41,21 @@ public slots:
 private slots:
 
     void changeCurrentRecipe();
-    void closeEvent(QCloseEvent* event);    
+    void closeEvent(QCloseEvent* event);
     void errorMessage(QString title, QString text);
     void fileSettings();
     void libraryExport();
     void libraryRebuild();
     void libraryUpdate();
     void setEditActionInvisibility(bool invisible);
-    void setMenuLibraryEnabled(bool enabled = true);    
+    void setMenuLibraryEnabled(bool enabled = true);
     void showStatusBarMessage(QString message);
 
 
 private:
 
     void connectRecipe(RecipeEdit* recipeEdit);
-    void disconnectRecipe(RecipeEdit* recipeEdit);    
+    void disconnectRecipe(RecipeEdit* recipeEdit);
     void setupMenuEdit();
     void setupMenuFile();
     void setupMenuHelp();
@@ -71,7 +72,7 @@ private:
     QAction* m_actionExport;
     QAction* m_actionExportLibrary;
     QAction* m_actionHeadline;
-    QAction* m_actionIngredient;    
+    QAction* m_actionIngredient;
     QAction* m_actionNew;
     QAction* m_actionOpen;
     QAction* m_actionPreparationStep;
@@ -81,7 +82,7 @@ private:
     QAction* m_actionRebuild;
     QAction* m_actionSave;
     QAction* m_actionSaveAs;
-    QAction* m_actionSaveAll;    
+    QAction* m_actionSaveAll;
     QAction* m_actionSection;
     QAction* m_actionServingCount;
     QAction* m_actionSettings;
@@ -95,7 +96,7 @@ private:
     QAction* m_actionToolBarPreparationStep;
     QAction* m_actionToolBarPreview;
     QAction* m_actionToolBarPrint;
-    QAction* m_actionToolBarSave;        
+    QAction* m_actionToolBarSave;
     QAction* m_actionUpdate;
     QLabel* m_statusBarLabel;
     QMenu* m_menuEdit;
@@ -112,6 +113,7 @@ private:
     RecipeTabWidget* m_tabWidget;
     SearchWidget* m_searchWidget;
     SettingsDialog* m_settingsDialog;
+    Synchronizer* m_synchronizer;
 
 };
 

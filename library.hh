@@ -2,6 +2,7 @@
 #define LIBRARY_HH
 
 
+#include <QNetworkReply>
 #include <QObject>
 #include "database.hh"
 #include "ftpmanager.hh"
@@ -51,6 +52,7 @@ private slots:
     void downloadFinished();
     void fileDownloaded(QString fileName);
     void fileUploaded(QString fileName);
+    void finished(QNetworkReply* reply);
     void uploadFinished();
 
 

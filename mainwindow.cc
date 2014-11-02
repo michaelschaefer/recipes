@@ -17,6 +17,8 @@ QString MainWindow::ApplicationVersion = "0.3";
 
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
+    m_synchronizer = new Synchronizer();
+
     m_splitter = new QSplitter(this);
     m_searchWidget = new SearchWidget(m_splitter);
     m_settingsDialog = new SettingsDialog(this);
@@ -350,7 +352,9 @@ void MainWindow::setupMenuLibrary() {
     connect(m_actionExportLibrary, SIGNAL(triggered()), this, SLOT(libraryExport()));
     connect(m_actionBrowse, SIGNAL(triggered()), m_searchWidget, SLOT(toggleVisibility()));
     connect(m_actionRebuild, SIGNAL(triggered()), this, SLOT(libraryRebuild()));
-    connect(m_actionSynchronize, &QAction::triggered, [this] () { m_library->synchronizeFiles(); });
+    //connect(m_actionSynchronize, &QAction::triggered, [this] () { m_library->synchronizeFiles(); });
+    connect(m_actionSynchronize, &QAction::triggered, [this] () { m_synchronizer->synchronize(); });
+
     connect(m_actionUpdate, SIGNAL(triggered()), this, SLOT(libraryUpdate()));
 
     m_menuLibrary->addAction(m_actionRebuild);

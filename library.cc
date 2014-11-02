@@ -1,4 +1,6 @@
 #include <QDebug>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QDir>
 #include <QMessageBox>
 #include <QXmlStreamReader>
@@ -228,7 +230,49 @@ bool Library::rebuild() {
 }
 
 
+void Library::finished(QNetworkReply* reply) {
+    if (reply == 0)
+        return;
+
+    if (reply->operation() == QNetworkAccessManager::GetOperation) {
+        if (reply->error() == QNetworkReply::NoError) {
+            qDebug() << "Get operation successfully finished. Data:";
+            qDebug() << QString(reply->readAll());
+        } else
+            qDebug() << "Get operation failed: " << reply->errorString();
+    } else if (reply->operation() == QNetworkAccessManager::PutOperation) {
+        if (reply->error() == QNetworkReply::NoError)
+            qDebug() << "Put operation successfully finished";
+        else
+            qDebug() << "Put operation failed: " << reply->errorString();
+    }
+
+    reply->deleteLater();
+}
+
+
 void Library::synchronizeFiles(SyncState state) {
+
+    QUrl url("ftp://ftp.michael-schaefer.org/test.ftp");
+    url.setUserName("w005d352");
+    url.setPassword("eV89j5KvEQ");
+    url.setPort(21);
+
+    QNetworkAccessManager* manager = new QNetworkAccessManager();
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
+
+    QFile file(QString("%1%2test.ftp").arg(QDir::homePath(), QDir::separator()));
+    if (file.open(QIODevice::ReadWrite)) {
+        QByteArray data = file.readAll();
+        manager->put(QNetworkRequest(url), data);
+    }
+
+    //manager->get(QNetworkRequest(url));
+
+    return;
+
+
+
     static QMetaObject::Connection conn;
 
     if (state == Library::Connect) {
