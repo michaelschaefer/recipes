@@ -1,3 +1,4 @@
+#include <QCryptographicHash>
 #include <QDebug>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -108,11 +109,7 @@ bool Library::getFile(int fileId, Database::File& file) {
 
 
 QList<QFileInfo> Library::getFileInfoList() {
-    if (m_database->isOpen() == false)
-        m_database->open();
-    QStringList fileNameList = m_database->getFileNameList();
-    m_database->close();
-
+    QStringList fileNameList = getFileNameList();
     QList<QFileInfo> fileInfoList;
     QString dir = QSettings().value("library/local/path").toString();
     if (dir.isEmpty() == false) {
@@ -121,6 +118,15 @@ QList<QFileInfo> Library::getFileInfoList() {
     }
 
     return fileInfoList;
+}
+
+
+QStringList Library::getFileNameList() {
+    if (m_database->isOpen() == false)
+        m_database->open();
+    QStringList fileNameList = m_database->getFileNameList();
+    m_database->close();
+    return fileNameList;
 }
 
 
@@ -204,6 +210,22 @@ bool Library::insertOrUpdateFile(QString absoluteFileName, RecipeData& recipeDat
     emit updated();
     m_database->close();
     return true;
+}
+
+
+QByteArray Library::prepareFileList() {
+    QByteArray data;
+    foreach (const QFileInfo& fileInfo, getFileInfoList()) {
+        QFile file(fileInfo.absoluteFilePath());
+        if (file.open(QIODevice::ReadOnly)) {
+            data.append(fileInfo.fileName());
+            data.append('/');
+            data.append(QCryptographicHash::hash(file.readAll(), QCryptographicHash::Md5).toHex());
+            data.append('\n');
+        }
+    }
+
+    return data;
 }
 
 

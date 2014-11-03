@@ -11,7 +11,6 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 #include <QWidget>
-#include "ftpmanager.hh"
 
 
 class SettingsTabLibrary : public QWidget {
@@ -55,7 +54,6 @@ private:
     void setupGroupBoxRemote();
 
 
-    FtpManager* m_ftpManager;
     QCheckBox* m_checkBoxSyncOnQuit;
     QCheckBox* m_checkBoxSyncOnStart;
     QFormLayout* m_layout;

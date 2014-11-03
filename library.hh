@@ -5,7 +5,6 @@
 #include <QNetworkReply>
 #include <QObject>
 #include "database.hh"
-#include "ftpmanager.hh"
 
 
 class Library : public QObject {
@@ -34,9 +33,11 @@ public:
     void exportAsPdf(QString pathName);
     bool getFile(int fileId, Database::File& file);
     QList<QFileInfo> getFileInfoList();
+    QStringList getFileNameList();
     QList<int> getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity);
     QList<Database::Recipe> getRecipeList();
     bool insertOrUpdateFile(QString absoluteFileName, RecipeData& recipeData);
+    QByteArray prepareFileList();
     bool rebuild();
     void synchronizeFiles(SyncState state = Library::Connect);
 
@@ -89,8 +90,7 @@ private:
     bool updateFiles(QDir& dir, int* nAdded = 0, int* nRemoved = 0);
 
 
-    Database* m_database;
-    FtpManager* m_ftpManager;
+    Database* m_database;    
 
 };
 

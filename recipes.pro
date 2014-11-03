@@ -36,7 +36,6 @@ SOURCES += main.cc \
     searchfilterwidget.cc \
     settingsdialog.cc \
     settingstablibrary.cc \
-    ftpmanager.cc \
     settingstabformat.cc \
     synchronizationdialog.cc \
     synchronizer.cc
@@ -63,7 +62,6 @@ HEADERS  += mainwindow.hh \
     searchfilterwidget.hh \
     settingsdialog.hh \
     settingstablibrary.hh \
-    ftpmanager.hh \
     settingstabformat.hh \
     synchronizationdialog.hh \
     synchronizer.hh
@@ -71,16 +69,3 @@ HEADERS  += mainwindow.hh \
 RESOURCES += recipes.qrc
 
 TRANSLATIONS += ts/recipes_de.ts
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../local/build/qtftp-Desktop-Debug/lib/release/ -lQt5Ftp
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../local/build/qtftp-Desktop-Debug/lib/debug/ -lQt5Ftp
-else:unix: LIBS += -L$$PWD/../../local/build/qtftp-Desktop-Debug/lib/ -lQt5Ftp
-
-INCLUDEPATH += $$PWD/../../local/build/qtftp-Desktop-Debug/include
-DEPENDPATH += $$PWD/../../local/build/qtftp-Desktop-Debug/include
-
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../local/build/qtftp-Desktop-Debug/lib/release/libQt5Ftp.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../local/build/qtftp-Desktop-Debug/lib/debug/libQt5Ftp.a
-else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../local/build/qtftp-Desktop-Debug/lib/release/Qt5Ftp.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../local/build/qtftp-Desktop-Debug/lib/debug/Qt5Ftp.lib
-else:unix: PRE_TARGETDEPS += $$PWD/../../local/build/qtftp-Desktop-Debug/lib/libQt5Ftp.a
