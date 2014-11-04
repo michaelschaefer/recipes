@@ -12,11 +12,14 @@
 
 Library::Library() {
     m_database = new Database();
-    m_ftpManager = FtpManager::instance();
-    connect(m_ftpManager, SIGNAL(entireDownloadFinished()), this, SLOT(downloadFinished()));
-    connect(m_ftpManager, SIGNAL(entireUploadFinished()), this, SLOT(uploadFinished()));
-    connect(m_ftpManager, SIGNAL(downloadFinished(QString)), this, SLOT(fileDownloaded(QString)));
-    connect(m_ftpManager, SIGNAL(uploadFinished(QString)), this, SLOT(fileUploaded(QString)));
+
+    m_synchronizer = new Synchronizer(this);
+    connect(m_synchronizer, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
+    connect(m_synchronizer, SIGNAL(entireDownloadFinished()), this, SLOT(downloadFinished()));
+    connect(m_synchronizer, SIGNAL(entireUploadFinished()), this, SLOT(uploadFinished()));
+    connect(m_synchronizer, SIGNAL(downloadFinished(QString)), this, SLOT(fileDownloaded(QString)));
+    connect(m_synchronizer, SIGNAL(uploadFinished(QString)), this, SLOT(fileUploaded(QString)));
+    connect(m_synchronizer, SIGNAL(synchronizationFinished()), this, SLOT(synchronizationFinished()));
 
     msgDownloadFinished = trUtf8("(Download finished)");
     msgExportComplete = trUtf8("Export complete");
@@ -32,6 +35,7 @@ Library::Library() {
     msgLibraryUpdated = trUtf8("Library updated");
     msgRebuildComplete = trUtf8("Rebuild complete");
     msgRebuildingLibrary = trUtf8("Rebuilding library");
+    msgSynchronizationFinished = trUtf8("Synchronization finished");
     msgSynchronizing = trUtf8("Synchronizing files");
     msgUpdateComplete = trUtf8("Update complete (%1 new, %2 removed)");
     msgUpdateFailed = trUtf8("Update failed (you may consider rebuilding the entire library)");
@@ -57,8 +61,7 @@ void Library::clear() {
 
 
 void Library::connectionFailed() {
-    disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
-    emit errorMessage(trUtf8("Connection to FTP server failed. Synchronization cannot be executed."));
+    emit errorMessage(trUtf8("Connection to server failed. Synchronization cannot be executed."));
 }
 
 
@@ -213,22 +216,6 @@ bool Library::insertOrUpdateFile(QString absoluteFileName, RecipeData& recipeDat
 }
 
 
-QByteArray Library::prepareFileList() {
-    QByteArray data;
-    foreach (const QFileInfo& fileInfo, getFileInfoList()) {
-        QFile file(fileInfo.absoluteFilePath());
-        if (file.open(QIODevice::ReadOnly)) {
-            data.append(fileInfo.fileName());
-            data.append('/');
-            data.append(QCryptographicHash::hash(file.readAll(), QCryptographicHash::Md5).toHex());
-            data.append('\n');
-        }
-    }
-
-    return data;
-}
-
-
 bool Library::rebuild() {
     emit statusBarMessage(msgRebuildingLibrary);
 
@@ -252,133 +239,14 @@ bool Library::rebuild() {
 }
 
 
-void Library::finished(QNetworkReply* reply) {
-    if (reply == 0)
-        return;
-
-    if (reply->operation() == QNetworkAccessManager::GetOperation) {
-        if (reply->error() == QNetworkReply::NoError) {
-            qDebug() << "Get operation successfully finished. Data:";
-            qDebug() << QString(reply->readAll());
-        } else
-            qDebug() << "Get operation failed: " << reply->errorString();
-    } else if (reply->operation() == QNetworkAccessManager::PutOperation) {
-        if (reply->error() == QNetworkReply::NoError)
-            qDebug() << "Put operation successfully finished";
-        else
-            qDebug() << "Put operation failed: " << reply->errorString();
-    }
-
-    reply->deleteLater();
+void Library::synchronizationFinished() {
+    emit statusBarMessage(msgSynchronizationFinished);
 }
 
 
-void Library::synchronizeFiles(SyncState state) {
-
-    QUrl url("ftp://ftp.michael-schaefer.org/test.ftp");
-    url.setUserName("w005d352");
-    url.setPassword("eV89j5KvEQ");
-    url.setPort(21);
-
-    QNetworkAccessManager* manager = new QNetworkAccessManager();
-    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
-
-    QFile file(QString("%1%2test.ftp").arg(QDir::homePath(), QDir::separator()));
-    if (file.open(QIODevice::ReadWrite)) {
-        QByteArray data = file.readAll();
-        manager->put(QNetworkRequest(url), data);
-    }
-
-    //manager->get(QNetworkRequest(url));
-
-    return;
-
-
-
-    static QMetaObject::Connection conn;
-
-    if (state == Library::Connect) {
-        connect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
-        conn = connect(m_ftpManager, &FtpManager::connectionReady, [this] () { synchronizeFiles(Library::FetchRemote); });
-        m_ftpManager->updateConnectionSettings();
-        m_ftpManager->login();
-    } else if (state == Library::FetchRemote) {
-        disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
-        disconnect(conn);
-        conn = connect(m_ftpManager, &FtpManager::fileListReady, [this] () { synchronizeFiles(Library::ExchangeData); });
-        m_ftpManager->fetchFileList();
-    } else if (state == Library::ExchangeData) {
-        disconnect(conn);
-        QList<QUrlInfo> remoteInfoList = m_ftpManager->fileList();
-        QList<QFileInfo> localInfoList = getFileInfoList();
-
-        QList<QString> remoteNames;
-        QList<qint64> remoteSizes;
-        QList<QDateTime> remoteModified;
-        QTime time;
-        QDateTime dateTime;
-        foreach (const QUrlInfo& urlInfo, remoteInfoList) {
-            remoteNames.append(urlInfo.name());
-            remoteSizes.append(urlInfo.size());
-
-            dateTime = urlInfo.lastModified();
-            time = dateTime.time();
-            time.setHMS(time.hour(), time.minute(), 0);
-            dateTime.setTime(time);
-            remoteModified.append(dateTime);
-        }
-
-        QList<QString> localNames;
-        QList<qint64> localSizes;
-        QList<QDateTime> localModified;
-        foreach (QFileInfo fileInfo, localInfoList) {
-            localNames.append(fileInfo.fileName());
-            localSizes.append(fileInfo.size());
-
-            dateTime = fileInfo.lastModified();
-            time = dateTime.time();
-            time.setHMS(time.hour(), time.minute(), 0);
-            dateTime.setTime(time);
-            localModified.append(dateTime);
-        }
-
-        QStringList downloadList;
-        QStringList uploadList;
-        QList<QStringList> unknownList;
-        QString dateFormat = trUtf8("yyyy-MM-dd hh:mm");
-
-        for (int i = 0; i < remoteNames.size(); ++i) {
-            int index = localNames.indexOf(remoteNames[i]);
-            if (index == -1)
-                downloadList.append(remoteNames[i]);
-            else {
-                QStringList syncData;
-                syncData << remoteNames[i];
-                syncData << localModified[index].toLocalTime().toString(dateFormat);
-                syncData << QString::number(localSizes[index]);
-                syncData << remoteModified[i].toLocalTime().toString(dateFormat);
-                syncData << QString::number(remoteSizes[i]);
-                unknownList.append(syncData);
-            }
-        }
-
-        for (int i = 0; i < localNames.size(); ++i) {
-            int index = remoteNames.indexOf(localNames[i]);
-            if (index == -1)
-                uploadList.append(localNames[i]);
-        }
-
-        SynchronizationDialog dialog;
-        dialog.setData(unknownList);
-        dialog.show();
-        if (dialog.exec() == QDialog::Accepted) {
-            downloadList.append(dialog.downloadFileList());
-            uploadList.append(dialog.uploadFileList());
-        }
-
-        m_ftpManager->upload(uploadList);
-        m_ftpManager->download(downloadList);
-    }
+void Library::synchronize() {
+    emit(statusBarMessage(msgSynchronizing));
+    m_synchronizer->synchronize();
 }
 
 

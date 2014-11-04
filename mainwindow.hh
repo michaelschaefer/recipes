@@ -15,7 +15,6 @@
 #include "recipetabwidget.hh"
 #include "searchwidget.hh"
 #include "settingsdialog.hh"
-#include "synchronizer.hh"
 
 
 class MainWindow : public QMainWindow {
@@ -113,7 +112,6 @@ private:
     RecipeTabWidget* m_tabWidget;
     SearchWidget* m_searchWidget;
     SettingsDialog* m_settingsDialog;
-    Synchronizer* m_synchronizer;
 
 };
 

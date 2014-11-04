@@ -16,9 +16,7 @@ QString MainWindow::ApplicationOrganization = "www.michael-schaefer.org";
 QString MainWindow::ApplicationVersion = "0.3";
 
 
-MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    m_synchronizer = new Synchronizer();
-
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {    
     m_splitter = new QSplitter(this);
     m_searchWidget = new SearchWidget(m_splitter);
     m_settingsDialog = new SettingsDialog(this);
@@ -65,7 +63,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(m_library, SIGNAL(updated()), m_searchWidget, SLOT(update()));
 
     if (m_settings.value("library/local/syncOnStart").toBool() == true)
-        m_library->synchronizeFiles();
+        m_library->synchronize();
     if (m_settings.value("library/local/path").toString().isEmpty() == true)
         setMenuLibraryEnabled(false);
 }
@@ -96,7 +94,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
     }
 
     if (m_settings.value("library/local/syncOnQuit").toBool() == true)
-        m_library->synchronizeFiles();
+        m_library->synchronize();
 }
 
 
@@ -353,7 +351,7 @@ void MainWindow::setupMenuLibrary() {
     connect(m_actionBrowse, SIGNAL(triggered()), m_searchWidget, SLOT(toggleVisibility()));
     connect(m_actionRebuild, SIGNAL(triggered()), this, SLOT(libraryRebuild()));
     //connect(m_actionSynchronize, &QAction::triggered, [this] () { m_library->synchronizeFiles(); });
-    connect(m_actionSynchronize, &QAction::triggered, [this] () { m_synchronizer->synchronize(); });
+    connect(m_actionSynchronize, &QAction::triggered, [this] () { m_library->synchronize(); });
 
     connect(m_actionUpdate, SIGNAL(triggered()), this, SLOT(libraryUpdate()));
 

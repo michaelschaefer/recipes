@@ -5,6 +5,7 @@
 #include <QNetworkReply>
 #include <QObject>
 #include "database.hh"
+#include "synchronizer.hh"
 
 
 class Library : public QObject {
@@ -21,13 +22,6 @@ signals:
 
 public:
 
-    enum SyncState {
-        Connect,
-        ExchangeData,
-        FetchRemote
-    };
-
-
     static Library* instance();
 
     void exportAsPdf(QString pathName);
@@ -36,10 +30,9 @@ public:
     QStringList getFileNameList();
     QList<int> getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity);
     QList<Database::Recipe> getRecipeList();
-    bool insertOrUpdateFile(QString absoluteFileName, RecipeData& recipeData);
-    QByteArray prepareFileList();
+    bool insertOrUpdateFile(QString absoluteFileName, RecipeData& recipeData);    
     bool rebuild();
-    void synchronizeFiles(SyncState state = Library::Connect);
+    void synchronize();
 
 
 public slots:
@@ -53,7 +46,7 @@ private slots:
     void downloadFinished();
     void fileDownloaded(QString fileName);
     void fileUploaded(QString fileName);
-    void finished(QNetworkReply* reply);
+    void synchronizationFinished();
     void uploadFinished();
 
 
@@ -78,6 +71,7 @@ private:
     QString msgLibraryUpdated;
     QString msgRebuildComplete;
     QString msgRebuildingLibrary;
+    QString msgSynchronizationFinished;
     QString msgSynchronizing;
     QString msgUpdatingLibrary;
     QString msgUpdateFailed;
@@ -91,6 +85,7 @@ private:
 
 
     Database* m_database;    
+    Synchronizer* m_synchronizer;
 
 };
 

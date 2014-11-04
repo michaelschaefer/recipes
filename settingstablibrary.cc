@@ -5,7 +5,9 @@
 
 
 SettingsTabLibrary::SettingsTabLibrary(QWidget *parent) : QWidget(parent) {
-    m_ftpManager = FtpManager::instance();    
+    m_synchronizer = new Synchronizer(this);
+    connect(m_synchronizer, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
+    connect(m_synchronizer, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
 
     setupGroupBoxLocal();
     setupGroupBoxRemote();
@@ -21,19 +23,16 @@ SettingsTabLibrary::SettingsTabLibrary(QWidget *parent) : QWidget(parent) {
 }
 
 
-void SettingsTabLibrary::checkConnection() {
+void SettingsTabLibrary::checkConnection() {        
     QUrl url;
     url.setHost(m_editRemoteAddress->text());
     url.setPort(m_spinRemotePort->value());
     url.setUserName(m_editRemoteUserName->text());
     url.setPassword(m_editRemotePassword->text());
-    url.setPath(m_editRemotePath->text());
+    url.setPath(m_editRemotePath->text() + "/files.txt");
+    url.setScheme(m_comboBoxProtocol->currentText());
 
-    connect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
-    connect(m_ftpManager, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
-
-    m_ftpManager->updateConnectionSettings(url);
-    m_ftpManager->login();
+    m_synchronizer->checkConnection(url);
 }
 
 
@@ -48,10 +47,7 @@ void SettingsTabLibrary::choosePath() {
 }
 
 
-void SettingsTabLibrary::connectionFailed() {
-    disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
-    disconnect(m_ftpManager, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
-
+void SettingsTabLibrary::connectionFailed() {   
     QString title = trUtf8("Check connection");
     QString text = trUtf8("Connection failed.");
     QMessageBox::critical(this, title, text);
@@ -59,9 +55,6 @@ void SettingsTabLibrary::connectionFailed() {
 
 
 void SettingsTabLibrary::connectionReady() {
-    disconnect(m_ftpManager, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
-    disconnect(m_ftpManager, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
-
     QString title = trUtf8("Check connection");
     QString text = trUtf8("Connection successfully established.");
     QMessageBox::information(this, title, text);    
@@ -70,6 +63,7 @@ void SettingsTabLibrary::connectionReady() {
 
 void SettingsTabLibrary::setSettings(LibrarySettings settings) {
     m_editLocalPath->setText(settings.localPath);
+    m_comboBoxProtocol->setEditText(settings.remoteProtocol);
     m_editRemoteAddress->setText(settings.remoteAddress);
     m_editRemotePassword->setText(settings.remotePassword);
     m_editRemotePath->setText(settings.remotePath);
@@ -89,6 +83,7 @@ void SettingsTabLibrary::setSettings(LibrarySettings settings) {
 SettingsTabLibrary::LibrarySettings SettingsTabLibrary::settings() {
     SettingsTabLibrary::LibrarySettings librarySettings;
     librarySettings.localPath = m_editLocalPath->text();
+    librarySettings.remoteProtocol = m_comboBoxProtocol->currentText();
     librarySettings.remoteAddress = m_editRemoteAddress->text();
     librarySettings.remotePassword = m_editRemotePassword->text();
     librarySettings.remotePath = m_editRemotePath->text();
@@ -127,6 +122,12 @@ void SettingsTabLibrary::setupGroupBoxRemote() {
     m_groupBoxRemote->setCheckable(true);
     m_groupBoxRemote->setChecked(false);
 
+    m_comboBoxProtocol = new QComboBox(m_groupBoxRemote);
+    m_comboBoxProtocol->setEditable(true);
+    QStringList protocols;
+    protocols << "ftp" << "http" << "https";
+    m_comboBoxProtocol->addItems(protocols);
+
     m_editRemoteAddress = new QLineEdit(m_groupBoxRemote);
     m_editRemotePath = new QLineEdit(m_groupBoxRemote);
 
@@ -142,6 +143,7 @@ void SettingsTabLibrary::setupGroupBoxRemote() {
     m_buttonRemoteCheckConnection = new QPushButton(trUtf8("Check connection"), m_groupBoxRemote);
 
     m_layoutRemoteConnection = new QFormLayout();
+    m_layoutRemoteConnection->addRow(trUtf8("Protocol:"), m_comboBoxProtocol);
     m_layoutRemoteConnection->addRow(trUtf8("Address:"), m_editRemoteAddress);
     m_layoutRemoteConnection->addRow(trUtf8("Path:"), m_editRemotePath);
     m_layoutRemoteConnection->addRow(trUtf8("Port:"), m_spinRemotePort);

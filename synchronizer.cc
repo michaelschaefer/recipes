@@ -8,9 +8,41 @@
 
 Synchronizer::Synchronizer(QObject* parent)
     : QObject(parent)
-{
+{    
     m_localLibraryPath = QSettings().value("library/local/path").toString();
     m_networkManager = new QNetworkAccessManager(this);
+}
+
+
+void Synchronizer::checkConnection(QUrl url) {
+    m_networkManager->clearAccessCache();
+    connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(connectionCheckFinished(QNetworkReply*)));
+    m_networkManager->get(QNetworkRequest(url));
+}
+
+
+void Synchronizer::connectionCheckFinished(QNetworkReply* reply) {
+    disconnect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(connectionCheckFinished(QNetworkReply*)));
+
+    if (reply == 0) {
+        emit connectionFailed();
+        synchronizationError(QNetworkReply::UnknownNetworkError, ConnectionCheck);
+        return;
+    }
+
+    QNetworkReply::NetworkError error = reply->error();
+
+    switch (error) {
+    case QNetworkReply::NoError:
+    case QNetworkReply::ContentNotFoundError:
+        emit connectionReady();
+        break;
+    default:
+        synchronizationError(error, ConnectionCheck);
+        emit connectionFailed();
+    }
+
+    reply->deleteLater();
 }
 
 
@@ -45,28 +77,24 @@ void Synchronizer::downloadDuplicates() {
 }
 
 
-void Synchronizer::exchange() {
-    static bool uploading = true;
-
-    if (uploading) {
+void Synchronizer::exchange(ExchangeDirection direction) {
+    if (direction == Upload) {
         if (m_uploadFileList.isEmpty()) {
-            emit(entireUploadFinished());
-            uploading = false;
+            emit entireUploadFinished();
+            exchange(Download);
         } else {
             QFile localFile(m_uploadFileList.first());
             if (localFile.open(QIODevice::ReadOnly)) {
-                QByteArray data = localFile.readAll();
+                QByteArray uploadData = localFile.readAll();
                 QString fileName = QFileInfo(localFile).fileName();
-                m_networkManager->put(QNetworkRequest(prepareUrl(fileName)), data);
+                m_networkManager->put(QNetworkRequest(prepareUrl(fileName)), uploadData);
                 localFile.close();
             }
         }
-    }
-
-    if (!uploading) {
+    } else {
         if (m_downloadFileList.isEmpty()) {
             disconnect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(exchangeFinished(QNetworkReply*)));
-            emit(entireDownloadFinished());
+            emit entireDownloadFinished();
             synchronize(SendFileList);
         } else {
             m_networkManager->get(QNetworkRequest(prepareUrl(m_downloadFileList.first())));
@@ -90,12 +118,14 @@ void Synchronizer::exchangeFinished(QNetworkReply* reply) {
             if (file.open(QIODevice::WriteOnly)) {
                 file.write(reply->readAll());
                 file.close();
-            }
-            qDebug() << currentFileName << "successfully downloaded";
+            }            
+            emit downloadFinished(currentFileName);
+            exchange(Download);
         } else {
-            qDebug() << m_uploadFileList.takeFirst() << "successfully uploaded";
-        }
-        exchange();
+            QString currentFileName = m_uploadFileList.takeFirst();
+            emit(uploadFinished(currentFileName));
+            exchange(Upload);
+        }        
     } else {
         synchronizationError(error, ExchangeFiles);
         return;
@@ -135,6 +165,7 @@ void Synchronizer::getRemoteFileList(QNetworkReply *reply) {
     }
 
     m_remoteFileList.clear();
+    m_remoteHashList.clear();
     QNetworkReply::NetworkError error = reply->error();
 
     if (error == QNetworkReply::NoError) {
@@ -150,6 +181,7 @@ void Synchronizer::getRemoteFileList(QNetworkReply *reply) {
         }
     } else if (error != QNetworkReply::ContentNotFoundError) {
         synchronizationError(error, GetRemoteFileList);
+        reply->deleteLater();
         return;
     }
 
@@ -184,6 +216,22 @@ void Synchronizer::inspectDuplicate(QNetworkReply* reply) {
 }
 
 
+QByteArray Synchronizer::prepareFileList(QList<QFileInfo> fileInfoList) {
+    QByteArray data;
+    foreach (const QFileInfo& fileInfo, fileInfoList) {
+        QFile file(fileInfo.absoluteFilePath());
+        if (file.open(QIODevice::ReadOnly)) {
+            data.append(fileInfo.fileName());
+            data.append('/');
+            data.append(QCryptographicHash::hash(file.readAll(), QCryptographicHash::Md5).toHex());
+            data.append('\n');
+        }
+    }
+
+    return data;
+}
+
+
 QUrl Synchronizer::prepareUrl(QString fileName) {
     QSettings settings;
     QUrl url;
@@ -192,7 +240,7 @@ QUrl Synchronizer::prepareUrl(QString fileName) {
     url.setPassword(settings.value("library/remote/password").toString());
     url.setPath(settings.value("library/remote/path").toString() + "/" + fileName);
     url.setPort(settings.value("library/remote/port").toInt());
-    url.setScheme("ftp");
+    url.setScheme(settings.value("library/remote/protocol").toString());
     url.setUserName(settings.value("library/remote/userName").toString());
 
     return url;
@@ -221,16 +269,23 @@ void Synchronizer::synchronize() {
 }
 
 
-void Synchronizer::synchronize(SynchronizationStage stage) {
+void Synchronizer::synchronize(SynchronizationStage stage) {    
+    static Library* library = Library::instance();
+    static QMetaObject::Connection conn;
+
     m_networkManager->clearAccessCache();
 
     if (stage == ConnectionCheck) {
-        synchronize(GetRemoteFileList);
+        conn = connect(this, &Synchronizer::connectionReady, [this] () { synchronize(GetRemoteFileList); });
+        checkConnection(prepareUrl("files.txt"));
     } else if (stage == GetRemoteFileList) {
-        connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(getRemoteFileList(QNetworkReply*)));
+        m_remoteFileList.clear();
+        m_remoteHashList.clear();
+        disconnect(conn);
+        connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(getRemoteFileList(QNetworkReply*)));        
         m_networkManager->get(QNetworkRequest(prepareUrl("files.txt")));
     } else if (stage == InspectRemoteFiles) {
-        QStringList localFileList = Library::instance()->getFileNameList();
+        QStringList localFileList = library->getFileNameList();
         m_downloadFileList.clear();
         m_duplicatesFileList.clear();
         m_uploadFileList.clear();
@@ -256,9 +311,10 @@ void Synchronizer::synchronize(SynchronizationStage stage) {
         connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(exchangeFinished(QNetworkReply*)));
         exchange();
     } else if (stage == SendFileList) {
-        Library::instance()->update();
+        library->update();
+        QByteArray fileListData = prepareFileList(library->getFileInfoList());
         connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(fileListSent(QNetworkReply*)));
-        m_networkManager->put(QNetworkRequest(prepareUrl("files.txt")), Library::instance()->prepareFileList());
+        m_networkManager->put(QNetworkRequest(prepareUrl("files.txt")), fileListData);
     } else if (stage == Finish) {
         emit(synchronizationFinished());
     }

@@ -36,25 +36,22 @@
 <context>
     <name>FtpManager</name>
     <message>
-        <location filename="../ftpmanager.cc" line="118"/>
         <source>FTP error</source>
-        <translation>FTP-Fehler</translation>
+        <translation type="vanished">FTP-Fehler</translation>
     </message>
     <message>
-        <location filename="../ftpmanager.cc" line="124"/>
         <source>Connection refused!
 
 Error: %1</source>
-        <translation>Verbindung verweigert!
+        <translation type="vanished">Verbindung verweigert!
 
 Fehler: %1</translation>
     </message>
     <message>
-        <location filename="../ftpmanager.cc" line="126"/>
         <source>Login failed!
 
 Error: %1</source>
-        <translation>Einloggen fehlgeschlagen!
+        <translation type="vanished">Einloggen fehlgeschlagen!
 
 Fehler: %1</translation>
     </message>
@@ -159,109 +156,117 @@ Fehler: %1</translation>
         <translation type="vanished">Aktualisierung vollständig (%1 neu, %2 entfernt)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="18"/>
+        <location filename="../library.cc" line="24"/>
         <source>(Download finished)</source>
         <translation>(Herunterladen beendet)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="19"/>
+        <location filename="../library.cc" line="25"/>
         <source>Export complete</source>
         <translation>Export vollständig</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="20"/>
+        <location filename="../library.cc" line="26"/>
         <source>Exporting library</source>
         <translation>Bibliothek wird exportiert</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="21"/>
+        <location filename="../library.cc" line="27"/>
         <source>(%1 of %2 finished)</source>
         <translation>(%1 von %2 beendet)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="22"/>
+        <location filename="../library.cc" line="28"/>
         <source>(File %1 downloaded)</source>
         <translation>(Datei %1 heruntergeladen)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="23"/>
+        <location filename="../library.cc" line="29"/>
         <source>(File %1 inserted)</source>
         <translation>(Datei %1 eingefügt)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="24"/>
+        <location filename="../library.cc" line="30"/>
         <source>(File %1 inserted or updated)</source>
         <translation>(Datei %1 eingefügt oder aktualisiert)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="25"/>
+        <location filename="../library.cc" line="31"/>
         <source>(File %1 updated)</source>
         <translation>(Datei %1 aktualisiert)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="26"/>
+        <location filename="../library.cc" line="32"/>
         <source>(File %1 uploaded)</source>
         <translation>(Datei %1 hochgeladen)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="27"/>
+        <location filename="../library.cc" line="33"/>
         <source>(File %1 removed)</source>
         <translation>(Datei %1 entfernt)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="28"/>
+        <location filename="../library.cc" line="34"/>
         <source>Library is empty</source>
         <translation>Bibliothek ist leer</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="29"/>
+        <location filename="../library.cc" line="35"/>
         <source>Library updated</source>
         <translation>Bibliothek aktualisiert</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="30"/>
+        <location filename="../library.cc" line="36"/>
         <source>Rebuild complete</source>
         <translation>Neuerzeugung vollständig</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="31"/>
+        <location filename="../library.cc" line="37"/>
         <source>Rebuilding library</source>
         <translation>Bibliothek wird neu erzeugt</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="32"/>
+        <location filename="../library.cc" line="38"/>
+        <source>Synchronization finished</source>
+        <translation>Synchronisation beendet</translation>
+    </message>
+    <message>
+        <location filename="../library.cc" line="39"/>
         <source>Synchronizing files</source>
         <translation>Dateien werden synchronisiert</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="33"/>
+        <location filename="../library.cc" line="40"/>
         <source>Update complete (%1 new, %2 removed)</source>
         <translation>Aktualisierung vollständig (%1 neu, %2 entfernt)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="34"/>
+        <location filename="../library.cc" line="41"/>
         <source>Update failed (you may consider rebuilding the entire library)</source>
         <translation>Aktualisierung fehlgeschlagen (erwägen Sie, die Bibliothek neu zu erzeugen)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="35"/>
+        <location filename="../library.cc" line="42"/>
         <source>Updating library</source>
         <translation>Bibliothek wird aktualisiert</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="36"/>
+        <location filename="../library.cc" line="43"/>
         <source>(Upload finished)</source>
         <translation>(Hochladen beendet)</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="58"/>
-        <source>Connection to FTP server failed. Synchronization cannot be executed.</source>
-        <translation>Verbindung zum FTP-Server fehlgeschlagen. Synchronisation kann nicht ausgeführt werden.</translation>
+        <location filename="../library.cc" line="64"/>
+        <source>Connection to server failed. Synchronization cannot be executed.</source>
+        <translation>Verbindung zum Server fehlgeschlagen. Synchronisation kann nicht ausgeführt werden.</translation>
     </message>
     <message>
-        <location filename="../library.cc" line="282"/>
+        <source>Connection to FTP server failed. Synchronization cannot be executed.</source>
+        <translation type="vanished">Verbindung zum FTP-Server fehlgeschlagen. Synchronisation kann nicht ausgeführt werden.</translation>
+    </message>
+    <message>
         <source>yyyy-MM-dd hh:mm</source>
-        <translation>dd.MM.yyyy hh:mm</translation>
+        <translation type="vanished">dd.MM.yyyy hh:mm</translation>
     </message>
 </context>
 <context>
@@ -407,7 +412,7 @@ Fehler: %1</translation>
         <translation>&amp;Exportieren als PDFs</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="413"/>
+        <location filename="../mainwindow.cc" line="415"/>
         <source>Browse library</source>
         <translation>Bibliothek durchsuchen</translation>
     </message>
@@ -430,42 +435,42 @@ Fehler: %1</translation>
         <translation>&amp;Aktualisieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="405"/>
+        <location filename="../mainwindow.cc" line="407"/>
         <source>Export as PDF</source>
         <translation>Exportieren als PDF</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="406"/>
+        <location filename="../mainwindow.cc" line="408"/>
         <source>Edit headline</source>
         <translation>Überschrift bearbeiten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="407"/>
+        <location filename="../mainwindow.cc" line="409"/>
         <source>New</source>
         <translation>Neu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="408"/>
+        <location filename="../mainwindow.cc" line="410"/>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="409"/>
+        <location filename="../mainwindow.cc" line="411"/>
         <source>Print</source>
         <translation>Drucken</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="410"/>
+        <location filename="../mainwindow.cc" line="412"/>
         <source>Add preparation step</source>
         <translation>Zubereitungsschritt hinzufügen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="411"/>
+        <location filename="../mainwindow.cc" line="413"/>
         <source>Toggle preview</source>
         <translation>Vorschau umschalten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="412"/>
+        <location filename="../mainwindow.cc" line="414"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
@@ -478,7 +483,7 @@ Fehler: %1</translation>
         <translation type="vanished">Bibliothek durchsuchen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="418"/>
+        <location filename="../mainwindow.cc" line="420"/>
         <source>Ingredients</source>
         <translation>Zutaten</translation>
     </message>
@@ -515,7 +520,7 @@ Fehler: %1</translation>
         <translation>&amp;Synchronisieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="404"/>
+        <location filename="../mainwindow.cc" line="406"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
@@ -812,12 +817,12 @@ Fehler: %1</translation>
         <translation>Bibliothek</translation>
     </message>
     <message>
-        <location filename="../settingsdialog.cc" line="137"/>
+        <location filename="../settingsdialog.cc" line="139"/>
         <source>Apply</source>
         <translation>Anwenden</translation>
     </message>
     <message>
-        <location filename="../settingsdialog.cc" line="138"/>
+        <location filename="../settingsdialog.cc" line="140"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
@@ -877,8 +882,8 @@ Fehler: %1</translation>
 <context>
     <name>SettingsTabLibrary</name>
     <message>
-        <location filename="../settingstablibrary.cc" line="41"/>
-        <location filename="../settingstablibrary.cc" line="111"/>
+        <location filename="../settingstablibrary.cc" line="40"/>
+        <location filename="../settingstablibrary.cc" line="106"/>
         <source>Choose path</source>
         <translation>Pfad auswählen</translation>
     </message>
@@ -887,69 +892,74 @@ Fehler: %1</translation>
         <translation type="vanished">Verbindungsüberprüfung</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="56"/>
+        <location filename="../settingstablibrary.cc" line="52"/>
         <source>Connection failed.</source>
         <translation>Verbindung fehlgeschlagen.</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="66"/>
+        <location filename="../settingstablibrary.cc" line="59"/>
         <source>Connection successfully established.</source>
         <translation>Verbindung erfolgreich hergestellt.</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="105"/>
+        <location filename="../settingstablibrary.cc" line="100"/>
         <source>Local</source>
         <translation>Lokal</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="109"/>
+        <location filename="../settingstablibrary.cc" line="104"/>
         <source>No path selected</source>
         <translation>Kein Pfad ausgewählt</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="113"/>
+        <location filename="../settingstablibrary.cc" line="108"/>
         <source>Synchronize on start</source>
         <translation>Synchronisation beim Start</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="114"/>
+        <location filename="../settingstablibrary.cc" line="109"/>
         <source>Synchronize on quit</source>
         <translation>Synchronisation beim Beenden</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="126"/>
+        <location filename="../settingstablibrary.cc" line="121"/>
         <source>Remote</source>
         <translation>Remote</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="55"/>
-        <location filename="../settingstablibrary.cc" line="65"/>
-        <location filename="../settingstablibrary.cc" line="142"/>
+        <location filename="../settingstablibrary.cc" line="51"/>
+        <location filename="../settingstablibrary.cc" line="58"/>
+        <location filename="../settingstablibrary.cc" line="143"/>
         <source>Check connection</source>
         <translation>Verbindung überprüfen</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="145"/>
+        <location filename="../settingstablibrary.cc" line="146"/>
+        <source>Protocol:</source>
+        <translation>Protokoll:</translation>
+    </message>
+    <message>
+        <location filename="../settingstablibrary.cc" line="147"/>
         <source>Address:</source>
         <translation>Adresse:</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="146"/>
+        <location filename="../settingstablibrary.cc" line="148"/>
         <source>Path:</source>
         <translation>Pfad:</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="147"/>
+        <location filename="../settingstablibrary.cc" line="149"/>
         <source>Port:</source>
         <translation>Port:</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="148"/>
+        <location filename="../settingstablibrary.cc" line="150"/>
         <source>Username:</source>
         <translation>Benutzername:</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="149"/>
+        <location filename="../settingstablibrary.cc" line="151"/>
         <source>Password:</source>
         <translation>Passwort:</translation>
     </message>

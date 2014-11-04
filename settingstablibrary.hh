@@ -3,6 +3,7 @@
 
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -11,6 +12,7 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 #include <QWidget>
+#include "synchronizer.hh"
 
 
 class SettingsTabLibrary : public QWidget {
@@ -25,6 +27,7 @@ public:
         bool syncOnStart;
         bool syncOnQuit;
         bool useRemote;
+        QString remoteProtocol;
         QString remoteAddress;
         QString remotePath;
         int remotePort;
@@ -55,6 +58,7 @@ private:
 
 
     QCheckBox* m_checkBoxSyncOnQuit;
+    QComboBox* m_comboBoxProtocol;
     QCheckBox* m_checkBoxSyncOnStart;
     QFormLayout* m_layout;
     QFormLayout* m_layoutRemoteConnection;
@@ -70,6 +74,7 @@ private:
     QPushButton* m_buttonRemoteCheckConnection;
     QSpinBox* m_spinRemotePort;
     QVBoxLayout* m_layoutRemote;
+    Synchronizer* m_synchronizer;
 
 };
 

@@ -2,7 +2,7 @@
 #define SYNCHRONIZER_HH
 
 
-#include <QFile>
+#include <QFileInfo>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QObject>
@@ -15,12 +15,21 @@ class Synchronizer : public QObject {
 
 signals:
 
+    void connectionFailed();
+    void connectionReady();
     void entireDownloadFinished();
     void entireUploadFinished();
+    void downloadFinished(QString);
     void synchronizationFinished();
+    void uploadFinished(QString);
 
 
 public:    
+
+    enum ExchangeDirection {
+        Download,
+        Upload
+    };
 
     enum SynchronizationStage {
         ConnectionCheck,
@@ -34,11 +43,13 @@ public:
 
     Synchronizer(QObject* parent = 0);
 
-    void synchronize();
+    void checkConnection(QUrl url);
+    void synchronize();     
 
 
 private slots:
 
+    void connectionCheckFinished(QNetworkReply* reply);
     void duplicateDownloadFinished(QNetworkReply* reply);
     void exchangeFinished(QNetworkReply* reply);
     void fileListSent(QNetworkReply* reply);
@@ -49,14 +60,14 @@ private slots:
 private:
 
     void downloadDuplicates();
-    void exchange();
+    void exchange(ExchangeDirection direction = Upload);
     void inspectDuplicate(QNetworkReply* reply);
     QString toLocalFileName(QString fileName);
+    QByteArray prepareFileList(QList<QFileInfo> fileInfoList);
     QUrl prepareUrl(QString fileName);
     void synchronizationError(QNetworkReply::NetworkError error, SynchronizationStage stage);
 
 
-    QMetaObject::Connection m_conn;
     QNetworkAccessManager* m_networkManager;
     QString m_localLibraryPath;
     QStringList m_downloadFileList;

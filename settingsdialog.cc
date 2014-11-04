@@ -45,7 +45,8 @@ void SettingsDialog::fill() {
     librarySettings.remotePassword = m_settings.value("password").toString();
     librarySettings.remotePath = m_settings.value("path", QDir::separator()).toString();
     librarySettings.remotePort = m_settings.value("port", 21).toInt();
-    librarySettings.remoteUserName = m_settings.value("userName", "anonymous").toString();
+    librarySettings.remoteProtocol = m_settings.value("protocol", "ftp").toString();
+    librarySettings.remoteUserName = m_settings.value("userName", "anonymous").toString();    
     librarySettings.useRemote = m_settings.value("enabled", false).toBool();
     m_settings.endGroup();
     m_settings.endGroup();
@@ -86,6 +87,7 @@ void SettingsDialog::save() {
     m_settings.setValue("password", librarySettings.remotePassword);
     m_settings.setValue("path", librarySettings.remotePath);
     m_settings.setValue("port", librarySettings.remotePort);
+    m_settings.setValue("protocol", librarySettings.remoteProtocol);
     m_settings.setValue("userName", librarySettings.remoteUserName);
     m_settings.endGroup();
     m_settings.endGroup();
