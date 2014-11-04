@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include "settingsmanager.hh"
 #include "settingstabformat.hh"
 #include "settingstablibrary.hh"
 
@@ -16,13 +17,6 @@
 class SettingsDialog : public QDialog {
 
     Q_OBJECT
-
-
-signals:
-
-    void fontChanged();
-    void libraryPathChanged();
-    void paragraphTitlesChanged();
 
 
 public:
@@ -45,6 +39,7 @@ private:
     QSettings m_settings;
     QTabWidget* m_tabWidget;
     QVBoxLayout* m_layout;
+    SettingsManager* m_settingsManager;
     SettingsTabFormat* m_tabFormat;
     SettingsTabLibrary* m_tabLibrary;
 

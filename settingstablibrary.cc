@@ -61,7 +61,7 @@ void SettingsTabLibrary::connectionReady() {
 }
 
 
-void SettingsTabLibrary::setSettings(LibrarySettings settings) {
+void SettingsTabLibrary::setSettings(SettingsManager::LibrarySettings settings) {
     m_editLocalPath->setText(settings.localPath);
     m_comboBoxProtocol->setEditText(settings.remoteProtocol);
     m_editRemoteAddress->setText(settings.remoteAddress);
@@ -80,8 +80,9 @@ void SettingsTabLibrary::setSettings(LibrarySettings settings) {
 }
 
 
-SettingsTabLibrary::LibrarySettings SettingsTabLibrary::settings() {
-    SettingsTabLibrary::LibrarySettings librarySettings;
+SettingsManager::LibrarySettings SettingsTabLibrary::settings() {
+    SettingsManager::LibrarySettings librarySettings;
+
     librarySettings.localPath = m_editLocalPath->text();
     librarySettings.remoteProtocol = m_comboBoxProtocol->currentText();
     librarySettings.remoteAddress = m_editRemoteAddress->text();
@@ -92,6 +93,7 @@ SettingsTabLibrary::LibrarySettings SettingsTabLibrary::settings() {
     librarySettings.syncOnQuit = m_checkBoxSyncOnQuit->isChecked();
     librarySettings.syncOnStart = m_checkBoxSyncOnStart->isChecked();
     librarySettings.useRemote = m_groupBoxRemote->isChecked();
+
     return librarySettings;
 }
 

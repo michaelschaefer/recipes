@@ -9,6 +9,7 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include <QWidget>
+#include "settingsmanager.hh"
 
 
 class SettingsTabFormat : public QWidget {
@@ -18,21 +19,10 @@ class SettingsTabFormat : public QWidget {
 
 public:
 
-    struct FormatSettings {
-        bool fontDefault;
-        QString fontFamilyName;
-        bool fontUser;
-        bool paragraphDefault;
-        QString paragraphEmptyHeadline;
-        QString paragraphIngredients;
-        QString paragraphPreparation;
-        bool paragraphUser;
-    };
-
     SettingsTabFormat(QWidget* parent = 0);
 
-    void setSettings(FormatSettings formatSettings);
-    FormatSettings settings();
+    void setSettings(SettingsManager::FormatSettings formatSettings);
+    SettingsManager::FormatSettings settings();
 
 
 private:

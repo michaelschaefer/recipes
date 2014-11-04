@@ -38,7 +38,8 @@ SOURCES += main.cc \
     settingstablibrary.cc \
     settingstabformat.cc \
     synchronizationdialog.cc \
-    synchronizer.cc
+    synchronizer.cc \
+    settingsmanager.cc
 
 HEADERS  += mainwindow.hh \
     recipeedit.hh \
@@ -64,7 +65,8 @@ HEADERS  += mainwindow.hh \
     settingstablibrary.hh \
     settingstabformat.hh \
     synchronizationdialog.hh \
-    synchronizer.hh
+    synchronizer.hh \
+    settingsmanager.hh
 
 RESOURCES += recipes.qrc
 

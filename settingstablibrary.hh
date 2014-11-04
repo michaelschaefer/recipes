@@ -12,6 +12,7 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 #include <QWidget>
+#include "settingsmanager.hh"
 #include "synchronizer.hh"
 
 
@@ -22,24 +23,10 @@ class SettingsTabLibrary : public QWidget {
 
 public:
 
-    struct LibrarySettings {
-        QString localPath;
-        bool syncOnStart;
-        bool syncOnQuit;
-        bool useRemote;
-        QString remoteProtocol;
-        QString remoteAddress;
-        QString remotePath;
-        int remotePort;
-        QString remoteUserName;
-        QString remotePassword;
-    };
-
-
     SettingsTabLibrary(QWidget* parent = 0);
 
-    LibrarySettings settings();
-    void setSettings(LibrarySettings settings);
+    SettingsManager::LibrarySettings settings();
+    void setSettings(SettingsManager::LibrarySettings settings);
 
 
 private slots:

@@ -20,14 +20,15 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     m_splitter = new QSplitter(this);
     m_searchWidget = new SearchWidget(m_splitter);
     m_settingsDialog = new SettingsDialog(this);
-    m_tabWidget = new RecipeTabWidget(m_splitter);
+    m_settingsManager = SettingsManager::instance();
+    m_tabWidget = new RecipeTabWidget(m_splitter);    
 
     connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeCurrentRecipe()));
     connect(m_tabWidget, SIGNAL(empty(bool)), this, SLOT(setEditActionInvisibility(bool)));
     connect(m_searchWidget, SIGNAL(recipeSelected(QString)), m_tabWidget, SLOT(openRecipe(QString)));
-    connect(m_settingsDialog, SIGNAL(libraryPathChanged()), this, SLOT(libraryRebuild()));
-    connect(m_settingsDialog, SIGNAL(fontChanged()), m_tabWidget, SLOT(updatePreviews()));
-    connect(m_settingsDialog, SIGNAL(paragraphTitlesChanged()), m_tabWidget, SLOT(updateParagraphTitles()));
+    connect(m_settingsManager, SIGNAL(libraryPathChanged()), this, SLOT(libraryRebuild()));
+    connect(m_settingsManager, SIGNAL(fontChanged()), m_tabWidget, SLOT(updatePreviews()));
+    connect(m_settingsManager, SIGNAL(paragraphTitlesChanged()), m_tabWidget, SLOT(updateParagraphTitles()));
 
     m_splitter->addWidget(m_tabWidget);
     m_splitter->addWidget(m_searchWidget);
@@ -62,9 +63,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(m_library, SIGNAL(statusBarMessage(QString)), this, SLOT(showStatusBarMessage(QString)));
     connect(m_library, SIGNAL(updated()), m_searchWidget, SLOT(update()));
 
-    if (m_settings.value("library/local/syncOnStart").toBool() == true)
+    SettingsManager::LibrarySettings librarySettings = m_settingsManager->librarySettings();
+    if (librarySettings.syncOnStart == true)
         m_library->synchronize();
-    if (m_settings.value("library/local/path").toString().isEmpty() == true)
+    if (librarySettings.localPath.isEmpty() == true)
         setMenuLibraryEnabled(false);
 }
 
@@ -93,7 +95,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
         }
     }
 
-    if (m_settings.value("library/local/syncOnQuit").toBool() == true)
+    if (m_settingsManager->librarySettings().syncOnQuit == true)
         m_library->synchronize();
 }
 

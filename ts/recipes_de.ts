@@ -295,7 +295,7 @@ Fehler: %1</translation>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.cc" line="150"/>
+        <location filename="../mainwindow.cc" line="152"/>
         <source>(c) 2014 Michael Schaefer, &lt;a href=&quot;http://www.michael-schaefer.org/en/&quot;&gt;www.michael-schaefer.org/en/&lt;/a&gt;</source>
         <translation>(c) 2014 Michael Schaefer, &lt;a href=&quot;http://www.michael-schaefer.org&quot;&gt;www.michael-schaefer.org&lt;/a&gt;</translation>
     </message>
@@ -304,7 +304,7 @@ Fehler: %1</translation>
         <translation type="vanished">Ein Programm zum Erstellen, Speichern, Suchen und Drucken von Rezepten.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="156"/>
+        <location filename="../mainwindow.cc" line="158"/>
         <source>A program to create, store, export and print recipes.</source>
         <translation>Ein Programm zum Erstellen, Speichern, Exportieren und Drucken von Rezepten.</translation>
     </message>
@@ -313,17 +313,17 @@ Fehler: %1</translation>
         <translation type="vanished">Über</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="84"/>
+        <location filename="../mainwindow.cc" line="86"/>
         <source>Quit</source>
         <translation>Beenden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="59"/>
+        <location filename="../mainwindow.cc" line="60"/>
         <source>Library</source>
         <translation>Bibliothek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="85"/>
+        <location filename="../mainwindow.cc" line="87"/>
         <source>There are unsaved changes! Are you sure you want to quit?</source>
         <translation>Es gibt ungespeicherte Änderungen. Wollen Sie das Programm wirklich beenden?</translation>
     </message>
@@ -332,87 +332,87 @@ Fehler: %1</translation>
         <translation type="vanished">Pfade verwalten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="143"/>
+        <location filename="../mainwindow.cc" line="145"/>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="181"/>
+        <location filename="../mainwindow.cc" line="183"/>
         <source>Choose export path</source>
         <translation>Pfad zum Exportieren auswählen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="239"/>
+        <location filename="../mainwindow.cc" line="241"/>
         <source>&amp;Edit</source>
         <translation>&amp;Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="240"/>
+        <location filename="../mainwindow.cc" line="242"/>
         <source>&amp;Ingredients</source>
         <translation>&amp;Zutaten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="242"/>
+        <location filename="../mainwindow.cc" line="244"/>
         <source>Edit &amp;headline</source>
         <translation>&amp;Überschrift bearbeiten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="243"/>
+        <location filename="../mainwindow.cc" line="245"/>
         <source>Add &amp;ingredient</source>
         <translation>&amp;Zutat hinzufügen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="244"/>
+        <location filename="../mainwindow.cc" line="246"/>
         <source>Add &amp;preparation step</source>
         <translation>Zubereitungs&amp;schritt hinzufügen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="245"/>
+        <location filename="../mainwindow.cc" line="247"/>
         <source>Show p&amp;review</source>
         <translation>&amp;Vorschau anzeigen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="246"/>
+        <location filename="../mainwindow.cc" line="248"/>
         <source>Add &amp;section</source>
         <translation>&amp;Abschnitt hinzufügen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="247"/>
+        <location filename="../mainwindow.cc" line="249"/>
         <source>Edit serving &amp;count</source>
         <translation>&amp;Portionszahl bearbeiten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="271"/>
+        <location filename="../mainwindow.cc" line="273"/>
         <source>&amp;File</source>
         <translation>&amp;Datei</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="273"/>
+        <location filename="../mainwindow.cc" line="275"/>
         <source>&amp;Close</source>
         <translation>S&amp;chließen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="274"/>
+        <location filename="../mainwindow.cc" line="276"/>
         <source>C&amp;lose all</source>
         <translation>A&amp;lle schließen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="283"/>
+        <location filename="../mainwindow.cc" line="285"/>
         <source>Se&amp;ttings</source>
         <translation>E&amp;instellungen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="336"/>
+        <location filename="../mainwindow.cc" line="338"/>
         <source>&amp;Library</source>
         <translation>&amp;Bibliothek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="338"/>
+        <location filename="../mainwindow.cc" line="340"/>
         <source>&amp;Export as PDFs</source>
         <translation>&amp;Exportieren als PDFs</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="415"/>
+        <location filename="../mainwindow.cc" line="417"/>
         <source>Browse library</source>
         <translation>Bibliothek durchsuchen</translation>
     </message>
@@ -421,7 +421,7 @@ Fehler: %1</translation>
         <translation type="vanished">&amp;Pfade verwalten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="340"/>
+        <location filename="../mainwindow.cc" line="342"/>
         <source>&amp;Rebuild</source>
         <translation>&amp;Neu erzeugen</translation>
     </message>
@@ -430,47 +430,47 @@ Fehler: %1</translation>
         <translation type="vanished">&amp;Durchsuchen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="342"/>
+        <location filename="../mainwindow.cc" line="344"/>
         <source>&amp;Update</source>
         <translation>&amp;Aktualisieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="407"/>
+        <location filename="../mainwindow.cc" line="409"/>
         <source>Export as PDF</source>
         <translation>Exportieren als PDF</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="408"/>
+        <location filename="../mainwindow.cc" line="410"/>
         <source>Edit headline</source>
         <translation>Überschrift bearbeiten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="409"/>
+        <location filename="../mainwindow.cc" line="411"/>
         <source>New</source>
         <translation>Neu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="410"/>
+        <location filename="../mainwindow.cc" line="412"/>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="411"/>
+        <location filename="../mainwindow.cc" line="413"/>
         <source>Print</source>
         <translation>Drucken</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="412"/>
+        <location filename="../mainwindow.cc" line="414"/>
         <source>Add preparation step</source>
         <translation>Zubereitungsschritt hinzufügen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="413"/>
+        <location filename="../mainwindow.cc" line="415"/>
         <source>Toggle preview</source>
         <translation>Vorschau umschalten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="414"/>
+        <location filename="../mainwindow.cc" line="416"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
@@ -483,7 +483,7 @@ Fehler: %1</translation>
         <translation type="vanished">Bibliothek durchsuchen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="420"/>
+        <location filename="../mainwindow.cc" line="422"/>
         <source>Ingredients</source>
         <translation>Zutaten</translation>
     </message>
@@ -496,12 +496,12 @@ Fehler: %1</translation>
         <translation type="vanished">&amp;Vorschau</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="281"/>
+        <location filename="../mainwindow.cc" line="283"/>
         <source>S&amp;ave all</source>
         <translation>&amp;Alle speichern</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="282"/>
+        <location filename="../mainwindow.cc" line="284"/>
         <source>Sa&amp;ve as</source>
         <translation>Speichern &amp;unter</translation>
     </message>
@@ -510,17 +510,17 @@ Fehler: %1</translation>
         <translation type="vanished">&amp;Exportieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="339"/>
+        <location filename="../mainwindow.cc" line="341"/>
         <source>&amp;Browse</source>
         <translation>&amp;Durchsuchen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="341"/>
+        <location filename="../mainwindow.cc" line="343"/>
         <source>&amp;Synchronize</source>
         <translation>&amp;Synchronisieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="406"/>
+        <location filename="../mainwindow.cc" line="408"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
@@ -529,32 +529,32 @@ Fehler: %1</translation>
         <translation type="vanished">Alle schließen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="275"/>
+        <location filename="../mainwindow.cc" line="277"/>
         <source>&amp;Export as PDF</source>
         <translation>&amp;Exportieren als PDF</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="276"/>
+        <location filename="../mainwindow.cc" line="278"/>
         <source>&amp;New</source>
         <translation>&amp;Neu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="277"/>
+        <location filename="../mainwindow.cc" line="279"/>
         <source>&amp;Open</source>
         <translation>&amp;Öffnen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="278"/>
+        <location filename="../mainwindow.cc" line="280"/>
         <source>&amp;Print</source>
         <translation>&amp;Drucken</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="279"/>
+        <location filename="../mainwindow.cc" line="281"/>
         <source>&amp;Quit</source>
         <translation>&amp;Beenden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="280"/>
+        <location filename="../mainwindow.cc" line="282"/>
         <source>&amp;Save</source>
         <translation>&amp;Speichern</translation>
     </message>
@@ -567,17 +567,17 @@ Fehler: %1</translation>
         <translation type="vanished">Speichern unter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="322"/>
+        <location filename="../mainwindow.cc" line="324"/>
         <source>&amp;Help</source>
         <translation>&amp;Hilfe</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="324"/>
+        <location filename="../mainwindow.cc" line="326"/>
         <source>About &amp;Qt</source>
         <translation>Über &amp;Qt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="325"/>
+        <location filename="../mainwindow.cc" line="327"/>
         <source>&amp;About</source>
         <translation>&amp;Über</translation>
     </message>
@@ -586,7 +586,7 @@ Fehler: %1</translation>
         <translation type="vanished">Über Qt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cc" line="164"/>
+        <location filename="../mainwindow.cc" line="166"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
@@ -807,22 +807,22 @@ Fehler: %1</translation>
         <translation type="obsolete">Formatierung</translation>
     </message>
     <message>
-        <location filename="../settingsdialog.cc" line="20"/>
+        <location filename="../settingsdialog.cc" line="22"/>
         <source>Formatting</source>
         <translation>Formatierung</translation>
     </message>
     <message>
-        <location filename="../settingsdialog.cc" line="21"/>
+        <location filename="../settingsdialog.cc" line="23"/>
         <source>Library</source>
         <translation>Bibliothek</translation>
     </message>
     <message>
-        <location filename="../settingsdialog.cc" line="139"/>
+        <location filename="../settingsdialog.cc" line="50"/>
         <source>Apply</source>
         <translation>Anwenden</translation>
     </message>
     <message>
-        <location filename="../settingsdialog.cc" line="140"/>
+        <location filename="../settingsdialog.cc" line="51"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
@@ -883,7 +883,7 @@ Fehler: %1</translation>
     <name>SettingsTabLibrary</name>
     <message>
         <location filename="../settingstablibrary.cc" line="40"/>
-        <location filename="../settingstablibrary.cc" line="106"/>
+        <location filename="../settingstablibrary.cc" line="108"/>
         <source>Choose path</source>
         <translation>Pfad auswählen</translation>
     </message>
@@ -902,64 +902,64 @@ Fehler: %1</translation>
         <translation>Verbindung erfolgreich hergestellt.</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="100"/>
+        <location filename="../settingstablibrary.cc" line="102"/>
         <source>Local</source>
         <translation>Lokal</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="104"/>
+        <location filename="../settingstablibrary.cc" line="106"/>
         <source>No path selected</source>
         <translation>Kein Pfad ausgewählt</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="108"/>
+        <location filename="../settingstablibrary.cc" line="110"/>
         <source>Synchronize on start</source>
         <translation>Synchronisation beim Start</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="109"/>
+        <location filename="../settingstablibrary.cc" line="111"/>
         <source>Synchronize on quit</source>
         <translation>Synchronisation beim Beenden</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="121"/>
+        <location filename="../settingstablibrary.cc" line="123"/>
         <source>Remote</source>
         <translation>Remote</translation>
     </message>
     <message>
         <location filename="../settingstablibrary.cc" line="51"/>
         <location filename="../settingstablibrary.cc" line="58"/>
-        <location filename="../settingstablibrary.cc" line="143"/>
+        <location filename="../settingstablibrary.cc" line="145"/>
         <source>Check connection</source>
         <translation>Verbindung überprüfen</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="146"/>
+        <location filename="../settingstablibrary.cc" line="148"/>
         <source>Protocol:</source>
         <translation>Protokoll:</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="147"/>
+        <location filename="../settingstablibrary.cc" line="149"/>
         <source>Address:</source>
         <translation>Adresse:</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="148"/>
+        <location filename="../settingstablibrary.cc" line="150"/>
         <source>Path:</source>
         <translation>Pfad:</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="149"/>
+        <location filename="../settingstablibrary.cc" line="151"/>
         <source>Port:</source>
         <translation>Port:</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="150"/>
+        <location filename="../settingstablibrary.cc" line="152"/>
         <source>Username:</source>
         <translation>Benutzername:</translation>
     </message>
     <message>
-        <location filename="../settingstablibrary.cc" line="151"/>
+        <location filename="../settingstablibrary.cc" line="153"/>
         <source>Password:</source>
         <translation>Passwort:</translation>
     </message>

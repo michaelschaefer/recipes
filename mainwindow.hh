@@ -104,7 +104,7 @@ private:
     QMenu* m_menuHelp;
     QMenu* m_menuLibrary;
     QMenu* m_menuToolButtonIngredient;
-    QSettings m_settings;
+    SettingsManager* m_settingsManager;
     QSplitter* m_splitter;
     QToolBar* m_toolBar;
     QToolButton* m_actionToolButtonIngredient;

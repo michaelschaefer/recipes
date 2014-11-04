@@ -19,7 +19,7 @@ SettingsTabFormat::SettingsTabFormat(QWidget* parent) : QWidget(parent) {
 }
 
 
-void SettingsTabFormat::setSettings(FormatSettings formatSettings) {
+void SettingsTabFormat::setSettings(SettingsManager::FormatSettings formatSettings) {
     m_comboBoxFont->setFont(QFont(formatSettings.fontFamilyName));
     m_radioButtonDefaultFont->setChecked(formatSettings.fontDefault);
     m_radioButtonUserFont->setChecked(formatSettings.fontUser);
@@ -32,8 +32,8 @@ void SettingsTabFormat::setSettings(FormatSettings formatSettings) {
 }
 
 
-SettingsTabFormat::FormatSettings SettingsTabFormat::settings() {
-    FormatSettings formatSettings;
+SettingsManager::FormatSettings SettingsTabFormat::settings() {
+    SettingsManager::FormatSettings formatSettings;
 
     formatSettings.fontDefault = m_radioButtonDefaultFont->isChecked();
     formatSettings.fontFamilyName = m_comboBoxFont->currentFont().family();
