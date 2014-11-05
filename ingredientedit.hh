@@ -2,8 +2,6 @@
 #define INGREDIENTEDIT_HH
 
 
-#include <QLabel>
-#include <QWidget>
 #include "widgetinterface.hh"
 
 

@@ -1,4 +1,3 @@
-#include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
 #include "settingstablibrary.hh"

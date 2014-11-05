@@ -2,7 +2,6 @@
 #define SECTIONEDIT_HH
 
 
-#include <QLabel>
 #include "widgetinterface.hh"
 
 

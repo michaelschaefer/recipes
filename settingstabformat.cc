@@ -1,3 +1,4 @@
+#include <QLineEdit>
 #include "settingstabformat.hh"
 
 

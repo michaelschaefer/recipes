@@ -5,12 +5,7 @@
 #include <QCheckBox>
 #include <QFormLayout>
 #include <QGroupBox>
-#include <QLineEdit>
 #include <QListWidget>
-#include <QMenu>
-#include <QPlainTextEdit>
-#include <QVBoxLayout>
-#include <QWidget>
 
 
 class SearchFilterWidget : public QWidget {

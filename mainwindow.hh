@@ -2,15 +2,8 @@
 #define MAINWINDOW_HH
 
 
-#include <QAction>
-#include <QCloseEvent>
 #include <QMainWindow>
-#include <QMenu>
-#include <QSplitter>
 #include <QToolBar>
-#include <QToolButton>
-#include "library.hh"
-#include "librarythread.hh"
 #include "recipeedit.hh"
 #include "recipetabwidget.hh"
 #include "searchwidget.hh"

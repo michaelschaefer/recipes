@@ -1,4 +1,4 @@
-#include <QDebug>
+#include <QPushButton>
 #include "synchronizationdialog.hh"
 
 

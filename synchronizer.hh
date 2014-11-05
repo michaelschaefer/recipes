@@ -4,8 +4,6 @@
 
 #include <QFileInfo>
 #include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QObject>
 #include "settingsmanager.hh"
 
 
@@ -71,7 +69,7 @@ private:
 
     QNetworkAccessManager* m_networkManager;
     QStringList m_downloadFileList;
-    QList<QPair<QString, QString> > m_duplicatesFileList;
+    QStringList m_duplicatesFileList;
     QStringList m_remoteFileList;
     QStringList m_remoteHashList;
     QStringList m_uploadFileList;

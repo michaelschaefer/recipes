@@ -2,9 +2,6 @@
 #define PREPARATIONLISTEDIT_HH
 
 
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QWidget>
 #include "flexiblelayout.hh"
 
 

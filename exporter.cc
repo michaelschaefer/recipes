@@ -1,17 +1,10 @@
-#include <QApplication>
-#include <QDebug>
 #include <QFileDialog>
-#include <QPainter>
-#include <QPrinter>
-#include <QPrintDialog>
+#include <QFontDatabase>
 #include <QPrintPreviewDialog>
-#include <QProgressDialog>
 #include <QTextCodec>
-#include <QTextList>
-#include <QTextTable>
+#include <QTextCursor>
 #include <QXmlStreamWriter>
 #include "exporter.hh"
-#include "library.hh"
 
 
 Exporter::Exporter() {

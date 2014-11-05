@@ -1,6 +1,5 @@
-#include <QCryptographicHash>
-#include <QDir>
-#include <QDebug>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include "library.hh"
 #include "synchronizer.hh"
 
@@ -74,7 +73,7 @@ void Synchronizer::downloadDuplicates() {
         disconnect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(duplicateDownloadFinished(QNetworkReply*)));
         synchronize(ExchangeFiles);
     } else {
-        QString fileName = m_duplicatesFileList.first().first;
+        QString fileName = m_duplicatesFileList.first();
         m_networkManager->get(QNetworkRequest(prepareUrl(fileName)));
     }
 }
@@ -195,27 +194,13 @@ void Synchronizer::getRemoteFileList(QNetworkReply *reply) {
 
 
 void Synchronizer::inspectDuplicate(QDateTime remoteLastModified) {
-    QPair<QString, QString> remoteData = m_duplicatesFileList.first();
-    QString remoteFileName = remoteData.first;
+    QString remoteFileName = m_duplicatesFileList.first();
     QString localFileName = toLocalFileName(remoteFileName);
-    QString remoteHash = remoteData.second;
 
-    QFile file(localFileName);
-    if (file.open(QIODevice::ReadOnly)) {
-        QByteArray data = file.readAll();
-        file.close();
-
-        QString localHash = QString(QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex());
-        if (localHash != remoteHash) {            
-            QDateTime localLastModified = QFileInfo(file).lastModified();
-            if (localLastModified > remoteLastModified)
-                m_uploadFileList.append(localFileName);
-            else
-                m_downloadFileList.append(remoteFileName);
-        }
-    } else {
+    if (QFileInfo(localFileName).lastModified() > remoteLastModified)
+        m_uploadFileList.append(localFileName);
+    else
         m_downloadFileList.append(remoteFileName);
-    }
 }
 
 
@@ -226,7 +211,7 @@ QByteArray Synchronizer::prepareFileList(QList<QFileInfo> fileInfoList) {
         if (file.open(QIODevice::ReadOnly)) {
             data.append(fileInfo.fileName());
             data.append('/');
-            data.append(QCryptographicHash::hash(file.readAll(), QCryptographicHash::Md5).toHex());
+            data.append(QCryptographicHash::hash(file.readAll().trimmed(), QCryptographicHash::Md5).toHex());
             data.append('\n');
         }
     }
@@ -280,9 +265,17 @@ void Synchronizer::synchronize(SynchronizationStage stage) {
         for (int i = 0; i < m_remoteFileList.size(); ++i) {
             remoteFileName = m_remoteFileList[i];
             remoteHash = m_remoteHashList[i];
-            if (localFileList.contains(remoteFileName))
-                m_duplicatesFileList.append(QPair<QString, QString>(remoteFileName, remoteHash));
-            else
+            if (localFileList.contains(remoteFileName)) {
+                QFile file(toLocalFileName(remoteFileName));
+                if (file.open(QIODevice::ReadOnly)) {
+                    QByteArray localData = file.readAll();
+                    file.close();
+                    QString localHash = QCryptographicHash::hash(localData.trimmed(), QCryptographicHash::Md5).toHex();
+                    if (localHash != remoteHash)
+                        m_duplicatesFileList.append(remoteFileName);
+                } else
+                    m_downloadFileList.append(remoteFileName);
+            } else
                 m_downloadFileList.append(remoteFileName);
         }
 

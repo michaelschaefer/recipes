@@ -2,13 +2,7 @@
 #define INGREDIENTLISTEDIT_HH
 
 
-#include <QFont>
-#include <QLabel>
-#include <QList>
-#include <QVBoxLayout>
-#include <QWidget>
 #include "flexiblelayout.hh"
-#include "widgetinterface.hh"
 
 
 class IngredientListEdit : public QWidget {

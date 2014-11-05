@@ -5,10 +5,7 @@
 #include <QFontComboBox>
 #include <QFormLayout>
 #include <QGroupBox>
-#include <QLineEdit>
 #include <QRadioButton>
-#include <QVBoxLayout>
-#include <QWidget>
 #include "settingsmanager.hh"
 
 

@@ -1,4 +1,4 @@
-#include <QDebug>
+#include <QCryptographicHash>
 #include <QFile>
 #include <QXmlStreamReader>
 #include "recipedata.hh"
@@ -37,6 +37,7 @@ bool RecipeData::fill(QString fileName) {
         return false;
     else {
         data = file.readAll();
+        m_hash = QCryptographicHash::hash(data.trimmed(), QCryptographicHash::Md5).toHex();
         file.close();
     }
 
@@ -133,6 +134,11 @@ bool RecipeData::fill(QString fileName) {
 }
 
 
+QString RecipeData::hash() {
+    return m_hash;
+}
+
+
 QString RecipeData::headline() {
     return m_headline;
 }
@@ -169,6 +175,11 @@ QList<QMap<QString, QString> > RecipeData::preparationSteps() {
 
 QString RecipeData::servingCount() {
     return m_servingCount;
+}
+
+
+void RecipeData::setHash(QString hash) {
+    m_hash = hash;
 }
 
 

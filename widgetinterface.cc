@@ -1,4 +1,4 @@
-#include <QMenu>
+#include <QMouseEvent>
 #include "widgetinterface.hh"
 
 

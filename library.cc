@@ -1,13 +1,5 @@
-#include <QCryptographicHash>
-#include <QDebug>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QDir>
-#include <QMessageBox>
-#include <QXmlStreamReader>
 #include "exporter.hh"
 #include "library.hh"
-#include "synchronizationdialog.hh"
 
 
 Library::Library() {
@@ -113,6 +105,15 @@ bool Library::getFile(int fileId, Database::File& file) {
     bool res = m_database->getFile(fileId, file);
     m_database->close();
     return res;
+}
+
+
+QList<QPair<QString, QString> > Library::getFileHashList() {
+    if (m_database->isOpen() == false)
+        m_database->open();
+    QList<QPair<QString, QString> > fileHashList = m_database->getFileHashList();
+    m_database->close();
+    return fileHashList;
 }
 
 

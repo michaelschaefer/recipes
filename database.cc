@@ -1,4 +1,3 @@
-#include <QDir>
 #include "database.hh"
 
 
@@ -17,10 +16,8 @@ Database::Database(QString fileName) {
 void Database::clear() {
     QSqlQuery query(m_database);
     QStringList tables = m_database.tables();
-    foreach (const QString& tableName, tables) {
-        if (query.exec("drop table " + tableName) == false)
-            qDebug() << query.lastError();
-    }
+    foreach (const QString& tableName, tables)
+        query.exec("drop table " + tableName);
 
     init();
 }
@@ -48,7 +45,7 @@ bool Database::executeNoSelect(QString queryString) {
 
 bool Database::getFile(int fileId, File& file) {
     QSqlQuery query(m_database);
-    query.prepare("select id, file, headline from files where id=:fileId");
+    query.prepare("select id, file, headline, hash from files where id=:fileId");
     query.bindValue(":fileId", fileId);
     if (query.exec() == false || query.next() == false)
         return false;
@@ -57,6 +54,7 @@ bool Database::getFile(int fileId, File& file) {
         file.id = record.value(0).toInt();        
         file.fileName = record.value(1).toString();
         file.headline = record.value(2).toString();
+        file.hash = record.value(3).toString();
         return true;
     }
 }
@@ -96,16 +94,33 @@ QList<int> Database::getFileIdList() {
 }
 
 
-QStringList Database::getFileNameList() {
-    QStringList fileList;
+QList<QPair<QString, QString> > Database::getFileHashList() {
+    QList<QPair<QString, QString> > fileHashList;
     QSqlQuery query(m_database);    
+    query.prepare("select file, hash from files");
+    if (query.exec() == true) {
+        QPair<QString, QString> pair;
+        while (query.next() == true) {
+            pair.first = query.record().value(0).toString();
+            pair.second = query.record().value(1).toString();
+            fileHashList.append(pair);
+        }
+    }    
+
+    return fileHashList;
+}
+
+
+QStringList Database::getFileNameList() {
+    QStringList fileNameList;
+    QSqlQuery query(m_database);
     query.prepare("select file from files");
     if (query.exec() == true) {
         while (query.next() == true)
-            fileList.append(query.record().value(0).toString());
-    }    
+            fileNameList.append(query.record().value(0).toString());
+    }
 
-    return fileList;
+    return fileNameList;
 }
 
 
@@ -216,7 +231,7 @@ bool Database::init() {
     QStringList tables = m_database.tables();    
 
     if (tables.contains("files") == false) {
-        queryString = "create table files (id integer primary key, file varchar, headline varchar)";
+        queryString = "create table files (id integer primary key, file varchar, headline varchar, hash varchar)";
         if (executeNoSelect(queryString) == false)
             return false;
     }
@@ -244,14 +259,16 @@ bool Database::init() {
 bool Database::insertFile(const QString& fileName, RecipeData& recipeData, int* fileId) {    
     int id;
     QSqlQuery query(m_database);    
-    query.prepare("insert into files (file, headline) values (:fileName, :headline)");
+    query.prepare("insert into files (file, headline, hash) values (:fileName, :headline, :hash)");
     query.bindValue(":fileName", fileName);
     query.bindValue(":headline", recipeData.headline());
+    query.bindValue(":hash", recipeData.hash());
     if (query.exec() == false) {
         if (query.lastError().number() == 19) {
             if (getFileId(fileName, &id) == true) {
-                query.prepare("update files set headline=:headline where id=:id");
+                query.prepare("update files set headline=:headline, hash=:hash where id=:id");
                 query.bindValue(":headline", recipeData.headline());
+                query.bindValue(":hash", recipeData.hash());
                 query.bindValue(":id", id);
                 if (query.exec() == false)
                     return false;
@@ -358,9 +375,10 @@ bool Database::removeIngredientAssignment(int fileId, int ingredientId) {
 
 bool Database::updateFile(int fileId, RecipeData& recipeData) {
     QSqlQuery query(m_database);
-    query.prepare("update files set headline=:headline where id=:fileId");
+    query.prepare("update files set headline=:headline, hash=:hash where id=:fileId");
     query.bindValue(":fileId", fileId);
     query.bindValue(":headline", recipeData.headline());
+    query.bindValue(":hash", recipeData.hash());
     if (query.exec() == false)
         return false;
 

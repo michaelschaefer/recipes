@@ -2,7 +2,6 @@
 #define PREPARATIONSTEPEDIT_HH
 
 
-#include <QLabel>
 #include "widgetinterface.hh"
 
 

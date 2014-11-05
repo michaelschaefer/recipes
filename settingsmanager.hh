@@ -2,7 +2,6 @@
 #define SETTINGSMANAGER_HH
 
 
-#include <QObject>
 #include <QSettings>
 
 

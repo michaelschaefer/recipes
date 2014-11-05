@@ -2,7 +2,6 @@
 #define RECIPETABWIDGET_HH
 
 
-#include <QList>
 #include <QTabWidget>
 #include "recipeedit.hh"
 

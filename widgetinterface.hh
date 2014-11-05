@@ -2,15 +2,9 @@
 #define WIDGETINTERFACE_HH
 
 
-#include <QAction>
-#include <QEvent>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QMap>
 #include <QMenu>
-#include <QMouseEvent>
-#include <QPushButton>
-#include <QWidget>
 
 
 class WidgetInterface : public QWidget {

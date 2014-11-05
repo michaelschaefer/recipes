@@ -4,7 +4,6 @@
 
 #include <QtSql>
 #include <QDir>
-#include <QObject>
 #include "recipedata.hh"
 
 
@@ -18,6 +17,7 @@ public:
     struct File {
         QString fileName;
         QString headline;
+        QString hash;
         int id;
     };    
 
@@ -33,6 +33,7 @@ public:
     void close();
     bool getFile(int fileId, File& file);
     bool getFileId(const QString& fileName, int* fileId = 0);
+    QList<QPair<QString, QString> > getFileHashList();
     QStringList getFileNameList();
     QList<int> getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity);
     QList<Recipe> getRecipeList();

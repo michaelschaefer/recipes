@@ -1,13 +1,6 @@
-#include <QDebug>
 #include <QFileDialog>
 #include <QInputDialog>
-#include <QList>
-#include <QMap>
 #include <QScrollBar>
-#include <QTextCodec>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
-#include "exporter.hh"
 #include "recipeedit.hh"
 
 
@@ -276,6 +269,11 @@ void RecipeEdit::updateDefaultHeadline() {
 
 
 void RecipeEdit::updateLibrary() {
+    QFile file(m_fileName);
+    QString hash;
+    if (file.open(QIODevice::ReadOnly))
+        hash = QCryptographicHash::hash(file.readAll().trimmed(), QCryptographicHash::Md5).toHex();
+    recipeData().setHash(hash);
     m_library->insertOrUpdateFile(m_fileName, recipeData());
 }
 

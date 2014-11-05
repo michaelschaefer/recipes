@@ -4,11 +4,6 @@
 
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QHBoxLayout>
-#include <QPushButton>
-#include <QTabWidget>
-#include <QVBoxLayout>
-#include "settingsmanager.hh"
 #include "settingstabformat.hh"
 #include "settingstablibrary.hh"
 

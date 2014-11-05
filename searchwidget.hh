@@ -2,13 +2,8 @@
 #define SEARCHWIDGET_HH
 
 
-#include <QKeyEvent>
 #include <QLabel>
-#include <QLineEdit>
-#include <QListView>
-#include <QPushButton>
 #include <QSplitter>
-#include <QVBoxLayout>
 #include "library.hh"
 #include "searchfiltermodel.hh"
 #include "searchfilterwidget.hh"

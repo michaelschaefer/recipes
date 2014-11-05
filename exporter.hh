@@ -1,9 +1,8 @@
 #ifndef EXPORTER_HH
 #define EXPORTER_HH
 
-#include <QDir>
 #include <QPrinter>
-#include <QTextEdit>
+#include <QTextDocument>
 #include "recipedata.hh"
 #include "settingsmanager.hh"
 

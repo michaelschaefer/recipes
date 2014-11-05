@@ -2,8 +2,6 @@
 #define LIBRARY_HH
 
 
-#include <QNetworkReply>
-#include <QObject>
 #include "database.hh"
 #include "settingsmanager.hh"
 #include "synchronizer.hh"
@@ -28,6 +26,7 @@ public:
     void exportAsPdf(QString pathName);
     bool getFile(int fileId, Database::File& file);
     QList<QFileInfo> getFileInfoList();
+    QList<QPair<QString, QString> > getFileHashList();
     QStringList getFileNameList();
     QList<int> getIngredientIdList(QString substring, Qt::CaseSensitivity caseSensitivity);
     QList<Database::Recipe> getRecipeList();

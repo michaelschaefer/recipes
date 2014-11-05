@@ -1,4 +1,3 @@
-#include <QFont>
 #include "preparationstepdialog.hh"
 #include "preparationstepedit.hh"
 #include "preparationlistedit.hh"

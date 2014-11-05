@@ -2,11 +2,6 @@
 #define FLEXIBLELAYOUT_HH
 
 
-#include <QGridLayout>
-#include <QLabel>
-#include <QLayout>
-#include <QList>
-#include <QWidget>
 #include "widgetinterface.hh"
 
 

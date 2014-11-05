@@ -2,11 +2,9 @@
 #define SYNCHRONIZATIONDIALOG_HH
 
 
-#include <QDateTime>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QTreeView>
-#include <QPushButton>
 #include <QVBoxLayout>
 #include <QStandardItemModel>
 #include <QLabel>

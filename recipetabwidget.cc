@@ -1,8 +1,7 @@
-#include <QDebug>
 #include <QFileDialog>
+#include <QKeyEvent>
 #include <QMessageBox>
 #include "recipetabwidget.hh"
-#include "settingsmanager.hh"
 
 
 RecipeTabWidget::RecipeTabWidget(QWidget* parent)

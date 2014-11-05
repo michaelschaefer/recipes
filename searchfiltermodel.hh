@@ -2,7 +2,6 @@
 #define SEARCHFILTERMODEL_HH
 
 
-#include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include "database.hh"
 #include "searchfilterwidget.hh"

@@ -1,6 +1,6 @@
-#include <QDebug>
-#include <QCheckBox>
-#include <QGroupBox>
+#include <QLineEdit>
+#include <QKeyEvent>
+#include <QMenu>
 #include "library.hh"
 #include "searchfilterwidget.hh"
 

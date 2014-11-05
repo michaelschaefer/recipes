@@ -1,15 +1,11 @@
-#include <QDebug>
+#include <QCloseEvent>
 #include <QFileDialog>
-#include <QFontDatabase>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QStatusBar>
 #include <QToolButton>
-#include "exporter.hh"
 #include "librarythread.hh"
 #include "mainwindow.hh"
-#include "settingsmanager.hh"
-#include "synchronizationdialog.hh"
 
 
 QString MainWindow::ApplicationName = "recipes";

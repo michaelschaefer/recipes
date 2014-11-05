@@ -2,18 +2,14 @@
 #define RECIPEEDIT_HH
 
 
-#include <QFont>
-#include <QLabel>
 #include <QScrollArea>
 #include <QSplitter>
 #include <QTextEdit>
-#include <QVBoxLayout>
 #include "exporter.hh"
 #include "ingredientlistedit.hh"
 #include "library.hh"
 #include "preparationlistedit.hh"
 #include "recipedata.hh"
-#include "settingsmanager.hh"
 
 
 class RecipeEdit : public QSplitter {

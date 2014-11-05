@@ -1,3 +1,4 @@
+#include <QKeyEvent>
 #include "searchwidget.hh"
 #include "settingsmanager.hh"
 

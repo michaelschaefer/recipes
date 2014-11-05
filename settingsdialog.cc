@@ -1,7 +1,3 @@
-#include <QDebug>
-#include <QHBoxLayout>
-#include <QPushButton>
-#include "mainwindow.hh"
 #include "settingsdialog.hh"
 
 
