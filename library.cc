@@ -14,12 +14,13 @@ Library::Library() {
     m_database = new Database();
     m_settingsManager = SettingsManager::instance();
 
-    m_synchronizer = new Synchronizer(this);
-    connect(m_synchronizer, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
+    m_synchronizer = new Synchronizer(this);    
+    connect(m_synchronizer, SIGNAL(connectionFailed(QString)), this, SLOT(connectionFailed(QString)));
     connect(m_synchronizer, SIGNAL(entireDownloadFinished()), this, SLOT(downloadFinished()));
     connect(m_synchronizer, SIGNAL(entireUploadFinished()), this, SLOT(uploadFinished()));
     connect(m_synchronizer, SIGNAL(downloadFinished(QString)), this, SLOT(fileDownloaded(QString)));
     connect(m_synchronizer, SIGNAL(uploadFinished(QString)), this, SLOT(fileUploaded(QString)));
+    connect(m_synchronizer, SIGNAL(synchronizationError(QString)), this, SLOT(synchronizationError(QString)));
     connect(m_synchronizer, SIGNAL(synchronizationFinished()), this, SLOT(synchronizationFinished()));
 
     msgDownloadFinished = trUtf8("(Download finished)");
@@ -61,8 +62,11 @@ void Library::clear() {
 }
 
 
-void Library::connectionFailed() {
-    emit errorMessage(trUtf8("Connection to server failed. Synchronization cannot be executed."));
+void Library::connectionFailed(QString error) {
+    QString msg = trUtf8("Connection to server failed. Synchronization cannot be executed.");
+    if (!error.isEmpty())
+        msg += " " + trUtf8("Reason:") + "\n\n" + error;
+    emit errorMessage(msg);
 }
 
 
@@ -237,6 +241,13 @@ bool Library::rebuild() {
     emit statusBarMessage(msgRebuildComplete);
     emit updated();
     return ret;
+}
+
+
+void Library::synchronizationError(QString error) {
+    QString msg = trUtf8("Error while synchronizing library.");
+    msg += " " + trUtf8("Reason:") + "\n\n" + error;
+    emit errorMessage(msg);
 }
 
 

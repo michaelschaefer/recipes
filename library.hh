@@ -43,10 +43,11 @@ public slots:
 
 private slots:
 
-    void connectionFailed();
+    void connectionFailed(QString error = QString());
     void downloadFinished();
     void fileDownloaded(QString fileName);
     void fileUploaded(QString fileName);
+    void synchronizationError(QString error);
     void synchronizationFinished();
     void uploadFinished();
 

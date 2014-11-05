@@ -33,7 +33,7 @@ private slots:
 
     void checkConnection();
     void choosePath();
-    void connectionFailed();
+    void connectionFailed(QString error = QString());
     void connectionReady();    
     void toggleRemote();
 

@@ -16,11 +16,12 @@ class Synchronizer : public QObject {
 
 signals:
 
-    void connectionFailed();
+    void connectionFailed(QString);
     void connectionReady();
     void entireDownloadFinished();
     void entireUploadFinished();
     void downloadFinished(QString);
+    void synchronizationError(QString);
     void synchronizationFinished();
     void uploadFinished(QString);
 
@@ -62,15 +63,13 @@ private:
 
     void downloadDuplicates();
     void exchange(ExchangeDirection direction = Upload);
-    void inspectDuplicate(QNetworkReply* reply);
+    void inspectDuplicate(QDateTime remoteLastModified);
     QString toLocalFileName(QString fileName);
     QByteArray prepareFileList(QList<QFileInfo> fileInfoList);
-    QUrl prepareUrl(QString fileName);
-    void synchronizationError(QNetworkReply::NetworkError error, SynchronizationStage stage);
+    QUrl prepareUrl(QString fileName);    
 
 
     QNetworkAccessManager* m_networkManager;
-    //QString m_localLibraryPath;
     QStringList m_downloadFileList;
     QList<QPair<QString, QString> > m_duplicatesFileList;
     QStringList m_remoteFileList;

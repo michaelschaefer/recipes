@@ -20,25 +20,29 @@ void Synchronizer::checkConnection(QUrl url) {
 }
 
 
-void Synchronizer::connectionCheckFinished(QNetworkReply* reply) {
+void Synchronizer::connectionCheckFinished(QNetworkReply* reply) {    
     disconnect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(connectionCheckFinished(QNetworkReply*)));
 
     if (reply == 0) {
-        emit connectionFailed();
-        synchronizationError(QNetworkReply::UnknownNetworkError, ConnectionCheck);
+        emit connectionFailed(trUtf8("Unknown reason"));
         return;
     }
 
     QNetworkReply::NetworkError error = reply->error();
 
-    switch (error) {
-    case QNetworkReply::NoError:
-    case QNetworkReply::ContentNotFoundError:
-        emit connectionReady();
-        break;
-    default:
-        synchronizationError(error, ConnectionCheck);
-        emit connectionFailed();
+    if (reply->operation() == QNetworkAccessManager::GetOperation) {
+        if (error == QNetworkReply::NoError) {
+            emit connectionReady();
+        } else if (error == QNetworkReply::ContentNotFoundError) {
+            connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(connectionCheckFinished(QNetworkReply*)));
+            m_networkManager->clearAccessCache();
+            m_networkManager->put(QNetworkRequest(reply->url()), QByteArray());
+        }
+    } else if (reply->operation() == QNetworkAccessManager::PutOperation) {
+        if (error == QNetworkReply::NoError) {
+            emit connectionReady();
+        } else
+            emit connectionFailed(reply->errorString());
     }
 
     reply->deleteLater();
@@ -47,18 +51,18 @@ void Synchronizer::connectionCheckFinished(QNetworkReply* reply) {
 
 void Synchronizer::duplicateDownloadFinished(QNetworkReply* reply) {
     if (reply == 0) {
-        synchronizationError(QNetworkReply::UnknownNetworkError, InspectRemoteFiles);
+        emit synchronizationError(trUtf8("Unknown reason"));
         return;
     }
 
     QNetworkReply::NetworkError error = reply->error();
 
     if (error == QNetworkReply::NoError) {
-        inspectDuplicate(reply);
+        inspectDuplicate(reply->header(QNetworkRequest::LastModifiedHeader).toDateTime());
         m_duplicatesFileList.pop_front();
         downloadDuplicates();
     } else {
-        synchronizationError(error, InspectRemoteFiles);
+        emit synchronizationError(reply->errorString());
     }
 
     reply->deleteLater();
@@ -93,7 +97,7 @@ void Synchronizer::exchange(ExchangeDirection direction) {
     } else {
         if (m_downloadFileList.isEmpty()) {
             disconnect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(exchangeFinished(QNetworkReply*)));
-            emit entireDownloadFinished();
+            emit entireDownloadFinished();            
             synchronize(SendFileList);
         } else {
             m_networkManager->get(QNetworkRequest(prepareUrl(m_downloadFileList.first())));
@@ -104,7 +108,7 @@ void Synchronizer::exchange(ExchangeDirection direction) {
 
 void Synchronizer::exchangeFinished(QNetworkReply* reply) {
     if (reply == 0) {
-        synchronizationError(QNetworkReply::UnknownNetworkError, ExchangeFiles);
+        emit synchronizationError(trUtf8("Unknown reason"));
         return;
     }
 
@@ -126,7 +130,8 @@ void Synchronizer::exchangeFinished(QNetworkReply* reply) {
             exchange(Upload);
         }        
     } else {
-        synchronizationError(error, ExchangeFiles);
+        emit synchronizationError(reply->errorString());
+        reply->deleteLater();
         return;
     }
 
@@ -138,15 +143,15 @@ void Synchronizer::fileListSent(QNetworkReply* reply) {
     disconnect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(fileListSent(QNetworkReply*)));
 
     if (reply == 0) {
-        synchronizationError(QNetworkReply::UnknownNetworkError, ExchangeFiles);
+        emit synchronizationError(trUtf8("Unknown reason"));
         return;
     }
 
     QNetworkReply::NetworkError error = reply->error();
 
-    if (error == QNetworkReply::NoError) {
-    } else {
-        synchronizationError(error, SendFileList);
+    if (error != QNetworkReply::NoError) {
+        emit synchronizationError(reply->errorString());
+        reply->deleteLater();
         return;
     }
 
@@ -159,7 +164,7 @@ void Synchronizer::getRemoteFileList(QNetworkReply *reply) {
     disconnect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(getRemoteFileList(QNetworkReply*)));
 
     if (reply == 0) {
-        synchronizationError(QNetworkReply::UnknownNetworkError, GetRemoteFileList);
+        emit synchronizationError(trUtf8("Unknown reason"));
         return;
     }
 
@@ -179,7 +184,7 @@ void Synchronizer::getRemoteFileList(QNetworkReply *reply) {
                 m_remoteHashList.append(QString());
         }
     } else if (error != QNetworkReply::ContentNotFoundError) {
-        synchronizationError(error, GetRemoteFileList);
+        emit synchronizationError(reply->errorString());
         reply->deleteLater();
         return;
     }
@@ -189,7 +194,7 @@ void Synchronizer::getRemoteFileList(QNetworkReply *reply) {
 }
 
 
-void Synchronizer::inspectDuplicate(QNetworkReply* reply) {
+void Synchronizer::inspectDuplicate(QDateTime remoteLastModified) {
     QPair<QString, QString> remoteData = m_duplicatesFileList.first();
     QString remoteFileName = remoteData.first;
     QString localFileName = toLocalFileName(remoteFileName);
@@ -201,10 +206,9 @@ void Synchronizer::inspectDuplicate(QNetworkReply* reply) {
         file.close();
 
         QString localHash = QString(QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex());
-        if (localHash != remoteHash) {
-            QDateTime remoteDate = reply->header(QNetworkRequest::LastModifiedHeader).toDateTime();
-            QDateTime localDate = QFileInfo(file).lastModified();
-            if (localDate > remoteDate)
+        if (localHash != remoteHash) {            
+            QDateTime localLastModified = QFileInfo(file).lastModified();
+            if (localLastModified > remoteLastModified)
                 m_uploadFileList.append(localFileName);
             else
                 m_downloadFileList.append(remoteFileName);
@@ -243,23 +247,6 @@ QUrl Synchronizer::prepareUrl(QString fileName) {
     url.setUserName(librarySettings.remoteUserName);
 
     return url;
-}
-
-
-void Synchronizer::synchronizationError(QNetworkReply::NetworkError error, SynchronizationStage stage) {
-    if (error == QNetworkReply::UnknownNetworkError) {
-        qDebug() << "Unknown error";
-        return;
-    }
-
-    if (stage == ConnectionCheck)
-        qDebug() << "Error in connection check:" << error;
-    else if (stage == GetRemoteFileList)
-        qDebug() << "Error while getting remote file list:" << error;
-    else if (stage == InspectRemoteFiles)
-        qDebug() << "Error while inspecting remote files:" << error;
-    else if (stage == ExchangeFiles)
-        qDebug() << "Error while exchanging files:" << error;
 }
 
 
@@ -309,7 +296,7 @@ void Synchronizer::synchronize(SynchronizationStage stage) {
     } else if (stage == ExchangeFiles) {
         connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(exchangeFinished(QNetworkReply*)));
         exchange();
-    } else if (stage == SendFileList) {
+    } else if (stage == SendFileList) {        
         library->update();
         QByteArray fileListData = prepareFileList(library->getFileInfoList());
         connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(fileListSent(QNetworkReply*)));

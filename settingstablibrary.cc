@@ -6,7 +6,7 @@
 
 SettingsTabLibrary::SettingsTabLibrary(QWidget *parent) : QWidget(parent) {
     m_synchronizer = new Synchronizer(this);
-    connect(m_synchronizer, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
+    connect(m_synchronizer, SIGNAL(connectionFailed(QString)), this, SLOT(connectionFailed(QString)));
     connect(m_synchronizer, SIGNAL(connectionReady()), this, SLOT(connectionReady()));
 
     setupGroupBoxLocal();
@@ -47,9 +47,11 @@ void SettingsTabLibrary::choosePath() {
 }
 
 
-void SettingsTabLibrary::connectionFailed() {   
+void SettingsTabLibrary::connectionFailed(QString error) {
     QString title = trUtf8("Check connection");
     QString text = trUtf8("Connection failed.");
+    if (!error.isEmpty())
+        text += " " + trUtf8("Reason:") + "\n\n" + error;
     QMessageBox::critical(this, title, text);
 }
 
