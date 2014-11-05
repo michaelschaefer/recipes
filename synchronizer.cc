@@ -1,16 +1,15 @@
 #include <QCryptographicHash>
 #include <QDir>
 #include <QDebug>
-#include <QSettings>
 #include "library.hh"
 #include "synchronizer.hh"
 
 
 Synchronizer::Synchronizer(QObject* parent)
     : QObject(parent)
-{    
-    m_localLibraryPath = QSettings().value("library/local/path").toString();
+{        
     m_networkManager = new QNetworkAccessManager(this);
+    m_settingsManager = SettingsManager::instance();
 }
 
 
@@ -232,16 +231,16 @@ QByteArray Synchronizer::prepareFileList(QList<QFileInfo> fileInfoList) {
 }
 
 
-QUrl Synchronizer::prepareUrl(QString fileName) {
-    QSettings settings;
+QUrl Synchronizer::prepareUrl(QString fileName) {    
+    SettingsManager::LibrarySettings librarySettings = m_settingsManager->librarySettings();
     QUrl url;
 
-    url.setHost(settings.value("library/remote/address").toString());
-    url.setPassword(settings.value("library/remote/password").toString());
-    url.setPath(settings.value("library/remote/path").toString() + "/" + fileName);
-    url.setPort(settings.value("library/remote/port").toInt());
-    url.setScheme(settings.value("library/remote/protocol").toString());
-    url.setUserName(settings.value("library/remote/userName").toString());
+    url.setHost(librarySettings.remoteAddress);
+    url.setPassword(librarySettings.remotePassword);
+    url.setPath(librarySettings.remotePath + "/" + fileName);
+    url.setPort(librarySettings.remotePort);
+    url.setScheme(librarySettings.remoteProtocol);
+    url.setUserName(librarySettings.remoteUserName);
 
     return url;
 }
@@ -323,5 +322,5 @@ void Synchronizer::synchronize(SynchronizationStage stage) {
 
 QString Synchronizer::toLocalFileName(QString fileName) {
     fileName = fileName.mid(fileName.lastIndexOf(QDir::separator() + 1));
-    return QString("%1%2%3").arg(m_localLibraryPath, QDir::separator(), fileName);
+    return QString("%1%2%3").arg(m_settingsManager->librarySettings().localPath, QDir::separator(), fileName);
 }

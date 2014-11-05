@@ -12,6 +12,7 @@
 
 Library::Library() {
     m_database = new Database();
+    m_settingsManager = SettingsManager::instance();
 
     m_synchronizer = new Synchronizer(this);
     connect(m_synchronizer, SIGNAL(connectionFailed()), this, SLOT(connectionFailed()));
@@ -114,7 +115,7 @@ bool Library::getFile(int fileId, Database::File& file) {
 QList<QFileInfo> Library::getFileInfoList() {
     QStringList fileNameList = getFileNameList();
     QList<QFileInfo> fileInfoList;
-    QString dir = QSettings().value("library/local/path").toString();
+    QString dir = m_settingsManager->librarySettings().localPath;
     if (dir.isEmpty() == false) {
         foreach (const QString& fileName, fileNameList)
             fileInfoList.append(QFileInfo(dir + QDir::separator() + fileName));
@@ -185,7 +186,7 @@ bool Library::insertOrUpdateFile(QString absoluteFileName, RecipeData& recipeDat
     int lastSeparatorIndex = absoluteFileName.lastIndexOf(QDir::separator());
     QString fileName = absoluteFileName.mid(lastSeparatorIndex + 1);
     QString pathName = absoluteFileName.mid(0, lastSeparatorIndex);
-    QString libraryPath = QSettings().value("library/local/path").toString();
+    QString libraryPath = m_settingsManager->librarySettings().localPath;
     if (libraryPath.isEmpty() || libraryPath != pathName)
         return false;
 
@@ -223,7 +224,7 @@ bool Library::rebuild() {
         m_database->open();
 
     m_database->clear();
-    QString pathName = QSettings().value("library/local/path").toString();
+    QString pathName = m_settingsManager->librarySettings().localPath;
     if (pathName.isEmpty() == true) {
         emit statusBarMessage(msgLibraryEmpty);
         emit updated();
@@ -258,7 +259,7 @@ bool Library::update() {
     if (m_database->isOpen() == false)
         m_database->open();
 
-    QString pathName = QSettings().value("library/local/path").toString();
+    QString pathName = m_settingsManager->librarySettings().localPath;
     if (pathName.isEmpty() == true) {
         clear();
         return true;

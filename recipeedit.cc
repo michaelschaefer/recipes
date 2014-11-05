@@ -14,6 +14,7 @@
 RecipeEdit::RecipeEdit(QWidget *parent)
     : QSplitter(parent)
 {
+    m_settingsManager = SettingsManager::instance();
     setupFonts();
 
     m_emptyHeadline = true;
@@ -177,7 +178,7 @@ bool RecipeEdit::save() {
 
     if (m_fileName.isEmpty() == true) {
         QString caption = trUtf8("Save recipe");
-        QString dir = QSettings().value("library/local/path").toString();
+        QString dir = m_settingsManager->librarySettings().localPath;
         if (dir.isEmpty() == true)
             dir = QDir::homePath();
         QString filter = trUtf8("Recipe files (*.xml)");
@@ -212,7 +213,7 @@ bool RecipeEdit::saveAs() {
     QString caption = trUtf8("Save recipe as");
     QString dir;
     if (m_fileName.isEmpty()) {
-        dir = QSettings().value("library/local/path").toString();
+        dir = m_settingsManager->librarySettings().localPath;
         if (dir.isEmpty() == true)
             dir = QDir::homePath();
     } else
@@ -265,9 +266,11 @@ void RecipeEdit::triggerChanged() {
 void RecipeEdit::updateDefaultHeadline() {
     if (m_emptyHeadline == false)
         return;
+
+    SettingsManager::FormatSettings formatSettings = m_settingsManager->formatSettings();
     QString headline = trUtf8("unnamed");
-    if (QSettings().value("format/paragraphTitles/default") == false)
-        headline = QSettings().value("format/paragraphTitles/emptyHeadline").toString();
+    if (!formatSettings.paragraphDefault)
+        headline = formatSettings.paragraphEmptyHeadline;
     m_headline->setText(headline);
 }
 

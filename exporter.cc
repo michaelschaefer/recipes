@@ -10,12 +10,13 @@
 #include <QTextList>
 #include <QTextTable>
 #include <QXmlStreamWriter>
-#include <QSettings>
 #include "exporter.hh"
 #include "library.hh"
 
 
-Exporter::Exporter() {}
+Exporter::Exporter() {
+    m_settingsManager = SettingsManager::instance();
+}
 
 
 void Exporter::exportAsPdf(QString absoluteFileName, bool withPrompt) {
@@ -24,7 +25,7 @@ void Exporter::exportAsPdf(QString absoluteFileName, bool withPrompt) {
         QString filter = trUtf8("PDF documents (*.pdf)");
         QString dir = absoluteFileName;
         if (dir.isEmpty() == true) {
-            dir = QSettings().value("library/local/path").toString();
+            dir = m_settingsManager->librarySettings().localPath;
             if (dir.isEmpty() == true)
                 dir = QDir::homePath();
         } else
@@ -81,18 +82,18 @@ void Exporter::setRecipeData(RecipeData& recipeData) {
 QTextDocument* Exporter::document() {
     QTextDocument* document = new QTextDocument();
     QTextCursor cursor(document);
+    SettingsManager::FormatSettings formatSettings = m_settingsManager->formatSettings();
 
     /*
      * setup fonts
      */
 
     QString family;
-    if (QSettings().value("format/font/default").toBool() == true) {
+    if (formatSettings.fontDefault) {
         int id = QFontDatabase::addApplicationFont(":/font/gentium");
         family = QFontDatabase::applicationFontFamilies(id).at(0);
-    } else {
-        family = QSettings().value("format/font/familyName").toString();
-    }
+    } else
+        family = formatSettings.fontFamilyName;
 
     double basePointSize = 12;
     QFont defaultFont(family), h1(family), h2(family);
@@ -149,8 +150,8 @@ QTextDocument* Exporter::document() {
     // ingredients headline
     cursor.insertBlock(doubleSpacingFormat);
     QString ingredientTitle = trUtf8("Ingredients");
-    if (QSettings().value("format/paragraphTitles/default").toBool() == false)
-        ingredientTitle = QSettings().value("format/paragraphTitles/ingredients").toString();
+    if (!formatSettings.paragraphDefault)
+        ingredientTitle = formatSettings.paragraphIngredients;
     cursor.insertText(ingredientTitle, h2Format);
     if (m_recipeData.servingCount().isEmpty() == false) {
         cursor.insertText(" " + m_recipeData.servingCount());
@@ -182,8 +183,8 @@ QTextDocument* Exporter::document() {
     // preparation headline
     cursor.insertBlock(doubleSpacingFormat);
     QString preparationTitle = trUtf8("Preparation");
-    if (QSettings().value("format/paragraphTitles/default").toBool() == false)
-        preparationTitle = QSettings().value("format/paragraphTitles/preparation").toString();
+    if (!formatSettings.paragraphDefault)
+        preparationTitle = formatSettings.paragraphPreparation;
     cursor.insertText(preparationTitle, h2Format);
 
     oneHalfSpacingFormat.setBottomMargin(basePointSize);

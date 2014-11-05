@@ -1,8 +1,8 @@
 #include <QFont>
-#include <QSettings>
 #include "preparationstepdialog.hh"
 #include "preparationstepedit.hh"
 #include "preparationlistedit.hh"
+#include "settingsmanager.hh"
 
 
 PreparationListEdit::PreparationListEdit(QWidget* parent)
@@ -60,8 +60,9 @@ void PreparationListEdit::triggerChanged() {
 
 
 void PreparationListEdit::updateHeadline() {
+    SettingsManager::FormatSettings formatSettings = SettingsManager::instance()->formatSettings();
     QString headline = trUtf8("Preparation");
-    if (QSettings().value("format/paragraphTitles/default").toBool() == false)
-        headline = QSettings().value("format/paragraphTitles/preparation").toString();
+    if (!formatSettings.paragraphDefault)
+        headline = formatSettings.paragraphPreparation;
     m_headline->setText(headline);
 }

@@ -1,9 +1,9 @@
 #include <QInputDialog>
-#include <QSettings>
 #include "ingredientdialog.hh"
 #include "ingredientedit.hh"
 #include "ingredientlistedit.hh"
 #include "sectionedit.hh"
+#include "settingsmanager.hh"
 
 
 IngredientListEdit::IngredientListEdit(QWidget* parent)
@@ -103,9 +103,10 @@ void IngredientListEdit::triggerChanged() {
 
 
 void IngredientListEdit::updateHeadline() {
+    SettingsManager::FormatSettings formatSettings = SettingsManager::instance()->formatSettings();
     QString headline = trUtf8("Ingredients");
-    if (QSettings().value("format/paragraphTitles/default").toBool() == false)
-        headline = QSettings().value("format/paragraphTitles/ingredients").toString();
+    if (!formatSettings.paragraphDefault)
+        headline = formatSettings.paragraphIngredients;
     if (m_servingCount.isEmpty() == false) {
         headline += " " + m_servingCount;
     }

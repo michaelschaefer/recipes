@@ -2,6 +2,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "recipetabwidget.hh"
+#include "settingsmanager.hh"
 
 
 RecipeTabWidget::RecipeTabWidget(QWidget* parent)
@@ -121,7 +122,7 @@ void RecipeTabWidget::newRecipe() {
 void RecipeTabWidget::openRecipe(QString fileName) {
     if (fileName.isEmpty()) {
         QString caption = trUtf8("Open recipe");
-        QString dir = QSettings().value("library/local/path").toString();
+        QString dir = SettingsManager::instance()->librarySettings().localPath;
         if (dir.isEmpty() == true)
             dir = QDir::homePath();
         QString filter = trUtf8("Recipe files (*.xml)");

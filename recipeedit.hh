@@ -13,6 +13,7 @@
 #include "library.hh"
 #include "preparationlistedit.hh"
 #include "recipedata.hh"
+#include "settingsmanager.hh"
 
 
 class RecipeEdit : public QSplitter {
@@ -80,6 +81,7 @@ private:
     QVBoxLayout* m_layout;
     QWidget* m_editWidget;
     RecipeData m_recipeData;
+    SettingsManager* m_settingsManager;
 
 
 };

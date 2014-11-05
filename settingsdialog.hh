@@ -6,7 +6,6 @@
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QSettings>
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include "settingsmanager.hh"
@@ -36,7 +35,6 @@ private:
 
 
     QDialogButtonBox* m_buttonBox;
-    QSettings m_settings;
     QTabWidget* m_tabWidget;
     QVBoxLayout* m_layout;
     SettingsManager* m_settingsManager;

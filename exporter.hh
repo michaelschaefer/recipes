@@ -5,6 +5,7 @@
 #include <QPrinter>
 #include <QTextEdit>
 #include "recipedata.hh"
+#include "settingsmanager.hh"
 
 
 class Exporter : public QObject {
@@ -36,6 +37,7 @@ private:
 
 
     RecipeData m_recipeData;
+    SettingsManager* m_settingsManager;
 
 };
 

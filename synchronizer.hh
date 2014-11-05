@@ -6,6 +6,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QObject>
+#include "settingsmanager.hh"
 
 
 class Synchronizer : public QObject {
@@ -69,12 +70,13 @@ private:
 
 
     QNetworkAccessManager* m_networkManager;
-    QString m_localLibraryPath;
+    //QString m_localLibraryPath;
     QStringList m_downloadFileList;
     QList<QPair<QString, QString> > m_duplicatesFileList;
     QStringList m_remoteFileList;
     QStringList m_remoteHashList;
     QStringList m_uploadFileList;
+    SettingsManager* m_settingsManager;
     SynchronizationStage m_currentStage;
 
 };

@@ -8,6 +8,7 @@
 #include "exporter.hh"
 #include "librarythread.hh"
 #include "mainwindow.hh"
+#include "settingsmanager.hh"
 #include "synchronizationdialog.hh"
 
 
@@ -181,7 +182,7 @@ void MainWindow::helpAboutQt() {
 
 void MainWindow::libraryExport() {
     QString caption = trUtf8("Choose export path");
-    QString dir = QSettings().value("library/local/path").toString();
+    QString dir = SettingsManager::instance()->librarySettings().localPath;
     if (dir.isEmpty() == true)
         dir = QDir::homePath();
 

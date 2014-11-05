@@ -5,6 +5,7 @@
 #include <QNetworkReply>
 #include <QObject>
 #include "database.hh"
+#include "settingsmanager.hh"
 #include "synchronizer.hh"
 
 
@@ -85,6 +86,7 @@ private:
 
 
     Database* m_database;    
+    SettingsManager* m_settingsManager;
     Synchronizer* m_synchronizer;
 
 };

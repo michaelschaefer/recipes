@@ -1,4 +1,5 @@
 #include "searchwidget.hh"
+#include "settingsmanager.hh"
 
 
 SearchWidget::SearchWidget(QSplitter* parent) : QWidget() {
@@ -80,7 +81,7 @@ void SearchWidget::selectRecipe(bool open) {
     Database::File fileInfo;
     int fileId = m_searchFilterModel->getFileId(m_listViewRecipes->currentIndex());
     m_library->getFile(fileId, fileInfo);
-    QString pathName = QSettings().value("library/local/path").toString();
+    QString pathName = SettingsManager::instance()->librarySettings().localPath;
 
     if (open == false) {
         m_labelRecipeInfoHeadline->setText(trUtf8("Headline: ") + fileInfo.headline);
